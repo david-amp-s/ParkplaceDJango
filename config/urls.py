@@ -18,9 +18,14 @@ Including another URLconf
 from django.urls import path
 from infrastructure.views import login_view
 from infrastructure.views import logout_view
+from infrastructure.views import pay_ticket_view
 
 urlpatterns = [
     
     path('', login_view),
     path('logout/', logout_view),
+
+    #payment
+
+    path('pay/', pay_ticket_view, name = 'pay_ticket'),
 ]

@@ -1,237 +1,237 @@
--- =========================
--- ENUMS
--- =========================
+    -- =========================
+    -- ENUMS
+    -- =========================
 
-CREATE TYPE user_role AS ENUM ('ADMIN', 'EMPLOYEE');
+    CREATE TYPE user_role AS ENUM ('ADMIN', 'EMPLOYEE');
 
-CREATE TYPE vehicle_type AS ENUM ('CAR', 'MOTORCYCLE', 'BICYCLE');
+    CREATE TYPE vehicle_type AS ENUM ('CAR', 'MOTORCYCLE', 'BICYCLE');
 
-CREATE TYPE spot_type AS ENUM ('CAR', 'MOTORCYCLE', 'DISABLED');
+    CREATE TYPE spot_type AS ENUM ('CAR', 'MOTORCYCLE', 'DISABLED');
 
-CREATE TYPE spot_status AS ENUM ('AVAILABLE', 'OCCUPIED', 'RESERVED');
+    CREATE TYPE spot_status AS ENUM ('AVAILABLE', 'OCCUPIED', 'RESERVED');
 
-CREATE TYPE reservation_status AS ENUM ('ACTIVE', 'CANCELLED', 'COMPLETED');
+    CREATE TYPE reservation_status AS ENUM ('ACTIVE', 'CANCELLED', 'COMPLETED');
 
-CREATE TYPE ticket_status AS ENUM ('ACTIVE', 'CLOSED');
+    CREATE TYPE ticket_status AS ENUM ('ACTIVE', 'CLOSED');
 
-CREATE TYPE payment_method AS ENUM ('CASH', 'CARD', 'TRANSFER');
+    CREATE TYPE payment_method AS ENUM ('CASH', 'CARD', 'TRANSFER');
 
-CREATE TYPE movement_type AS ENUM ('ENTRY', 'EXIT', 'RESERVATION', 'CANCELLATION');
-
-
--- =========================
--- USER (AUTENTICACIÓN)
--- =========================
-
-CREATE TABLE app_user (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    role user_role NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+    CREATE TYPE movement_type AS ENUM ('ENTRY', 'EXIT', 'RESERVATION', 'CANCELLATION');
 
 
--- =========================
--- EMPLOYEE
--- =========================
+    -- =========================
+    -- USER (AUTENTICACIÓN)
+    -- =========================
 
-CREATE TABLE employee (
-    id SERIAL PRIMARY KEY,
-    user_id INT UNIQUE NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    phone VARCHAR(20),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_employee_user
-        FOREIGN KEY (user_id)
-        REFERENCES app_user(id)
-        ON DELETE CASCADE
-);
+    CREATE TABLE app_user (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        role user_role NOT NULL,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
 
 
--- =========================
--- CLIENTE
--- =========================
+    -- =========================
+    -- EMPLOYEE
+    -- =========================
 
-CREATE TABLE client (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
-    email VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+    CREATE TABLE employee (
+        id SERIAL PRIMARY KEY,
+        user_id INT UNIQUE NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        phone VARCHAR(20),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-
--- =========================
--- VEHÍCULO
--- =========================
-
-CREATE TABLE vehicle (
-    id SERIAL PRIMARY KEY,
-    license_plate VARCHAR(20) UNIQUE NOT NULL,
-    type vehicle_type NOT NULL,
-    client_id INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_vehicle_client
-        FOREIGN KEY (client_id)
-        REFERENCES client(id)
-        ON DELETE CASCADE
-);
+        CONSTRAINT fk_employee_user
+            FOREIGN KEY (user_id)
+            REFERENCES app_user(id)
+            ON DELETE CASCADE
+    );
 
 
--- =========================
--- PARKING SPOT
--- =========================
+    -- =========================
+    -- CLIENTE
+    -- =========================
 
-CREATE TABLE parking_spot (
-    id SERIAL PRIMARY KEY,
-    number INT NOT NULL UNIQUE,
-    type spot_type NOT NULL,
-    status spot_status NOT NULL DEFAULT 'AVAILABLE',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-
--- =========================
--- RESERVATION
--- =========================
-
-CREATE TABLE reservation (
-    id SERIAL PRIMARY KEY,
-    client_id INT NOT NULL,
-    vehicle_id INT NOT NULL,
-    parking_spot_id INT NOT NULL,
-    created_by INT,
-    start_time TIMESTAMP NOT NULL,
-    end_time TIMESTAMP NOT NULL,
-    status reservation_status NOT NULL DEFAULT 'ACTIVE',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_reservation_client
-        FOREIGN KEY (client_id)
-        REFERENCES client(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_reservation_vehicle
-        FOREIGN KEY (vehicle_id)
-        REFERENCES vehicle(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_reservation_spot
-        FOREIGN KEY (parking_spot_id)
-        REFERENCES parking_spot(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_reservation_employee
-        FOREIGN KEY (created_by)
-        REFERENCES employee(id)
-        ON DELETE SET NULL,
-
-    CONSTRAINT chk_reservation_time
-        CHECK (end_time > start_time)
-);
+    CREATE TABLE client (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        phone VARCHAR(20) NOT NULL,
+        email VARCHAR(100),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
 
 
--- =========================
--- TICKET (ESTANCIA)
--- =========================
+    -- =========================
+    -- VEHÍCULO
+    -- =========================
 
-CREATE TABLE ticket (
-    id SERIAL PRIMARY KEY,
-    vehicle_id INT NOT NULL,
-    parking_spot_id INT NOT NULL,
-    employee_id INT,
-    entry_time TIMESTAMP NOT NULL,
-    exit_time TIMESTAMP,
-    total_paid NUMERIC(10,2),
-    status ticket_status NOT NULL DEFAULT 'ACTIVE',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CREATE TABLE vehicle (
+        id SERIAL PRIMARY KEY,
+        license_plate VARCHAR(20) UNIQUE NOT NULL,
+        type vehicle_type NOT NULL,
+        client_id INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_ticket_vehicle
-        FOREIGN KEY (vehicle_id)
-        REFERENCES vehicle(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_ticket_spot
-        FOREIGN KEY (parking_spot_id)
-        REFERENCES parking_spot(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_ticket_employee
-        FOREIGN KEY (employee_id)
-        REFERENCES employee(id)
-        ON DELETE SET NULL
-);
+        CONSTRAINT fk_vehicle_client
+            FOREIGN KEY (client_id)
+            REFERENCES client(id)
+            ON DELETE CASCADE
+    );
 
 
--- =========================
--- PAYMENT
--- =========================
+    -- =========================
+    -- PARKING SPOT
+    -- =========================
 
-CREATE TABLE payment (
-    id SERIAL PRIMARY KEY,
-    ticket_id INT NOT NULL,
-    employee_id INT,
-    method payment_method NOT NULL,
-    amount NUMERIC(10,2) NOT NULL,
-    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_payment_ticket
-        FOREIGN KEY (ticket_id)
-        REFERENCES ticket(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_payment_employee
-        FOREIGN KEY (employee_id)
-        REFERENCES employee(id)
-        ON DELETE SET NULL
-);
+    CREATE TABLE parking_spot (
+        id SERIAL PRIMARY KEY,
+        number INT NOT NULL UNIQUE,
+        type spot_type NOT NULL,
+        status spot_status NOT NULL DEFAULT 'AVAILABLE',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
 
 
--- =========================
--- MOVEMENT (AUDITORÍA)
--- =========================
+    -- =========================
+    -- RESERVATION
+    -- =========================
 
-CREATE TABLE movement (
-    id SERIAL PRIMARY KEY,
-    type movement_type NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+    CREATE TABLE reservation (
+        id SERIAL PRIMARY KEY,
+        client_id INT NOT NULL,
+        vehicle_id INT NOT NULL,
+        parking_spot_id INT NOT NULL,
+        created_by INT,
+        start_time TIMESTAMP NOT NULL,
+        end_time TIMESTAMP NOT NULL,
+        status reservation_status NOT NULL DEFAULT 'ACTIVE',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+        CONSTRAINT fk_reservation_client
+            FOREIGN KEY (client_id)
+            REFERENCES client(id)
+            ON DELETE CASCADE,
+
+        CONSTRAINT fk_reservation_vehicle
+            FOREIGN KEY (vehicle_id)
+            REFERENCES vehicle(id)
+            ON DELETE CASCADE,
+
+        CONSTRAINT fk_reservation_spot
+            FOREIGN KEY (parking_spot_id)
+            REFERENCES parking_spot(id)
+            ON DELETE CASCADE,
+
+        CONSTRAINT fk_reservation_employee
+            FOREIGN KEY (created_by)
+            REFERENCES employee(id)
+            ON DELETE SET NULL,
+
+        CONSTRAINT chk_reservation_time
+            CHECK (end_time > start_time)
+    );
 
 
--- =========================
--- ÍNDICES
--- =========================
+    -- =========================
+    -- TICKET (ESTANCIA)
+    -- =========================
 
-CREATE INDEX idx_vehicle_client ON vehicle(client_id);
+    CREATE TABLE ticket (
+        id SERIAL PRIMARY KEY,
+        vehicle_id INT NOT NULL,
+        parking_spot_id INT NOT NULL,
+        employee_id INT,
+        entry_time TIMESTAMP NOT NULL,
+        exit_time TIMESTAMP,
+        total_paid NUMERIC(10,2),
+        status ticket_status NOT NULL DEFAULT 'ACTIVE',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-CREATE INDEX idx_reservation_spot ON reservation(parking_spot_id);
-CREATE INDEX idx_reservation_status ON reservation(status);
+        CONSTRAINT fk_ticket_vehicle
+            FOREIGN KEY (vehicle_id)
+            REFERENCES vehicle(id)
+            ON DELETE CASCADE,
 
-CREATE INDEX idx_ticket_vehicle ON ticket(vehicle_id);
-CREATE INDEX idx_ticket_status ON ticket(status);
-CREATE INDEX idx_ticket_employee ON ticket(employee_id);
+        CONSTRAINT fk_ticket_spot
+            FOREIGN KEY (parking_spot_id)
+            REFERENCES parking_spot(id)
+            ON DELETE CASCADE,
 
-CREATE INDEX idx_payment_ticket ON payment(ticket_id);
-CREATE INDEX idx_payment_employee ON payment(employee_id);
+        CONSTRAINT fk_ticket_employee
+            FOREIGN KEY (employee_id)
+            REFERENCES employee(id)
+            ON DELETE SET NULL
+    );
 
-CREATE INDEX idx_employee_user ON employee(user_id);
+
+    -- =========================
+    -- PAYMENT
+    -- =========================
+
+    CREATE TABLE payment (
+        id SERIAL PRIMARY KEY,
+        ticket_id INT NOT NULL,
+        employee_id INT,
+        method payment_method NOT NULL,
+        amount NUMERIC(10,2) NOT NULL,
+        payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+        CONSTRAINT fk_payment_ticket
+            FOREIGN KEY (ticket_id)
+            REFERENCES ticket(id)
+            ON DELETE CASCADE,
+
+        CONSTRAINT fk_payment_employee
+            FOREIGN KEY (employee_id)
+            REFERENCES employee(id)
+            ON DELETE SET NULL
+    );
 
 
--- =========================
--- REGLAS AVANZADAS (PRO)
--- =========================
+    -- =========================
+    -- MOVEMENT (AUDITORÍA)
+    -- =========================
 
--- Solo un ticket activo por vehículo
-CREATE UNIQUE INDEX unique_active_ticket_per_vehicle
-ON ticket(vehicle_id)
-WHERE status = 'ACTIVE';
+    CREATE TABLE movement (
+        id SERIAL PRIMARY KEY,
+        type movement_type NOT NULL,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
 
--- Solo una reserva activa por espacio
-CREATE UNIQUE INDEX unique_active_reservation_per_spot
-ON reservation(parking_spot_id)
-WHERE status = 'ACTIVE';
+
+    -- =========================
+    -- ÍNDICES
+    -- =========================
+
+    CREATE INDEX idx_vehicle_client ON vehicle(client_id);
+
+    CREATE INDEX idx_reservation_spot ON reservation(parking_spot_id);
+    CREATE INDEX idx_reservation_status ON reservation(status);
+
+    CREATE INDEX idx_ticket_vehicle ON ticket(vehicle_id);
+    CREATE INDEX idx_ticket_status ON ticket(status);
+    CREATE INDEX idx_ticket_employee ON ticket(employee_id);
+
+    CREATE INDEX idx_payment_ticket ON payment(ticket_id);
+    CREATE INDEX idx_payment_employee ON payment(employee_id);
+
+    CREATE INDEX idx_employee_user ON employee(user_id);
+
+
+    -- =========================
+    -- REGLAS AVANZADAS (PRO)
+    -- =========================
+
+    -- Solo un ticket activo por vehículo
+    CREATE UNIQUE INDEX unique_active_ticket_per_vehicle
+    ON ticket(vehicle_id)
+    WHERE status = 'ACTIVE';
+
+    -- Solo una reserva activa por espacio
+    CREATE UNIQUE INDEX unique_active_reservation_per_spot
+    ON reservation(parking_spot_id)
+    WHERE status = 'ACTIVE';

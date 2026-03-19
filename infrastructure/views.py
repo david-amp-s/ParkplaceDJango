@@ -4,8 +4,12 @@ from django.shortcuts import render, redirect
 from domain.use_cases.login_user import LoginUser
 from .repositories import DjangoUserRepository
 
-
 import traceback
+
+# infrastructure/views.py/pay_ticket.html
+
+from domain.use_cases.pay_ticket import PayticketUseCase
+from infrastructure.repositories import DjangoPaymentRepository
 
 def login_view(request):
     print("METHOD:", request.method)
@@ -56,3 +60,19 @@ def dashboard_view(request):
 def logout_view(request):
     request.session.flush()
     return redirect("/")
+
+# infrastructure/views.py/pay_ticket.html
+
+def pay_ticket_view(request):
+
+    if request.method == "POST":
+        ticket_id = request.POST[ticket_id]
+        method = request.POST[method]
+        amount = request.POST[amount]
+
+        use_case = PayticketUseCase(DjangoPaymentRepository())
+        use_case.execute(ticket_id, method, amount)
+
+        return redirect("success")
+    
+    return render(request, "pay_ticket.html")

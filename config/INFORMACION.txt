@@ -1,0 +1,22 @@
+🟢 Karlos
+
+Employee
+
+Payment
+
+🟡 Stive
+
+Client
+
+Vehicle
+
+🔴 Manuel
+
+Parking Spot
+
+Ticket (si no lo hace Stive)
+
+Camilo
+
+Reservation
+auditoria

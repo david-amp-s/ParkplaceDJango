@@ -138,7 +138,6 @@ def create_vehicle_view(request):
 
         return redirect('/vehiculos/')
 
-    # 👇 ESTA PARTE ES LA CLAVE
     clients = ClientModel.objects.all()
 
     return render(request, 'create_vehicle.html', {

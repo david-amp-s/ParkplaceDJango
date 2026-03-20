@@ -8,7 +8,6 @@
   <select name="type">
     <option value="CAR" {% if vehicle.type == 'CAR' %}selected{% endif %}>Carro</option>
     <option value="MOTORCYCLE" {% if vehicle.type == 'MOTORCYCLE' %}selected{% endif %}>Moto</option>
-    <option value="BICYCLE" {% if vehicle.type == 'BICYCLE' %}selected{% endif %}>Bici</option>
   </select>
 
   <input type="number" name="client_id" value="{{ vehicle.client_id }}" placeholder="Cliente ID">

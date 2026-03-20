@@ -18,9 +18,19 @@ Including another URLconf
 from django.urls import path
 from infrastructure.views import login_view
 from infrastructure.views import logout_view
+from infrastructure.views import create_client_view, create_vehicle_view, list_clients_view, list_vehicles_view
+
 
 urlpatterns = [
     
     path('', login_view),
     path('logout/', logout_view),
+
+    path('clientes/create/', create_client_view),
+    path('clientes/', list_clients_view),
+
+    path('vehiculos/', list_vehicles_view),
+    path('vehiculos/create/', create_vehicle_view),
+    path('', create_client_view)
+
 ]

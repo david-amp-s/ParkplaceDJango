@@ -1,0 +1,12 @@
+<h1>Vehículos</h1>
+
+<a href="/vehiculos/create/">Crear vehículo</a>
+
+<ul>
+  {% for v in vehicles %}
+    <li>
+       {{ v.license_plate }} - {{ v.type }} - {{ v.client.name }}
+      
+    </li>
+  {% endfor %}
+</ul>

@@ -1,0 +1,9 @@
+<h1>Clientes</h1>
+
+<a href="/clientes/create/">Crear cliente</a>
+
+<ul>
+  {% for client in clients %}
+    <li>{{ client.name }} - {{ client.phone }} - {{ client.email }}</li>
+  {% endfor %}
+</ul>

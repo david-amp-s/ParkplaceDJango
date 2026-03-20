@@ -3,6 +3,9 @@
 from django.shortcuts import render, redirect
 from domain.use_cases.login_user import LoginUser
 from .repositories import DjangoUserRepository
+from .repositories import DjangoClientRepository, DjangoVehicleRepository
+from domain.use_cases.create_client import CreateClient
+from domain.use_cases.create_vehicle import CreateVehicle
 
 
 import traceback
@@ -56,3 +59,62 @@ def dashboard_view(request):
 def logout_view(request):
     request.session.flush()
     return redirect("/")
+
+#Cliente
+
+def create_client_view(request):
+
+    if request.method == 'POST':
+        name = request.POST['name']
+        phone = request.POST['phone']
+        email = request.POST.get('email')
+
+        repo = DjangoClientRepository()
+        use_case = CreateClient(repo)
+        use_case.execute(name, phone, email)
+
+        return redirect('/clientes/')
+
+    return render(request, 'create_client.html')
+
+def list_clients_view(request):
+    from .models import Client
+
+    clients = Client.objects.all()
+
+    return render(request, 'list_clients.html', {
+        'clients': clients
+    })
+
+#Vehiculo
+
+from .models import Client
+
+def create_vehicle_view(request):
+
+    clients = Client.objects.all() 
+
+    if request.method == 'POST':
+        plate = request.POST['plate']
+        type = request.POST['type']
+        client_id = request.POST['client_id']
+
+        repo = DjangoVehicleRepository()
+        use_case = CreateVehicle(repo)
+        use_case.execute(plate, type, client_id)
+
+        return redirect('/vehiculos/create/')
+
+    return render(request, 'create_vehicle.html', {
+        'clients': clients 
+    })
+
+from .models import Vehicle
+
+def list_vehicles_view(request):
+
+    vehicles = Vehicle.objects.all()
+
+    return render(request, 'list_vehicles.html', {
+        'vehicles': vehicles
+    })

@@ -1,0 +1,22 @@
+<form method="post">
+  {% csrf_token %}
+
+  <input type="text" name="plate" placeholder="Placa">
+
+  <select name="type">
+    <option value="CAR">Carro</option>
+    <option value="MOTORCYCLE">Moto</option>
+    <option value="BICYCLE">Bici</option>
+  </select>
+
+
+  <select name="client_id">
+    {% for client in clients %}
+      <option value="{{ client.id }}">
+        {{ client.name }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <button type="submit">Guardar</button>
+</form>

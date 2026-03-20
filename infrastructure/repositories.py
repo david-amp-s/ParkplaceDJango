@@ -18,16 +18,28 @@ class DjangoUserRepository(UserRepository):
             return None
 
 
+from .models import Client as ClientModel
+
 class DjangoClientRepository:
 
-    def save(self, data):
-        return Client.objects.create(**data)
+    def save(self, client):
+        return ClientModel.objects.create(
+            name=client.name,
+            phone=client.phone,
+            email=client.email
+        )
 
     def get_all(self):
-        return Client.objects.all()
+        return ClientModel.objects.all()
 
+
+from .models import Vehicle as VehicleModel
 
 class DjangoVehicleRepository:
 
-    def save(self, data):
-        return Vehicle.objects.create(**data)
+    def save(self, vehicle):
+        return VehicleModel.objects.create(
+            license_plate=vehicle.license_plate,
+            type=vehicle.type,
+            client_id=vehicle.client_id
+        )

@@ -1,14 +1,18 @@
-# infrastructure/views.py
-
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from domain.use_cases.login_user import LoginUser
 from .repositories import DjangoUserRepository
 from .repositories import DjangoClientRepository, DjangoVehicleRepository
 from domain.use_cases.create_client import CreateClient
 from domain.use_cases.create_vehicle import CreateVehicle
 
+from .models import Vehicle
+from .models import Client as ClientModel 
+
+from domain.entities.client import Client
+from domain.entities.vehicle import Vehicle as VehicleEntity
 
 import traceback
+
 
 def login_view(request):
     print("METHOD:", request.method)
@@ -39,13 +43,12 @@ def login_view(request):
 
         except Exception as e:
             print("ERROR EN LOGIN:")
-            traceback.print_exc()  # 🔥 clave
+            traceback.print_exc()
 
             return render(request, "login.html", {
                 "error": str(e)
             })
-            
-# infrastructure/views.py
+
 
 def dashboard_view(request):
 
@@ -55,10 +58,12 @@ def dashboard_view(request):
     return render(request, "dashboard.html", {
         "username": request.session.get("username")
     })
-    
+
+
 def logout_view(request):
     request.session.flush()
     return redirect("/")
+
 
 #Cliente
 
@@ -77,39 +82,37 @@ def create_client_view(request):
 
     return render(request, 'create_client.html')
 
-def list_clients_view(request):
-    from .models import Client
 
-    clients = Client.objects.all()
+def list_clients_view(request):
+
+    clients = ClientModel.objects.all()
 
     return render(request, 'list_clients.html', {
         'clients': clients
     })
 
-#Vehiculo
 
-from .models import Client
+def edit_client_view(request, id):
 
-def create_vehicle_view(request):
-
-    clients = Client.objects.all() 
+    client_model = get_object_or_404(ClientModel, id=id)
 
     if request.method == 'POST':
-        plate = request.POST['plate']
-        type = request.POST['type']
-        client_id = request.POST['client_id']
+        entity = Client(
+            request.POST['name'],
+            request.POST['phone'],
+            request.POST.get('email')
+        )
 
-        repo = DjangoVehicleRepository()
-        use_case = CreateVehicle(repo)
-        use_case.execute(plate, type, client_id)
+        client_model.name = entity.name
+        client_model.phone = entity.phone
+        client_model.email = entity.email
+        client_model.save()
 
-        return redirect('/vehiculos/create/')
+        return redirect('/clientes/')
 
-    return render(request, 'create_vehicle.html', {
-        'clients': clients 
-    })
+    return render(request, 'edit_client.html', {'client': client_model})
 
-from .models import Vehicle
+#Vehiculo
 
 def list_vehicles_view(request):
 
@@ -118,3 +121,62 @@ def list_vehicles_view(request):
     return render(request, 'list_vehicles.html', {
         'vehicles': vehicles
     })
+
+
+from .models import Client as ClientModel
+
+def create_vehicle_view(request):
+
+    if request.method == 'POST':
+        plate = request.POST['plate']
+        type = request.POST['type']
+        client_id = request.POST.get('client_id')
+
+        repo = DjangoVehicleRepository()
+        use_case = CreateVehicle(repo)
+        use_case.execute(plate, type, client_id)
+
+        return redirect('/vehiculos/')
+
+    # 👇 ESTA PARTE ES LA CLAVE
+    clients = ClientModel.objects.all()
+
+    return render(request, 'create_vehicle.html', {
+        'clients': clients
+    })
+
+
+def edit_vehicle_view(request, id):
+
+    vehicle_model = get_object_or_404(Vehicle, id=id)
+
+    if request.method == 'POST':
+        entity = VehicleEntity(
+            request.POST['plate'],
+            request.POST['type'],
+            request.POST['client_id']
+        )
+
+        vehicle_model.license_plate = entity.license_plate
+        vehicle_model.type = entity.type
+        vehicle_model.client_id = entity.client_id
+        vehicle_model.save()
+
+        return redirect('/vehiculos/')
+
+    return render(request, 'edit_vehicle.html', {'vehicle': vehicle_model})
+
+
+
+#DELETE 
+
+# def delete_client_view(request, id):
+#     client = get_object_or_404(ClientModel, id=id)
+#     client.delete()
+#     return redirect('/clientes/')
+
+
+# def delete_vehicle_view(request, id):
+#     vehicle = get_object_or_404(Vehicle, id=id)
+#     vehicle.delete()
+#     return redirect('/vehiculos/')

@@ -1,0 +1,13 @@
+<h1>Editar Cliente</h1>
+
+<form method="post">
+  {% csrf_token %}
+
+  <input type="text" name="name" value="{{ client.name }}" placeholder="Nombre">
+  <input type="text" name="phone" value="{{ client.phone }}" placeholder="Teléfono">
+  <input type="email" name="email" value="{{ client.email }}" placeholder="Email">
+
+  <button type="submit">Actualizar</button>
+</form>
+
+<a href="/clientes/">Volver</a>

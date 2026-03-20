@@ -5,3 +5,4 @@ class User:
         self.password = password
         self.role = role
         self.is_active = is_active
+

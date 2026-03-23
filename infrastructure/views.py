@@ -10,6 +10,7 @@ from .models import Client as ClientModel
 
 from domain.entities.client import Client
 from domain.entities.vehicle import Vehicle as VehicleEntity
+from .models import Client as ClientModel
 
 import traceback
 
@@ -114,17 +115,6 @@ def edit_client_view(request, id):
 
 #Vehiculo
 
-def list_vehicles_view(request):
-
-    vehicles = Vehicle.objects.all()
-
-    return render(request, 'list_vehicles.html', {
-        'vehicles': vehicles
-    })
-
-
-from .models import Client as ClientModel
-
 def create_vehicle_view(request):
 
     if request.method == 'POST':
@@ -142,6 +132,14 @@ def create_vehicle_view(request):
 
     return render(request, 'create_vehicle.html', {
         'clients': clients
+    })
+
+def list_vehicles_view(request):
+
+    vehicles = Vehicle.objects.all()
+
+    return render(request, 'list_vehicles.html', {
+        'vehicles': vehicles
     })
 
 
@@ -179,3 +177,62 @@ def edit_vehicle_view(request, id):
 #     vehicle = get_object_or_404(Vehicle, id=id)
 #     vehicle.delete()
 #     return redirect('/vehiculos/')
+
+#TICKET
+
+def entry_vehicle_view(request):
+
+    from .models import Vehicle
+    from .repositories import DjangoTicketRepository, DjangoParkingSpotRepository
+    from domain.use_cases.create_ticket import CreateTicket
+
+    if request.method == 'POST':
+        vehicle_id = request.POST['vehicle_id']
+        employee_id = 1  # temporal
+
+        ticket_repo = DjangoTicketRepository()
+        spot_repo = DjangoParkingSpotRepository()
+
+        use_case = CreateTicket(ticket_repo, spot_repo)
+        use_case.execute(vehicle_id, None) #Meter empleado cuando Karlos haga la función
+
+        return redirect('/dashboard/')
+
+    vehicles = Vehicle.objects.all()
+
+    return render(request, 'entry_vehicle.html', {
+        'vehicles': vehicles
+
+    })
+
+def exit_vehicle_view(request):
+
+    from infrastructure.models import Vehicle
+    from domain.use_cases.close_ticket import CloseTicket
+    from .repositories import DjangoTicketRepository, DjangoParkingSpotRepository
+
+    if request.method == 'POST':
+        vehicle_id = request.POST.get('vehicle_id')
+
+        print("VEHICLE ID:", vehicle_id)
+
+        vehicle = Vehicle.objects.get(id=vehicle_id)
+
+        ticket_repo = DjangoTicketRepository()
+        spot_repo = DjangoParkingSpotRepository()
+
+        use_case = CloseTicket(ticket_repo, spot_repo)
+
+        total = use_case.execute(vehicle)
+
+        print("TOTAL:", total)
+
+        return render(request, "ok.html", {
+            "mensaje": f"Salida OK - Total: {total}"
+        })
+
+    vehicles = Vehicle.objects.all()
+
+    return render(request, 'exit_vehicle.html', {
+        'vehicles': vehicles
+    })

@@ -20,6 +20,7 @@ from infrastructure.views import login_view
 from infrastructure.views import logout_view
 from infrastructure.views import create_vehicle_view, list_vehicles_view, edit_vehicle_view
 from infrastructure.views import create_client_view, edit_client_view, list_clients_view
+from infrastructure.views import entry_vehicle_view, exit_vehicle_view
 
 
 urlpatterns = [
@@ -33,6 +34,12 @@ urlpatterns = [
 
     path('vehiculos/', list_vehicles_view),
     path('vehiculos/create/', create_vehicle_view),
-    path('vehiculos/edit/<int:id>/', edit_vehicle_view)
+    path('vehiculos/edit/<int:id>/', edit_vehicle_view),
+
+    # path('clientes/delete/<int:id>/', delete_client_view),
+    # path('vehiculos/delete/<int:id>/', delete_vehicle_view),
+
+    path('ingreso/', entry_vehicle_view),
+    path('salida/', exit_vehicle_view),
 
 ]

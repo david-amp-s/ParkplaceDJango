@@ -1,0 +1,11 @@
+<form method="post">
+  {% csrf_token %}
+
+  <select name="vehicle_id">
+    {% for v in vehicles %}
+      <option value="{{ v.id }}">{{ v.license_plate }}</option>
+    {% endfor %}
+  </select>
+
+  <button>Ingresar</button>
+</form>

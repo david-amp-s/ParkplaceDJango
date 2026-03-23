@@ -2,6 +2,7 @@ from domain.entities.user import User
 from domain.ports.user_repository import UserRepository
 from .models import AppUser
 from .models import Client, Vehicle
+from .models import Ticket, ParkingSpot
 
 class DjangoUserRepository(UserRepository):
     def find_by_username(self,username):
@@ -16,6 +17,10 @@ class DjangoUserRepository(UserRepository):
             )
         except AppUser.DoesNotExist :
             return None
+
+
+
+
 
 
 from .models import Client as ClientModel
@@ -43,3 +48,43 @@ class DjangoVehicleRepository:
             type=vehicle.type,
             client_id=vehicle.client_id
         )
+
+
+
+
+
+
+
+class DjangoTicketRepository:
+
+    def create(self, data):
+        data.pop('employee_id', None)  # temporal mientras karlos termino lo suyo
+        return Ticket.objects.create(**data)
+
+    def get_active_by_vehicle(self, vehicle_id):
+        return Ticket.objects.filter(
+            vehicle_id=vehicle_id,
+            status='ACTIVE'
+        ).first()
+
+    def save(self, ticket):
+        ticket.save()
+        return ticket
+
+
+class DjangoParkingSpotRepository:
+
+    def get_available(self):
+        return ParkingSpot.objects.filter(status='AVAILABLE').first()
+
+    def occupy(self, spot_id):
+        spot = ParkingSpot.objects.get(id=spot_id)
+        spot.status = 'OCCUPIED'
+        spot.save()
+
+    def free(self, spot_id):
+        spot = ParkingSpot.objects.get(id=spot_id)
+        spot.status = 'AVAILABLE'
+        spot.save()
+
+

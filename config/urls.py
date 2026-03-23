@@ -22,6 +22,7 @@ from infrastructure.views import create_vehicle_view, list_vehicles_view, edit_v
 from infrastructure.views import create_client_view, edit_client_view, list_clients_view
 from infrastructure.views import entry_vehicle_view, exit_vehicle_view
 
+from infrastructure.views import pay_ticket_view
 
 urlpatterns = [
     
@@ -42,4 +43,7 @@ urlpatterns = [
     path('ingreso/', entry_vehicle_view),
     path('salida/', exit_vehicle_view),
 
+    #payment
+
+    path('pay/', pay_ticket_view, name = 'pay_ticket'),
 ]

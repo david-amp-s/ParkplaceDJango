@@ -3,6 +3,7 @@ from domain.ports.user_repository import UserRepository
 from .models import AppUser
 from .models import Client, Vehicle
 from .models import Ticket, ParkingSpot
+from .models import Payment as PaymentModel
 
 class DjangoUserRepository(UserRepository):
     def find_by_username(self,username):
@@ -17,9 +18,6 @@ class DjangoUserRepository(UserRepository):
             )
         except AppUser.DoesNotExist :
             return None
-
-
-
 
 
 
@@ -48,9 +46,6 @@ class DjangoVehicleRepository:
             type=vehicle.type,
             client_id=vehicle.client_id
         )
-
-
-
 
 
 
@@ -88,3 +83,12 @@ class DjangoParkingSpotRepository:
         spot.save()
 
 
+        
+class DjangoPaymentRepository:
+    def save(self, payment):
+        return PaymentModel.objects.create(
+            ticket_id = payment.ticket_id,
+            employee_id = payment.employee_id,
+            method = payment.method,
+            amount = payment.amount
+        )

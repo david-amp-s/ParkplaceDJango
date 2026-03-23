@@ -14,6 +14,12 @@ from .models import Client as ClientModel
 
 import traceback
 
+import traceback
+
+# infrastructure/views.py/pay_ticket.html
+
+from domain.use_cases.pay_ticket import PayticketUseCase
+from infrastructure.repositories import DjangoPaymentRepository
 
 def login_view(request):
     print("METHOD:", request.method)
@@ -236,3 +242,18 @@ def exit_vehicle_view(request):
     return render(request, 'exit_vehicle.html', {
         'vehicles': vehicles
     })
+# infrastructure/views.py/pay_ticket.html
+
+def pay_ticket_view(request):
+
+    if request.method == "POST":
+        ticket_id = request.POST[ticket_id]
+        method = request.POST[method]
+        amount = request.POST[amount]
+
+        use_case = PayticketUseCase(DjangoPaymentRepository())
+        use_case.execute(ticket_id, method, amount)
+
+        return redirect("success")
+    
+    return render(request, "pay_ticket.html")

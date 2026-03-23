@@ -242,6 +242,7 @@ def exit_vehicle_view(request):
     return render(request, 'exit_vehicle.html', {
         'vehicles': vehicles
     })
+
 # infrastructure/views.py/pay_ticket.html
 
 def pay_ticket_view(request):

@@ -41,6 +41,43 @@ def logout_view(request):
     request.session.flush()
     return redirect("/")
 
+#Empleado
+from django.shortcuts import render, redirect
+from infrastructure.models import AppUser
+from infrastructure.repositories import DjangoEmployeeRepository
+from domain.entities.employee import Employee
+
+repo = DjangoEmployeeRepository()
+
+
+def create_employee(request):
+    if request.method == "POST":
+        # Crear usuario primero
+        user = AppUser.objects.create(
+            username=request.POST["username"],
+            password=request.POST["password"],  # luego puedes usar hash
+            role="EMPLOYEE"
+        )
+
+        # Crear empleado
+        employee = Employee(
+            id=None,
+            user_id=user.id,
+            name=request.POST["name"],
+            phone=request.POST["phone"]
+        )
+
+        repo.create(employee)
+
+        return redirect("list_employees")
+
+    return render(request, "create_employee.html")
+
+
+def list_employees(request):
+    employees = repo.get_all()
+    return render(request, "list_employees.html", {"employees": employees})
+
 #Gestion de clientes
 def create_client_view(request):
     if request.method == 'POST':

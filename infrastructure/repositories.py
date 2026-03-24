@@ -5,6 +5,11 @@ from .models import Client, Vehicle
 from .models import Ticket, ParkingSpot
 from .models import Payment as PaymentModel
 
+from domain.entities.employee import Employee
+from domain.ports.employee_repository import EmployeeRepository
+from infrastructure.models import Employee, AppUser
+
+
 class DjangoUserRepository(UserRepository):
     def find_by_username(self,username):
         try : 
@@ -19,6 +24,32 @@ class DjangoUserRepository(UserRepository):
         except AppUser.DoesNotExist :
             return None
 
+
+class DjangoEmployeeRepository(EmployeeRepository):
+
+    def get_all(self):
+        return [
+            Employee(e.id, e.user.id, e.name, e.phone)
+            for e in Employee.objects.select_related('user').all()
+        ]
+
+    def get_by_id(self, employee_id):
+        e = Employee.objects.select_related('user').get(id=employee_id)
+        return Employee(e.id, e.user.id, e.name, e.phone)
+
+    def create(self, employee):
+        user = AppUser.objects.get(id=employee.user_id)
+
+        e = Employee.objects.create(
+            user=user,
+            name=employee.name,
+            phone=employee.phone
+        )
+
+        return Employee(e.id, e.user.id, e.name, e.phone)
+
+    def delete(self, employee_id):
+        Employee.objects.get(id=employee_id).delete()
 
 
 from .models import Client as ClientModel

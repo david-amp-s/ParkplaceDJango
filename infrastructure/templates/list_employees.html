@@ -1,0 +1,72 @@
+{% extends "base/base.html" %}
+
+{% block title %}Empleados{% endblock %}
+
+{% block content %}
+
+<h1 style="margin-bottom: 20px;">Gestión de Empleados</h1>
+
+<div style="margin-bottom: 20px;">
+    <a href="/employees/create/" style="
+        background:#1e40af;
+        color:white;
+        padding:10px 15px;
+        border-radius:6px;
+        text-decoration:none;
+        font-weight:500;
+    ">
+        + Crear Empleado
+    </a>
+</div>
+
+<div style="background:white; border-radius:10px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.05);">
+    
+    <table style="width:100%; border-collapse: collapse;">
+        
+        <thead style="background:#0f172a; color:white;">
+            <tr>
+                <th style="padding:12px; text-align:left;">ID</th>
+                <th style="text-align:left;">Nombre</th>
+                <th style="text-align:left;">Teléfono</th>
+                <th style="text-align:left;">Usuario</th>
+                <th style="text-align:center;">Acciones</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for e in employees %}
+            <tr style="border-bottom:1px solid #e5e7eb;">
+                <td style="padding:12px;">{{ e.id }}</td>
+                <td>{{ e.name }}</td>
+                <td>{{ e.phone|default:"-" }}</td>
+                <td>{{ e.user_id }}</td>
+
+                <td style="text-align:center;">
+                    <a href="/employees/delete/{{ e.id }}/" style="
+                        color:#ef4444;
+                        text-decoration:none;
+                        font-weight:500;
+                    "
+                    onclick="return confirm('¿Eliminar este empleado?')">
+                        Eliminar
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="
+                    padding:20px;
+                    text-align:center;
+                    color:#6b7280;
+                ">
+                    No hay empleados registrados
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

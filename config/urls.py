@@ -25,6 +25,7 @@ from django.contrib import admin
 from django.urls import path, include
 from infrastructure.views import pay_ticket_view
 from infrastructure.views import dashboard_view
+from infrastructure.views import list_employees
 urlpatterns = [
 
     path('admin/', admin.site.urls),
@@ -32,6 +33,8 @@ urlpatterns = [
     path('', login_view),
     path('dashboard/', dashboard_view),
     path('logout/', logout_view),
+
+    path('employee/', list_employees),
 
     path('clientes/create/', create_client_view),
     path('clientes/', list_clients_view),

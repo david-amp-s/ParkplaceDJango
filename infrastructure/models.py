@@ -13,11 +13,17 @@ class AppUser(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
 class Employee(models.Model):
-    user = models.OneToOneField(AppUser, on_delete = models.CASCADE)
+    user = models.OneToOneField(
+        AppUser,
+        on_delete=models.CASCADE,
+        db_column="user_id"
+    )
     name = models.CharField(max_length=100)
-    phone = models.CharField(max_length=20, null=True , blank=True)
+    phone = models.CharField(max_length=20, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        db_table = "employee"
 
 
 class Client(models.Model):

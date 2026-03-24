@@ -21,12 +21,16 @@ from infrastructure.views import logout_view
 from infrastructure.views import create_vehicle_view, list_vehicles_view, edit_vehicle_view
 from infrastructure.views import create_client_view, edit_client_view, list_clients_view
 from infrastructure.views import entry_vehicle_view, exit_vehicle_view
-
+from django.contrib import admin 
+from django.urls import path, include
 from infrastructure.views import pay_ticket_view
-
+from infrastructure.views import dashboard_view
 urlpatterns = [
+
+    path('admin/', admin.site.urls),
     
     path('', login_view),
+    path('dashboard/', dashboard_view),
     path('logout/', logout_view),
 
     path('clientes/create/', create_client_view),

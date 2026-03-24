@@ -1,3 +1,6 @@
+from django.contrib.auth.hashers import check_password
+
+
 class LoginUser:
     def __init__(self, user_repo):
         self.user_repo = user_repo
@@ -8,6 +11,6 @@ class LoginUser:
             raise Exception("Usuario no existe")
         if not user.is_active:
             raise Exception("Usuario inactivo")
-        if user.password != password: 
+        if not check_password(password, user.password):
             raise Exception("Credenciales invalidas")
         return user

@@ -16,7 +16,7 @@ class Employee(models.Model):
     user = models.OneToOneField(AppUser, on_delete = models.CASCADE)
     name = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, null=True , blank=True)
-    create_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 
@@ -66,11 +66,17 @@ class Ticket(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        db_table = 'ticket'
+
 class ParkingSpot(models.Model):
     number = models.IntegerField(unique=True)
     type = models.CharField(max_length=20)
     status = models.CharField(max_length=20, default='AVAILABLE')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'parking_spot'
 
 
 

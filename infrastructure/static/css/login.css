@@ -1,11 +1,254 @@
 /* infrastructure/static/css/styles.css */
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #0f172a;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
+    margin: 0;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Fondo con efecto de porcentajes */
+body::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+/* Efecto de porcentajes flotantes */
+.percentage-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    opacity: 0.05;
+    font-size: 60px;
+    font-weight: bold;
+    color: #3b82f6;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.percentage-item {
+    margin: 20px;
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+/* Título principal */
+h2 {
+    color: white;
+    margin-bottom: 20px;
+    font-size: 3.5em;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+
+h2::before {
+    content: 'PARKPLACE';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    color: #3b82f6;
+    opacity: 0.3;
+    filter: blur(8px);
+    z-index: -1;
+}
+
+h2::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 25%;
+    width: 50%;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #3b82f6, #60a5fa, #3b82f6, transparent);
+    border-radius: 2px;
+}
+
+/* Formulario */
+form {
+    background: rgba(30, 41, 59, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 50px;
+    border-radius: 20px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(59, 130, 246, 0.2) inset;
+    width: 100%;
+    max-width: 450px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    position: relative;
+    z-index: 1;
+    transform: translateY(0);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+form:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 30px 60px -12px rgba(59, 130, 246, 0.3),
+                0 0 0 1px rgba(59, 130, 246, 0.4) inset;
+}
+
+/* Barra de progreso decorativa */
+.form-progress {
+    position: absolute;
+    top: -3px;
+    left: 10%;
+    width: 80%;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        #3b82f6 0%, 
+        #60a5fa 20%, 
+        #3b82f6 40%, 
+        #60a5fa 60%, 
+        #3b82f6 80%, 
+        #60a5fa 100%);
+    border-radius: 3px;
+    animation: progress 3s linear infinite;
+    background-size: 200% 100%;
+}
+
+@keyframes progress {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+}
+
+/* Campos de entrada */
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #334155;
+    background: linear-gradient(145deg, #0f172a, #1a2538);
+    color: white;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s;
+    box-sizing: border-box;
+    margin: 10px 0;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2),
+                inset 0 2px 4px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(145deg, #1a2538, #0f172a);
+}
+
+input[type="text"]::placeholder,
+input[type="password"]::placeholder {
+    color: #64748b;
+    transition: transform 0.3s, opacity 0.3s;
+}
+
+input[type="text"]:focus::placeholder,
+input[type="password"]:focus::placeholder {
+    transform: translateX(10px);
+    opacity: 0.5;
+}
+
+/* Botón */
+button {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(145deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+button:hover::before {
+    left: 100%;
+}
+
+button:hover {
+    background: linear-gradient(145deg, #2563eb, #1d4ed8);
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* Mensaje de error */
+p {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+    background: linear-gradient(145deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.2));
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ef4444;
+    max-width: 400px;
+    width: 100%;
+    color: #fecaca;
+    backdrop-filter: blur(5px);
+    animation: shake 0.5s ease-in-out;
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+pre {
+    max-width: 400px;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 10px;
+    color: #fecaca;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    border: 1px solid #334155;
 }

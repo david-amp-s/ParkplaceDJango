@@ -1,13 +1,34 @@
-<form method="post">
-  {% csrf_token %}
+{% extends "base/base.html" %}
 
-  <select name="vehicle_id">
-    {% for vehicle in vehicles %}
-      <option value="{{ vehicle.id }}">
-        {{ vehicle.license_plate }}
-      </option>
-    {% endfor %}
-  </select>
+{% block title %}Salida - ParkPlace{% endblock %}
 
-  <button type="submit">Salida</button>
-</form>
+{% block content %}
+<div class="card">
+    <h1 style="color: #000000;">Registrar Salida</h1>
+    <p>Escriba la placa para calcular el tiempo y el total a pagar.</p>
+    <hr style="margin-bottom: 20px; border: 0; border-top: 1px solid #eee;">
+
+    <form method="post" autocomplete="off">
+        {% csrf_token %}
+        <div style="margin-bottom: 20px;">
+            <label style="display:block; margin-bottom:8px; font-weight:bold;">Placa del Vehículo:</label>
+            <input type="text" 
+                   name="license_plate" 
+                   id="exit_license_plate" 
+                   placeholder="Ej: ABC123" 
+                   required 
+                   style="width:100%; padding:12px; border-radius:6px; border:1px solid #cbd5e1; text-transform: uppercase; font-size: 18px;">
+        </div>
+
+        <button type="submit" style="background:#1e3a8a; color:white; border:none; padding:14px 30px; border-radius:6px; cursor:pointer; font-weight:bold; width: 100%;">
+            Procesar Salida y Cobro
+        </button>
+    </form>
+
+    {% if error %}
+        <div style="margin-top: 20px; padding: 15px; background: #fee2e2; color: #b91c1c; border-radius: 6px; font-weight: bold;">
+             {{ error }}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

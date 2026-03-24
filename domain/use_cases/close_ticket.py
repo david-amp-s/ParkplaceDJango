@@ -17,7 +17,7 @@ class CloseTicket:
 
         from infrastructure.models import Ticket
 
-        ticket = Ticket.objects.filter(vehicle_id=vehicle.id, status="ACTIVE").first()
+        ticket = Ticket.objects.filter(vehicle_id=vehicle.id, status='ACTIVE').first()
 
         if not ticket:
          raise Exception("No hay ticket activo")

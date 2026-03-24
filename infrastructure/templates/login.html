@@ -2,12 +2,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <title>ParkPlace - Login</title>
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
 </head>
 <body>
 
-<h2>Login</h2>
+<h2>ParkPlace</h2>
 
 <form method="POST">
     {% csrf_token %}
@@ -23,8 +23,7 @@
 
 {% if error %}
     <p style="color:red">{{ error }}</p>
-<pre>{{ error|safe }}</pre>
-    
+    <pre>{{ error|safe }}</pre>
 {% endif %}
 
 </body>

@@ -1,0 +1,35 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Tarifas{% endblock %}
+
+{% block content %}
+<h1>Tarifas de Vehículos</h1>
+<a href="{% url 'tarifa_create' %}" style="margin-bottom:15px; display:inline-block; background:#38bdf8; color:white; padding:10px 15px; border-radius:5px; text-decoration:none;">+ Nueva Tarifa</a>
+
+<table border="1" cellpadding="10" cellspacing="0" style="width:100%; margin-top:15px; border-collapse:collapse;">
+    <thead style="background:#0f172a; color:white;">
+        <tr>
+            <th>ID</th>
+            <th>Tipo de Vehículo</th>
+            <th>Precio por Hora</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tarifa in tarifas %}
+        <tr>
+            <td>{{ tarifa.id }}</td>
+            <td>{{ tarifa.vehicle_type }}</td>
+            <td>${{ tarifa.price_per_hour }}</td>
+            <td>
+                <a href="{% url 'tarifa_edit' tarifa.id %}" style="color:#2563eb;">Editar</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" style="text-align:center;">No hay tarifas registradas</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -185,3 +185,26 @@ def history_view(request):
             t.exit_time = timezone.localtime(t.exit_time).replace(tzinfo=None)
 
     return render(request, 'list_history.html', {'tickets': tickets})
+
+#TARIFAS
+
+# infrastructure/repositories.py
+from infrastructure.models import VehicleRate
+
+class VehicleRateRepository:
+    """Repositorio para acceder a las tarifas por tipo de vehículo"""
+
+    def get_by_vehicle_type(self, vehicle_type: str):
+        # Devuelve la tarifa del tipo de vehículo si no existe
+        return VehicleRate.objects.filter(vehicle_type=vehicle_type).first()
+
+    def get_all(self):
+        # Devuelve todas las tarifas
+        return VehicleRate.objects.all()
+
+    def update(self, vehicle_type: str, price: float):
+        # Actualiza el precio por hora de un tipo de vehículo
+        rate = VehicleRate.objects.get(vehicle_type=vehicle_type)
+        rate.price_per_hour = price
+        rate.save()
+        return rate

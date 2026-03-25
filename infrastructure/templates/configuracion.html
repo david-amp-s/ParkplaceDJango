@@ -1,0 +1,99 @@
+{% extends "base/base.html" %}
+
+{% block title %}Configuración{% endblock %}
+
+{% block content %}
+
+<h1>Configuración del sistema</h1>
+
+<!-- 🔹 Métricas -->
+<div style="display:flex; gap:20px; margin-bottom:30px;">
+    <div style="background:white; padding:20px; border-radius:8px; flex:1;">
+        <h3>Total espacios</h3>
+        <p>{{ total_spots }}</p>
+    </div>
+
+    <div style="background:white; padding:20px; border-radius:8px; flex:1;">
+        <h3>Ocupados</h3>
+        <p>{{ occupied }}</p>
+    </div>
+
+    <div style="background:white; padding:20px; border-radius:8px; flex:1;">
+        <h3>Disponibles</h3>
+        <p>{{ available }}</p>
+    </div>
+</div>
+
+<!-- 🔹 Tarifas actuales y tipos de vehículo -->
+<div style="background:white; padding:20px; border-radius:8px; margin-bottom:30px;">
+    <h3>Tipos de vehículos y tarifas</h3>
+    <table style="width:100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Tipo de vehículo</th>
+                <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Tarifa por hora</th>
+                <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vt in vehicle_types %}
+            <tr>
+                <td style="padding:8px; border-bottom:1px solid #eee;">{{ vt.name }}</td>
+                <td style="padding:8px; border-bottom:1px solid #eee;">${{ vt.rate_per_hour }}</td>
+                <td style="padding:8px; border-bottom:1px solid #eee;">
+                    <a href="/configuracion/vehicle_type/edit/{{ vt.id }}/" style="color:blue;">Editar</a> |
+                    <a href="/configuracion/vehicle_type/delete/{{ vt.id }}/" style="color:red;">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/configuracion/vehicle_type/add/" style="display:inline-block; margin-top:10px; color:green;">+ Agregar tipo de vehículo</a>
+</div>
+
+<!-- 🔹 Espacios de parqueadero -->
+<div style="background:white; padding:20px; border-radius:8px; margin-bottom:30px;">
+    <h3>Espacios de parqueadero</h3>
+    <table style="width:100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;"># Espacio</th>
+                <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Tipo de vehículo</th>
+                <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Estado</th>
+                <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for spot in parking_spots %}
+            <tr>
+                <td style="padding:8px; border-bottom:1px solid #eee;">{{ spot.number }}</td>
+                <td style="padding:8px; border-bottom:1px solid #eee;">{{ spot.vehicle_type.name }}</td>
+                <td style="padding:8px; border-bottom:1px solid #eee;">{{ spot.status }}</td>
+                <td style="padding:8px; border-bottom:1px solid #eee;">
+                    <a href="/configuracion/parking_spot/edit/{{ spot.id }}/" style="color:blue;">Editar</a> |
+                    <a href="/configuracion/parking_spot/delete/{{ spot.id }}/" style="color:red;">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/configuracion/parking_spot/add/" style="display:inline-block; margin-top:10px; color:green;">+ Agregar espacio</a>
+</div>
+
+<!-- 🔹 Acciones del sistema -->
+<div style="background:white; padding:20px; border-radius:8px;">
+    <h3>Acciones del sistema</h3>
+
+    <form method="get" action="/configuracion/reset/">
+        <button type="submit"
+            style="padding:12px; background:#ef4444; color:white; border:none; border-radius:6px; cursor:pointer;">
+            Reinicio de sistema
+        </button>
+    </form>
+
+    <p style="margin-top:10px; color:gray;">
+        Este botón eliminará todos los tickets y liberará todos los espacios.
+    </p>
+</div>
+
+{% endblock %}

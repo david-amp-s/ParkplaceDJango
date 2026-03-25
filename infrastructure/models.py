@@ -52,7 +52,7 @@ class Vehicle(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'vehicle'  # Nombre exacto en tu PostgreSQL
+        db_table = 'vehicle'
 
     def __str__(self):
         return self.license_plate
@@ -104,3 +104,29 @@ class Payment(models.Model):
     
     class Meta:
         db_table = 'payment'
+
+
+from django.db import models
+
+class VehicleRate(models.Model):
+
+    VEHICLE_TYPES = [
+        ('CAR', 'Carro'),
+        ('MOTORCYCLE', 'Moto'),
+        ('BICYCLE', 'Bicicleta'),
+    ]
+
+    vehicle_type = models.CharField(
+        max_length=20,
+        choices=VEHICLE_TYPES,
+        unique=True
+    )
+
+    price_per_hour = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'vehiclerate'
+
+    def __str__(self):
+        return f"{self.vehicle_type} - {self.price_per_hour}"

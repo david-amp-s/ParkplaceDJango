@@ -1,8 +1,9 @@
 import traceback
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from .forms import VehicleRateForm
 
-from .models import Vehicle, Client, AppUser, Ticket
+from .models import ParkingSpot, Vehicle, Client, AppUser, Ticket
 from .repositories import (
     DjangoUserRepository, DjangoClientRepository, 
     DjangoVehicleRepository, DjangoPaymentRepository,
@@ -18,6 +19,7 @@ from domain.use_cases.pay_ticket import PayticketUseCase
 from domain.use_cases.create_ticket import CreateTicket
 from domain.use_cases.get_history import GetHistory
 from domain.use_cases import close_ticket as close_ticket_module
+from infrastructure.repositories import VehicleRateRepository
 
 
 #AUTENTICACIÓN Y PANEL
@@ -180,13 +182,12 @@ def exit_vehicle_view(request):
         plate_text = request.POST.get('license_plate', '').strip().upper()
         try:
             vehicle_obj = Vehicle.objects.get(license_plate=plate_text)
+            
             ticket_repo = DjangoTicketRepository()
             spot_repo = DjangoParkingSpotRepository()
+            rate_repo = VehicleRateRepository() 
             
-            try:
-                use_case = close_ticket_module.CloseTicket(ticket_repo, spot_repo)
-            except AttributeError:
-                use_case = close_ticket_module.close_ticket(ticket_repo, spot_repo)
+            use_case = close_ticket_module.CloseTicket(ticket_repo, spot_repo, rate_repo)
             
             total = use_case.execute(vehicle_obj)
             messages.success(request, f"Salida procesada - Total: ${total}")
@@ -195,6 +196,7 @@ def exit_vehicle_view(request):
             messages.error(request, f"La placa {plate_text} no existe")
         except Exception as e:
             messages.error(request, f"Error: {str(e)}")
+    
     return render(request, 'exit_vehicle.html')
 
 #PAGOS E HISTORIAL
@@ -223,3 +225,93 @@ def history_view(request):
         use_case = GetHistory(repo)
         tickets = use_case.execute()
     return render(request, 'list_history.html', {'tickets': tickets})
+
+#CONFIGURACION 
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.utils import timezone
+from .models import ParkingSpot, Ticket
+
+
+def configuration_view(request):
+    total_spots = ParkingSpot.objects.count()
+    occupied = ParkingSpot.objects.filter(status='OCCUPIED').count()
+    available = ParkingSpot.objects.filter(status='AVAILABLE').count()
+
+    rates = {
+        "CAR": 3000,
+        "MOTORCYCLE": 1500,
+        "BICYCLE": 500
+    }
+
+    active_tickets = Ticket.objects.filter(status='ACTIVE')
+
+    return render(request, 'configuracion.html', {
+        'total_spots': total_spots,
+        'occupied': occupied,
+        'available': available,
+        'rates': rates,
+        'active_tickets': active_tickets
+    })
+
+
+def reset_system_view(request):
+    active_count = Ticket.objects.filter(status='ACTIVE').count()
+
+    if request.method == "POST":
+        tickets = Ticket.objects.filter(status='ACTIVE')
+        for t in tickets:
+            t.status = 'CLOSED'
+            t.exit_time = timezone.now()
+            t.total_paid = 0
+            t.save()
+
+        Ticket.objects.all().delete()
+        ParkingSpot.objects.all().update(status='AVAILABLE')
+
+        messages.success(request, "Sistema reiniciado correctamente")
+        return redirect('/configuracion/')
+
+    return render(request, 'delete_configuracion.html', {
+        'active_count': active_count
+    })
+
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import VehicleRate
+
+#TARIFAS
+
+# Listar tarifas
+def tarifas_list(request):
+    tarifas = VehicleRate.objects.all()
+    return render(request, 'tarifas.html', {'tarifas': tarifas})
+
+# Crear nueva tarifa
+def tarifa_create(request):
+    if request.method == "POST":
+        form = VehicleRateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Tarifa creada correctamente.")
+            return redirect('tarifas_list')
+    else:
+        form = VehicleRateForm()
+    return render(request, 'tarifa_form.html', {'form': form, 'titulo': 'Nueva Tarifa'})
+
+# Editar tarifa existente
+def tarifa_edit(request, pk):
+    tarifa = get_object_or_404(VehicleRate, pk=pk)
+    if request.method == "POST":
+        form = VehicleRateForm(request.POST, instance=tarifa)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Tarifa actualizada correctamente.")
+            return redirect('tarifas_list')
+    else:
+        form = VehicleRateForm(instance=tarifa)
+    return render(request, 'tarifa_form.html', {'form': form, 'titulo': 'Editar Tarifa'})

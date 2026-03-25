@@ -17,7 +17,7 @@ Including another URLconf
 
 from django.urls import path
 from infrastructure import views
-from infrastructure.views import delete_client_view, delete_vehicle_view, login_view
+from infrastructure.views import configuration_view, delete_client_view, delete_vehicle_view, login_view, reset_system_view
 from infrastructure.views import logout_view
 from infrastructure.views import create_vehicle_view, list_vehicles_view, edit_vehicle_view
 from infrastructure.views import create_client_view, edit_client_view, list_clients_view
@@ -57,5 +57,20 @@ urlpatterns = [
 
     #historial
 
-    path('historial/', views.history_view, name='historial')
+    path('historial/', views.history_view, name='historial'),
+
+    #configuracion
+
+    #path('configuracion/', configuration_view),
+    #path('configuracion/reset/', reset_system_view),
+
+    #tarifa
+
+    path('tarifas/', views.tarifas_list, name='tarifas_list'),
+    path('tarifas/nueva/', views.tarifa_create, name='tarifa_create'),
+    path('tarifas/editar/<int:pk>/', views.tarifa_edit, name='tarifa_edit'),
+
+    
 ]
+
+

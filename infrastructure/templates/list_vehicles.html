@@ -1,12 +1,78 @@
-<h1>Vehículos</h1>
+{% extends "base/base.html" %}
 
-<a href="/vehiculos/create/">Crear vehículo</a>
+{% block title %}Vehículos - ParkPlace{% endblock %}
 
-<ul>
-  {% for v in vehicles %}
-    <li>
-       {{ v.license_plate }} - {{ v.type }} - {{ v.client.name }}
-      
-    </li>
-  {% endfor %}
-</ul>
+{% block extra_css %}
+<style>
+    .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .btn { padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; cursor: pointer; border: none; display: inline-block; }
+    .btn-primary { background: #0f172a; color: white; }
+    .btn-edit { background: #1e40af; color: white; padding: 5px 12px; font-size: 12px; border-radius: 4px; text-decoration: none; }
+    .btn-delete { color: #94a3b8; padding: 5px 10px; font-size: 11px; background: transparent; border: 1px solid #e2e8f0; border-radius: 4px; text-decoration: none; }
+    .btn-delete:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+    
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
+    th { background: #f8fafc; color: #64748b; text-align: left; padding: 15px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-transform: uppercase; }
+    td { padding: 14px 15px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 14px; }
+    
+    .plate-badge { 
+        background: #f1f5f9; 
+        border: 1px solid #cbd5e1; 
+        padding: 5px 10px; 
+        border-radius: 4px; 
+        font-family: 'Courier New', Courier, monospace; 
+        font-weight: bold; 
+        color: #0f172a; 
+        letter-spacing: 1px;
+    }
+
+    .type-tag {
+        font-weight: 500;
+        color: #475569;
+        font-size: 12px;
+        background: #f8fafc;
+        padding: 2px 8px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="header-actions">
+    <h1 style="color: #0f172a; margin: 0;">Gestión de Vehículos</h1>
+    <a href="/vehiculos/create/" class="btn btn-primary">+ Registrar Vehículo</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Placa</th>
+            <th>Tipo</th>
+            <th>Propietario</th>
+            <th style="text-align: center;">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for v in vehicles %}
+        <tr>
+            <td><span class="plate-badge">{{ v.license_plate }}</span></td>
+            <td><span class="type-tag">{{ v.type }}</span></td>
+            <td>
+                <strong>{{ v.client.name|default:"Sin asignar" }}</strong>
+            </td>
+            <td style="text-align: center;">
+                <a href="/vehiculos/edit/{{ v.id }}/" class="btn btn-edit">Editar</a>
+                <a href="/vehiculos/delete/{{ v.id }}/" class="btn btn-delete">Eliminar</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" style="text-align: center; color: #94a3b8; padding: 40px;">
+                No hay vehículos registrados todavía.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

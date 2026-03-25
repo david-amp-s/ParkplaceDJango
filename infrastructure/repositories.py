@@ -4,6 +4,8 @@ from .models import AppUser
 from .models import Client, Vehicle
 from .models import Ticket, ParkingSpot
 from .models import Payment as PaymentModel
+from .models import Ticket
+from datetime import date 
 
 from domain.entities.employee import Employee
 from domain.ports.employee_repository import EmployeeRepository
@@ -67,24 +69,42 @@ class DjangoClientRepository:
         return ClientModel.objects.all()
 
 
-from .models import Vehicle as VehicleModel
-
 class DjangoVehicleRepository:
+    def save(self, plate, v_type, client_id):
 
-    def save(self, vehicle):
-        return VehicleModel.objects.create(
-            license_plate=vehicle.license_plate,
-            type=vehicle.type,
-            client_id=vehicle.client_id
+        return Vehicle.objects.create(
+            license_plate=plate, 
+            type=v_type,         
+            client_id=client_id 
         )
 
 
-
+from datetime import date
 
 class DjangoTicketRepository:
+    def get_history_all(self):
+        # Detecta el día del ingreso y salida NO MOVER
+        hoy = date.today() 
+        
+        return Ticket.objects.filter(
+            entry_time__date=hoy 
+        ).select_related('vehicle', 'vehicle__client').order_by(
+            'status',      
+            '-entry_time'  
+        )
+
+    def filter_by_plate(self, plate):
+        hoy = date.today()
+        return Ticket.objects.filter(
+            vehicle__license_plate__icontains=plate,
+            entry_time__date=hoy
+        ).select_related('vehicle', 'vehicle__client').order_by(
+            'status', 
+            '-entry_time'
+        )
 
     def create(self, data):
-        data.pop('employee_id', None)  # temporal mientras karlos termino lo suyo
+        data.pop('employee_id', None)  # temporal mientras karlos termina lo suyo
         return Ticket.objects.create(**data)
 
     def get_active_by_vehicle(self, vehicle_id):
@@ -138,3 +158,30 @@ class DjangoPaymentRepository:
             method = payment.method,
             amount = payment.amount
         )
+
+#Historial
+
+from django.shortcuts import render
+from django.utils import timezone
+
+def history_view(request):
+    from .repositories import DjangoTicketRepository
+    from domain.use_cases.get_history import GetHistory
+
+    query = request.GET.get('q') 
+    repo = DjangoTicketRepository()
+    
+    if query:
+        #filtrar
+        tickets = repo.filter_by_plate(query)
+    else:
+        use_case = GetHistory(repo)
+        tickets = use_case.execute()
+
+    for t in tickets:
+        if t.entry_time:
+            t.entry_time = timezone.localtime(t.entry_time).replace(tzinfo=None)
+        if t.exit_time:
+            t.exit_time = timezone.localtime(t.exit_time).replace(tzinfo=None)
+
+    return render(request, 'list_history.html', {'tickets': tickets})

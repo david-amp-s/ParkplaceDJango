@@ -1,0 +1,16 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 60px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); text-align: center;">
+    <h2 style="color: #0f172a;">¿Eliminar vehículo?</h2>
+    <p style="color: #64748b;">Vas a quitar el vehículo con placa <strong>{{ vehicle.license_plate }}</strong>.</p>
+
+    <form method="POST" style="margin-top: 30px; display: flex; flex-direction: column; gap: 10px;">
+        {% csrf_token %}
+        <button type="submit" style="background: #ef4444; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+            Confirmar eliminación
+        </button>
+        <a href="/vehiculos/" style="color: #64748b; text-decoration: none; font-size: 14px; padding: 10px;">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,21 +1,60 @@
-<form method="post">
-  {% csrf_token %}
+{% extends "base/base.html" %}
 
-  <input type="text" name="plate" placeholder="Placa">
+{% block title %}Nuevo Vehículo - ParkPlace{% endblock %}
 
-  <select name="type">
-    <option value="CAR">Carro</option>
-    <option value="MOTORCYCLE">Moto</option>
-  </select>
+{% block extra_css %}
+<style>
+    .form-container { max-width: 500px; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); margin: 40px auto; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px; }
+    .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; font-size: 14px; color: #334155; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1); }
+    .btn-save { background: #0f172a; color: white; width: 100%; padding: 12px; margin-top: 10px; font-size: 15px; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; }
+    .btn-save:hover { background: #1e293b; }
+    .btn-back { color: #64748b; display: inline-block; text-decoration: none; font-weight: 500; font-size: 14px; margin-bottom: 10px; }
+</style>
+{% endblock %}
 
+{% block content %}
+<div style="max-width: 500px; margin: 0 auto;">
+    <a href="/vehiculos/" class="btn-back">← Volver al listado</a>
+</div>
 
-  <select name="client_id">
-    {% for client in clients %}
-      <option value="{{ client.id }}">
-        {{ client.name }}
-      </option>
-    {% endfor %}
-  </select>
+<div class="form-container">
+    <h2 style="margin-top: 0; color: #0f172a; font-size: 22px; margin-bottom: 25px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
+        Registrar Vehículo
+    </h2>
+    
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>Placa del Vehículo</label>
+            <input type="text" name="plate" required placeholder="Ej. ABC123" style="text-transform: uppercase;">
+        </div>
 
-  <button type="submit">Guardar</button>
-</form>
+        <div class="form-group">
+            <label>Tipo de Vehículo</label>
+            <select name="type">
+                <option value="CAR">Automóvil (Carro)</option>
+                <option value="MOTORCYCLE">Motocicleta (Moto)</option>
+                <option value="BICYCLE">Bicicleta</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Propietario</label>
+            <select name="client_id" required>
+                <option value="" disabled selected>Seleccione el dueño...</option>
+                {% for client in clients %}
+                    <option value="{{ client.id }}">
+                        {{ client.name }} {% if client.client_type == "SENA" %}(SENA 🎓){% endif %}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn-save">Guardar Vehículo</button>
+    </form>
+</div>
+{% endblock %}

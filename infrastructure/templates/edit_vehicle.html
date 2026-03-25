@@ -1,18 +1,65 @@
-<h1>Editar Vehículo</h1>
+{% extends "base/base.html" %}
 
-<form method="post">
-  {% csrf_token %}
+{% block title %}Editar Vehículo - ParkPlace{% endblock %}
 
-  <input type="text" name="plate" value="{{ vehicle.license_plate }}" placeholder="Placa">
+{% block extra_css %}
+<style>
+    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; }
+    .card h1 { margin-top: 0; color: #1e293b; font-size: 24px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px; }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #475569; }
+    .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; box-sizing: border-box; transition: 0.3s; }
 
-  <select name="type">
-    <option value="CAR" {% if vehicle.type == 'CAR' %}selected{% endif %}>Carro</option>
-    <option value="MOTORCYCLE" {% if vehicle.type == 'MOTORCYCLE' %}selected{% endif %}>Moto</option>
-  </select>
 
-  <input type="number" name="client_id" value="{{ vehicle.client_id }}" placeholder="Cliente ID">
+    .btn-container { display: flex; gap: 10px; margin-top: 30px; }
+    .btn { flex: 1; padding: 12px; border-radius: 8px; font-weight: 600; text-align: center; text-decoration: none; cursor: pointer; border: none; font-size: 16px; }
+    .btn-save { background: #2563eb; color: white; transition: 0.3s; }
+    .btn-save:hover { background: #1d4ed8; }
+    .btn-cancel { background: #f1f5f9; color: #475569; transition: 0.3s; }
+    .btn-cancel:hover { background: #e2e8f0; }
 
-  <button type="submit">Actualizar</button>
-</form>
+    .help-text { font-size: 13px; color: #94a3b8; margin-top: 5px; }
+</style>
+{% endblock %}
 
-<a href="/vehiculos/">Volver</a>
+{% block content %}
+<div class="card">
+    <h1>Editar Vehículo</h1>
+    
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="plate">Placa / Matrícula</label>
+            <input type="text" id="plate" name="plate" value="{{ vehicle.license_plate }}" required placeholder="EJ: ABC123">
+            <p class="help-text">La placa se guardará automáticamente en mayúsculas.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="type">Tipo de Vehículo</label>
+            <select name="type" id="type" required>
+                <option value="CAR" {% if vehicle.type == "CAR" %}selected{% endif %}>Carro / Automóvil</option>
+                <option value="MOTORCYCLE" {% if vehicle.type == "MOTORCYCLE" %}selected{% endif %}>Motocicleta</option>
+                <option value="TRUCK" {% if vehicle.type == "TRUCK" %}selected{% endif %}>Camión / Pesado</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="client_id">Propietario</label>
+            <select name="client_id" id="client_id" required>
+                {% for client in clients %}
+                    <option value="{{ client.id }}" {% if vehicle.client.id == client.id %}selected{% endif %}>
+                        {{ client.name }} ({{ client.phone }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="btn-container">
+            <a href="/vehiculos/" class="btn btn-cancel">Cancelar</a>
+            <button type="submit" class="btn btn-save">Guardar Cambios</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -32,6 +32,7 @@ class Client(models.Model):
     email = models.CharField(max_length=100, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+
     class Meta:
         db_table = 'client' 
     def __str__(self):
@@ -39,7 +40,6 @@ class Client(models.Model):
 
 
 class Vehicle(models.Model):
-
     VEHICLE_TYPES = [
         ('CAR', 'Carro'),
         ('MOTORCYCLE', 'Moto'),
@@ -52,7 +52,7 @@ class Vehicle(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'vehicle' 
+        db_table = 'vehicle'  # Nombre exacto en tu PostgreSQL
 
     def __str__(self):
         return self.license_plate
@@ -101,3 +101,6 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"payment {self.id} - {self.amount}"
+    
+    class Meta:
+        db_table = 'payment'

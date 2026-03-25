@@ -1,9 +1,99 @@
-<h1>Clientes</h1>
+{% extends "base/base.html" %}
 
-<a href="/clientes/create/">Crear cliente</a>
+{% block title %}Clientes - ParkPlace{% endblock %}
 
-<ul>
-  {% for client in clients %}
-    <li>{{ client.name }} - {{ client.phone }} - {{ client.email }}</li>
-  {% endfor %}
-</ul>
+{% block extra_css %}
+<style>
+    .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .btn { padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; cursor: pointer; border: none; display: inline-block; }
+    
+    /* Botón principal azul ParkPlace */
+    .btn-primary { background: #0f172a; color: white; border: 1px solid #1e293b; }
+    .btn-primary:hover { background: #1e293b; }
+
+    /* Botón Editar - Azul profesional */
+    .btn-edit { background: #1e40af; color: white; padding: 5px 12px; font-size: 12px; text-decoration: none; border-radius: 4px; }
+    .btn-edit:hover { background: #1e3a8a; }
+
+    /* Botón Eliminar - Sutil */
+    .btn-delete { 
+        color: #94a3b8; 
+        padding: 5px 10px; 
+        font-size: 11px; 
+        background: transparent;
+        border: 1px solid #e2e8f0;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+    .btn-delete:hover { 
+        background: #fee2e2; 
+        color: #dc2626; 
+        border-color: #fecaca; 
+    }
+    
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
+    th { background: #f8fafc; color: #64748b; text-align: left; padding: 15px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-transform: uppercase; }
+    td { padding: 14px 15px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 14px; }
+    tr:hover { background-color: #f8fafc; }
+
+    /* Badge SENA */
+    .badge-sena { 
+        background: #39a900; 
+        color: white; 
+        padding: 3px 10px; 
+        border-radius: 12px; 
+        font-size: 10px; 
+        font-weight: bold; 
+        display: inline-flex; 
+        align-items: center; 
+        gap: 4px; 
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="header-actions">
+    <h1 style="color: #0f172a; margin: 0;">Gestión de Clientes</h1>
+    <a href="/clientes/create/" class="btn btn-primary">+ Nuevo Cliente</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th style="text-align: center;">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for client in clients %}
+        <tr>
+            <td><strong>{{ client.name }}</strong></td>
+            <td>
+                {% if client.client_type == "SENA" %}
+                    <span class="badge-sena">
+                        <span style="font-size: 12px;">🎓</span> Aprendiz SENA
+                    </span>
+                {% else %}
+                    <span style="color: #94a3b8; font-size: 13px; font-style: italic;">👤 Regular</span>
+                {% endif %}
+            </td>
+            <td>{{ client.phone }}</td>
+            <td>{{ client.email|default:"-" }}</td>
+            <td style="text-align: center;">
+                <a href="/clientes/edit/{{ client.id }}/" class="btn btn-edit">Editar</a>
+                <a href="/clientes/delete/{{ client.id }}/" class="btn btn-delete">Eliminar</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="text-align: center; color: #94a3b8; padding: 40px;">
+                No hay clientes registrados todavía.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -5,18 +5,29 @@
 {% block content %}
 <div class="card">
     <h1>Registrar Ingreso</h1>
-    <p>Escriba la placa del vehículo. Si es nuevo, el sistema lo creará automáticamente.</p>
+    <p>Escriba la placa y seleccione si es carro o moto.</p>
     <hr style="margin-bottom: 20px; border: 0; border-top: 1px solid #eee;">
 
     <form method="post" autocomplete="off">
         {% csrf_token %}
+        
         <div style="margin-bottom: 20px;">
             <label style="display:block; margin-bottom:8px; font-weight:bold;">Placa del Vehículo:</label>
             <input type="text" name="license_plate" id="license_plate" placeholder="Ej: ABC123" required 
                    style="width:100%; padding:12px; border-radius:6px; border:1px solid #cbd5e1; text-transform: uppercase; font-size: 18px;">
         </div>
 
-        <button type="submit" style="background:#1e3a8a; color:white; border:none; padding:14px 30px; border-radius:6px; cursor:pointer; font-weight:bold; width: 100%;">
+        <div style="margin-bottom: 25px;">
+            <label style="display:block; margin-bottom:8px; font-weight:bold;">Tipo de Vehículo:</label>
+            <select name="vehicle_type" required 
+                    style="width:100%; padding:12px; border-radius:6px; border:1px solid #cbd5e1; font-size: 16px; background-color: white;">
+                <option value="" disabled selected>Seleccione el tipo...</option>
+                <option value="CAR">Carro</option>
+                <option value="MOTORCYCLE">Moto</option>
+            </select>
+        </div>
+
+        <button type="submit" style="background:#1e3a8a; color:white; border:none; padding:14px 30px; border-radius:6px; cursor:pointer; font-weight:bold; width: 100%; font-size: 16px;">
             Registrar Entrada
         </button>
     </form>
@@ -29,9 +40,8 @@
 </div>
 
 <script>
-    //próxima carga limpia
     document.addEventListener('DOMContentLoaded', function() {
-        console.log("Formulario de ingreso listo.");
+        document.getElementById('license_plate').focus();
     });
 </script>
 {% endblock %}

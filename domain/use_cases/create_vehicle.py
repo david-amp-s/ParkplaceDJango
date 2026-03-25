@@ -1,10 +1,9 @@
-from domain.entities.vehicle import Vehicle
+# domain/use_cases/create_vehicle.py
 
 class CreateVehicle:
+    def __init__(self, vehicle_repository):
+        self.vehicle_repository = vehicle_repository
 
-    def __init__(self, repository):
-        self.repository = repository
-
-    def execute(self, plate, type, client_id):
-        vehicle = Vehicle(plate, type, client_id)
-        return self.repository.save(vehicle)
+    def execute(self, plate, v_type, client_id):
+        # EL ARREGLO: Pasa los 3 argumentos al repositorio
+        return self.vehicle_repository.save(plate, v_type, client_id)

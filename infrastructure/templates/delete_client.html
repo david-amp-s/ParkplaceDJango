@@ -1,0 +1,27 @@
+{% extends "base/base.html" %}
+
+{% block title %}Eliminar Cliente - ParkPlace{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 60px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); text-align: center;">
+    <div style="background: #fee2e2; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+        <span style="color: #ef4444; font-size: 30px; font-weight: bold;">!</span>
+    </div>
+    
+    <h2 style="color: #0f172a; margin-bottom: 10px;">¿Confirmar eliminación?</h2>
+    <p style="color: #64748b; line-height: 1.5;">
+        Estás a punto de eliminar a <strong>{{ client.name }}</strong> de la base de datos.<br>
+        <span style="color: #ef4444; font-size: 13px;">Esta acción es permanente.</span>
+    </p>
+
+    <form method="POST" style="margin-top: 30px; display: flex; flex-direction: column; gap: 10px;">
+        {% csrf_token %}
+        <button type="submit" style="background: #ef4444; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 15px;">
+            Sí, eliminar cliente
+        </button>
+        <a href="/clientes/" style="color: #64748b; text-decoration: none; font-size: 14px; padding: 10px;">
+            Cancelar y volver
+        </a>
+    </form>
+</div>
+{% endblock %}

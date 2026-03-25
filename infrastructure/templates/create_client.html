@@ -1,7 +1,117 @@
-<form method="post">
-  {% csrf_token %}
-  <input type="text" name="name" placeholder="Nombre">
-  <input type="text" name="phone" placeholder="Teléfono">
-  <input type="email" name="email" placeholder="Email">
-  <button type="submit">Guardar</button>
-</form>
+{% extends "base/base.html" %}
+
+{% block title %}Nuevo Cliente - ParkPlace{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Contenedor centrado y limpio */
+    .form-container { 
+        max-width: 500px; 
+        background: white; 
+        padding: 30px; 
+        border-radius: 12px; 
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); 
+        margin: 40px auto; 
+    }
+    
+    .form-group { margin-bottom: 20px; }
+    
+    .form-group label { 
+        display: block; 
+        margin-bottom: 8px; 
+        font-weight: 600; 
+        color: #1e293b; 
+        font-size: 14px;
+    }
+    
+    /* Inputs y Selects con el estilo del sistema */
+    .form-group input, .form-group select { 
+        width: 100%; 
+        padding: 10px 12px; 
+        border: 1px solid #e2e8f0; 
+        border-radius: 6px; 
+        box-sizing: border-box; 
+        font-size: 14px; 
+        color: #334155;
+        transition: border-color 0.2s;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+        outline: none;
+        border-color: #1e40af;
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+
+    /* Botón Guardar - Azul Oscuro ParkPlace */
+    .btn-save { 
+        background: #0f172a; 
+        color: white; 
+        width: 100%; 
+        padding: 12px;
+        margin-top: 10px; 
+        font-size: 15px; 
+        font-weight: 600;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s; 
+    }
+    
+    .btn-save:hover { background: #1e293b; }
+
+    .btn-back { 
+        color: #64748b; 
+        display: inline-block; 
+        text-decoration: none; 
+        font-weight: 500; 
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+    .btn-back:hover { color: #0f172a; }
+
+    /* Estilo sutil para la opción SENA dentro del select */
+    .sena-option { font-weight: bold; color: #39a900; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 0 auto;">
+    <a href="/clientes/" class="btn-back">← Volver al listado de clientes</a>
+</div>
+
+<div class="form-container">
+    <h2 style="margin-top: 0; color: #0f172a; font-size: 22px; margin-bottom: 25px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
+        Registrar Nuevo Cliente
+    </h2>
+    
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>Nombre Completo</label>
+            <input type="text" name="name" required placeholder="Ej. Juan Pérez">
+        </div>
+
+        <div class="form-group">
+            <label>Tipo de Cliente</label>
+            <select name="client_type">
+                <option value="REGULAR">Cliente Regular</option>
+                <option value="SENA">Aprendiz SENA 🎓</option>
+                <option value="VISITANTE">Visitante Ocasional</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Teléfono de Contacto</label>
+            <input type="text" name="phone" required placeholder="Ej. 3001234567">
+        </div>
+
+        <div class="form-group">
+            <label>Correo Electrónico (Opcional)</label>
+            <input type="email" name="email" placeholder="correo@ejemplo.com">
+        </div>
+
+        <button type="submit" class="btn-save">Guardar Cliente</button>
+    </form>
+</div>
+{% endblock %}

@@ -107,11 +107,26 @@ class DjangoParkingSpotRepository:
         spot = ParkingSpot.objects.get(id=spot_id)
         spot.status = 'OCCUPIED'
         spot.save()
+        return spot
 
     def free(self, spot_id):
         spot = ParkingSpot.objects.get(id=spot_id)
         spot.status = 'AVAILABLE'
         spot.save()
+        return spot
+
+    def get_all(self):
+        return ParkingSpot.objects.all()
+
+    def get_by_id(self, spot_id):
+        return ParkingSpot.objects.get(id=spot_id)
+
+    def save(self, data):
+        return ParkingSpot.objects.create(**data)
+
+    def update(self, spot):
+        spot.save()
+        return spot
 
 
         

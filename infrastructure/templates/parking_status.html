@@ -1,0 +1,65 @@
+{% extends 'base/base.html' %}
+
+{% block extra_css %}
+<style>
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 20px;
+}
+
+.spot {
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.spot:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.available {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.occupied {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+}
+
+.spot small {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    opacity: 0.8;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<h2>🅿️ Estado del Parqueadero</h2>
+
+<div class="grid">
+
+{% for item in occupied %}
+    <div class="spot occupied">
+        🚗 {{ item.spot.id }}
+        <small>{{ item.ticket.vehicle.license_plate }}</small>
+    </div>
+{% endfor %}
+
+{% for s in available %}
+    <div class="spot available">
+        🅿️ {{ s.id }}
+        <small>Disponible</small>
+    </div>
+{% endfor %}
+
+</div>
+
+{% endblock %}

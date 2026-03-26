@@ -79,7 +79,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'parkplacedj_db',
         'USER': 'postgres',
-        'PASSWORD': '123456789',
+        'PASSWORD': 'camisalo15',
         'HOST': 'localhost',
         'PORT': '5432',
       

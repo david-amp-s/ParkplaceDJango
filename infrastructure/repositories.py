@@ -1,59 +1,67 @@
 from domain.entities.user import User
 from domain.ports.user_repository import UserRepository
+from domain.entities.employee import Employee as EmployeeEntity
+from domain.ports.employee_repository import EmployeeRepository
+
 from .models import AppUser
-from .models import Client, Vehicle
+from .models import Client as ClientModel
+from .models import Vehicle as VehicleModel
 from .models import Ticket, ParkingSpot
 from .models import Payment as PaymentModel
-
-from domain.entities.employee import Employee
-from domain.ports.employee_repository import EmployeeRepository
-from infrastructure.models import Employee, AppUser
+from .models import Employee as EmployeeModel
 
 
+# =========================
+# 👤 USER
+# =========================
 class DjangoUserRepository(UserRepository):
-    def find_by_username(self,username):
-        try : 
+    def find_by_username(self, username):
+        try:
             user = AppUser.objects.get(username=username)
             return User(
-                id = user.id,
-                username = user.username,
-                password = user.password,
-                role = user.role,
-                is_active = user.is_active
+                id=user.id,
+                username=user.username,
+                password=user.password,
+                role=user.role,
+                is_active=user.is_active
             )
-        except AppUser.DoesNotExist :
+        except AppUser.DoesNotExist:
             return None
 
 
+# =========================
+# 👷 EMPLOYEE
+# =========================
 class DjangoEmployeeRepository(EmployeeRepository):
 
     def get_all(self):
         return [
-            Employee(e.id, e.user.id, e.name, e.phone)
-            for e in Employee.objects.select_related('user').all()
+            EmployeeEntity(e.id, e.user.id, e.name, e.phone)
+            for e in EmployeeModel.objects.select_related('user').all()
         ]
 
     def get_by_id(self, employee_id):
-        e = Employee.objects.select_related('user').get(id=employee_id)
-        return Employee(e.id, e.user.id, e.name, e.phone)
+        e = EmployeeModel.objects.select_related('user').get(id=employee_id)
+        return EmployeeEntity(e.id, e.user.id, e.name, e.phone)
 
     def create(self, employee):
         user = AppUser.objects.get(id=employee.user_id)
 
-        e = Employee.objects.create(
+        e = EmployeeModel.objects.create(
             user=user,
             name=employee.name,
             phone=employee.phone
         )
 
-        return Employee(e.id, e.user.id, e.name, e.phone)
+        return EmployeeEntity(e.id, e.user.id, e.name, e.phone)
 
     def delete(self, employee_id):
-        Employee.objects.get(id=employee_id).delete()
+        EmployeeModel.objects.get(id=employee_id).delete()
 
 
-from .models import Client as ClientModel
-
+# =========================
+# 👥 CLIENT
+# =========================
 class DjangoClientRepository:
 
     def save(self, client):
@@ -67,8 +75,9 @@ class DjangoClientRepository:
         return ClientModel.objects.all()
 
 
-from .models import Vehicle as VehicleModel
-
+# =========================
+# 🚗 VEHICLE
+# =========================
 class DjangoVehicleRepository:
 
     def save(self, vehicle):
@@ -79,12 +88,13 @@ class DjangoVehicleRepository:
         )
 
 
-
-
+# =========================
+# 🎫 TICKET
+# =========================
 class DjangoTicketRepository:
 
     def create(self, data):
-        data.pop('employee_id', None)  # temporal mientras karlos termino lo suyo
+        data.pop('employee_id', None)  # opcional
         return Ticket.objects.create(**data)
 
     def get_active_by_vehicle(self, vehicle_id):
@@ -98,6 +108,9 @@ class DjangoTicketRepository:
         return ticket
 
 
+# =========================
+# 🅿️ PARKING SPOT (CLAVE)
+# =========================
 class DjangoParkingSpotRepository:
 
     def get_available(self):
@@ -124,17 +137,23 @@ class DjangoParkingSpotRepository:
     def save(self, data):
         return ParkingSpot.objects.create(**data)
 
-    def update(self, spot):
+    # 🔥 CORRECCIÓN IMPORTANTE
+    def update(self, spot_entity):
+        spot = ParkingSpot.objects.get(id=spot_entity.id)
+        spot.status = spot_entity.status
         spot.save()
         return spot
 
 
-        
+# =========================
+# 💳 PAYMENT
+# =========================
 class DjangoPaymentRepository:
+
     def save(self, payment):
         return PaymentModel.objects.create(
-            ticket_id = payment.ticket_id,
-            employee_id = payment.employee_id,
-            method = payment.method,
-            amount = payment.amount
+            ticket_id=payment.ticket_id,
+            employee_id=payment.employee_id,
+            method=payment.method,
+            amount=payment.amount
         )

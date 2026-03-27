@@ -24,7 +24,6 @@
         font-size: 14px;
     }
     
-    /* Inputs y Selects con el estilo del sistema */
     .form-group input, .form-group select { 
         width: 100%; 
         padding: 10px 12px; 
@@ -42,7 +41,19 @@
         box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
     }
 
-    /* Botón Guardar - Azul Oscuro ParkPlace */
+    /* Estilo para errores */
+    .error-message {
+        color: #dc2626;
+        font-size: 12px;
+        margin-top: 4px;
+        font-weight: 500;
+    }
+    
+    .input-error {
+        border-color: #dc2626 !important;
+        background-color: #fef2f2;
+    }
+
     .btn-save { 
         background: #0f172a; 
         color: white; 
@@ -68,9 +79,6 @@
         margin-bottom: 10px;
     }
     .btn-back:hover { color: #0f172a; }
-
-    /* Estilo sutil para la opción SENA dentro del select */
-    .sena-option { font-weight: bold; color: #39a900; }
 </style>
 {% endblock %}
 
@@ -89,26 +97,46 @@
         
         <div class="form-group">
             <label>Nombre Completo</label>
-            <input type="text" name="name" required placeholder="Ej. Juan Pérez">
+            <input type="text" name="name" 
+                   class="{% if form.name.errors %}input-error{% endif %}"
+                   value="{{ form.name.value|default:'' }}" 
+                   required placeholder="Ej. Juan Pérez">
+            {% if form.name.errors %}
+                <div class="error-message">{{ form.name.errors.0 }}</div>
+            {% endif %}
         </div>
 
         <div class="form-group">
             <label>Tipo de Cliente</label>
             <select name="client_type">
-                <option value="REGULAR">Cliente Regular</option>
-                <option value="SENA">Aprendiz SENA 🎓</option>
-                <option value="VISITANTE">Visitante Ocasional</option>
+                {% for value, label in form.fields.client_type.choices %}
+                    <option value="{{ value }}" {% if form.client_type.value == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
             </select>
         </div>
 
         <div class="form-group">
             <label>Teléfono de Contacto</label>
-            <input type="text" name="phone" required placeholder="Ej. 3001234567">
+            <input type="text" name="phone" 
+                   class="{% if form.phone.errors %}input-error{% endif %}"
+                   value="{{ form.phone.value|default:'' }}" 
+                   required placeholder="Ej. 3001234567">
+            {% if form.phone.errors %}
+                <div class="error-message">{{ form.phone.errors.0 }}</div>
+            {% endif %}
         </div>
 
         <div class="form-group">
             <label>Correo Electrónico (Opcional)</label>
-            <input type="email" name="email" placeholder="correo@ejemplo.com">
+            <input type="email" name="email" 
+                   class="{% if form.email.errors %}input-error{% endif %}"
+                   value="{{ form.email.value|default:'' }}" 
+                   placeholder="correo@ejemplo.com">
+            {% if form.email.errors %}
+                <div class="error-message">{{ form.email.errors.0 }}</div>
+            {% endif %}
         </div>
 
         <button type="submit" class="btn-save">Guardar Cliente</button>

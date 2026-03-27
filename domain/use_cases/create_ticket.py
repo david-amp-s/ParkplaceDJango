@@ -8,20 +8,20 @@ class CreateTicket:
 
     def execute(self, vehicle_id, employee_id):
 
-        # 🚫 EVITAR DOBLE INGRESO
+        #EVITAR DOBLE INGRESO
         existing_ticket = self.ticket_repo.get_active_by_vehicle(vehicle_id)
 
         if existing_ticket:
             raise Exception("El vehículo ya está dentro del parqueadero")
 
-        # 🔍 Buscar espacio disponible
+        #Buscar espacio disponible
         spot = self.spot_repo.get_available()
 
         if not spot:
             raise Exception("No hay espacios disponibles")
 
-        # 🅿️ Ocupar espacio
-        spot.occupy()   # 🔥 YA GUARDA SOLO
+        #Ocupar espacio
+        spot.occupy() 
 
         # 🎫 Crear ticket
         ticket_data = {

@@ -4,36 +4,78 @@
 
 {% block extra_css %}
 <style>
-    .form-container { max-width: 600px; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+    .form-container { max-width: 600px; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); margin-top: 20px; }
     .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
-    .form-group input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
-    .btn-update { background: #3b82f6; color: white; width: 100%; }
-    .btn-cancel { color: #ef4444; text-decoration: none; font-size: 14px; margin-left: 10px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b; }
+    
+    .form-group input, .form-group select { 
+        width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; 
+        transition: border-color 0.2s;
+    }
+    
+    /* Estilos de error */
+    .input-error { border-color: #dc2626 !important; background-color: #fef2f2; }
+    .error-message { color: #dc2626; font-size: 12px; margin-top: 4px; font-weight: 500; }
+
+    .btn-update { background: #3b82f6; color: white; width: 100%; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    .btn-update:hover { background: #2563eb; }
+    .btn-cancel { color: #ef4444; text-decoration: none; font-size: 14px; margin-left: 10px; font-weight: 500; }
 </style>
 {% endblock %}
 
 {% block content %}
-<h1>Editar Cliente</h1>
+<h1 style="color: #0f172a; font-size: 24px;">Editar Cliente: {{ client.name }}</h1>
 
 <div class="form-container">
     <form method="POST">
         {% csrf_token %}
+        
         <div class="form-group">
             <label>Nombre Completo</label>
-            <input type="text" name="name" value="{{ client.name }}" required>
+            <input type="text" name="name" 
+                   class="{% if form.name.errors %}input-error{% endif %}"
+                   value="{{ form.name.value|default:client.name }}" required>
+            {% if form.name.errors %}
+                <div class="error-message">{{ form.name.errors.0 }}</div>
+            {% endif %}
         </div>
+
+        <div class="form-group">
+            <label>Tipo de Cliente</label>
+            <select name="client_type" class="{% if form.client_type.errors %}input-error{% endif %}">
+                {% for value, label in form.fields.client_type.choices %}
+                    <option value="{{ value }}" {% if form.client_type.value == value or client.client_type == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+            {% if form.client_type.errors %}
+                <div class="error-message">{{ form.client_type.errors.0 }}</div>
+            {% endif %}
+        </div>
+
         <div class="form-group">
             <label>Teléfono</label>
-            <input type="text" name="phone" value="{{ client.phone }}" required>
+            <input type="text" name="phone" 
+                   class="{% if form.phone.errors %}input-error{% endif %}"
+                   value="{{ form.phone.value|default:client.phone }}" required>
+            {% if form.phone.errors %}
+                <div class="error-message">{{ form.phone.errors.0 }}</div>
+            {% endif %}
         </div>
+
         <div class="form-group">
             <label>Correo Electrónico</label>
-            <input type="email" name="email" value="{{ client.email|default:'' }}">
+            <input type="email" name="email" 
+                   class="{% if form.email.errors %}input-error{% endif %}"
+                   value="{{ form.email.value|default:client.email|default:'' }}">
+            {% if form.email.errors %}
+                <div class="error-message">{{ form.email.errors.0 }}</div>
+            {% endif %}
         </div>
         
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <button type="submit" class="btn btn-update">Actualizar Datos</button>
+        <div style="display: flex; align-items: center; gap: 15px; margin-top: 25px;">
+            <button type="submit" class="btn-update">Actualizar Datos</button>
             <a href="/clientes/" class="btn-cancel">Cancelar</a>
         </div>
     </form>

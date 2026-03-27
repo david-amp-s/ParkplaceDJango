@@ -2,63 +2,101 @@
 
 {% block extra_css %}
 <style>
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 20px;
-}
+    /* Contenedor principal */
+    .grid {
+        display: grid;
+        /* Bajamos de 180px a 140px para que quepan más por fila */
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 15px; /* Reducimos un poco el espacio entre ellos */
+        margin-top: 20px;
+    }
 
-.spot {
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    font-weight: bold;
-    color: white;
-    transition: transform 0.2s, box-shadow 0.2s;
-    cursor: pointer;
-}
+    .spot {
+        /* Bajamos la altura de 160px a 120px */
+        min-height: 120px;
+        padding: 15px;
+        border-radius: 12px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        color: white;
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+        text-transform: uppercase;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
 
-.spot:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-}
+    .spot:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
 
-.available {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-}
+    .available {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        border: 1px solid #15803d;
+    }
 
-.occupied {
-    background: linear-gradient(135deg, #ef4444, #b91c1c);
-}
+    .occupied {
+        background: linear-gradient(135deg, #ef4444, #b91c1c);
+        border: 1px solid #991b1b;
+    }
 
-.spot small {
-    display: block;
-    margin-top: 5px;
-    font-size: 12px;
-    opacity: 0.8;
-}
+    .spot .number-label {
+        font-size: 1.1rem; 
+        margin-bottom: 2px;
+        display: block;
+    }
+
+    .spot .status-badge {
+        display: block;
+        margin-top: 5px;
+        font-size: 11px; 
+        font-weight: 500;
+        background: rgba(0,0,0,0.2);
+        padding: 3px 8px;
+        border-radius: 15px;
+        width: 95%;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<h2>🅿️ Estado del Parqueadero</h2>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <h2 style="color: #0f172a; margin: 0;">Estado del Parqueadero</h2>
+    <div style="font-size: 14px; font-weight: bold;">
+        <span style="color: #22c55e;">● Libre</span> &nbsp; 
+        <span style="color: #ef4444;">● Ocupado</span>
+    </div>
+</div>
 
 <div class="grid">
 
-{% for item in occupied %}
-    <div class="spot occupied">
-        🚗 {{ item.spot.id }}
-        <small>{{ item.ticket.vehicle.license_plate }}</small>
-    </div>
-{% endfor %}
+    {% for item in all_spots %}
+        
+        {% if item.is_occupied %}
+            <div class="spot occupied">
+                <span class="number-label">Espacio {{ item.spot.number }}</span>
+                <small class="status-badge">Placa: {{ item.ticket.vehicle.license_plate }}</small>
+                <small style="margin-top: 5px; opacity: 0.9; font-size: 11px;">Ocupado</small>
+            </div>
+        {% else %}
+            <div class="spot available">
+                <span class="number-label">Espacio {{ item.spot.number }}</span>
+                <small class="status-badge">Disponible</small>
+            </div>
+        {% endif %}
 
-{% for s in available %}
-    <div class="spot available">
-        🅿️ {{ s.id }}
-        <small>Disponible</small>
-    </div>
-{% endfor %}
+    {% empty %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 50px; background: #f1f5f9; border-radius: 15px;">
+            <p style="color: #64748b; font-size: 18px;">No hay espacios configurados en el sistema.</p>
+        </div>
+    {% endfor %}
 
 </div>
 

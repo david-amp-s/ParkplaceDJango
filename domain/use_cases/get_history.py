@@ -5,5 +5,4 @@ class GetHistory:
         self.ticket_repository = ticket_repository
 
     def execute(self):
-        # El caso de uso solo pide los datos al repositorio
         return self.ticket_repository.get_history_all()

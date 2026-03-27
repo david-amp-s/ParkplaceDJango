@@ -5,5 +5,4 @@ class CreateVehicle:
         self.vehicle_repository = vehicle_repository
 
     def execute(self, plate, v_type, client_id):
-        # EL ARREGLO: Pasa los 3 argumentos al repositorio
         return self.vehicle_repository.save(plate, v_type, client_id)

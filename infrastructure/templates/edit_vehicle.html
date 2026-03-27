@@ -11,7 +11,6 @@
     .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #475569; }
     .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; box-sizing: border-box; transition: 0.3s; }
 
-
     .btn-container { display: flex; gap: 10px; margin-top: 30px; }
     .btn { flex: 1; padding: 12px; border-radius: 8px; font-weight: 600; text-align: center; text-decoration: none; cursor: pointer; border: none; font-size: 16px; }
     .btn-save { background: #2563eb; color: white; transition: 0.3s; }
@@ -20,6 +19,9 @@
     .btn-cancel:hover { background: #e2e8f0; }
 
     .help-text { font-size: 13px; color: #94a3b8; margin-top: 5px; }
+    
+
+    #plate { text-transform: uppercase; }
 </style>
 {% endblock %}
 
@@ -32,16 +34,16 @@
         
         <div class="form-group">
             <label for="plate">Placa / Matrícula</label>
-            <input type="text" id="plate" name="plate" value="{{ vehicle.license_plate }}" required placeholder="EJ: ABC123">
-            <p class="help-text">La placa se guardará automáticamente en mayúsculas.</p>
+            <input type="text" id="plate" name="plate" value="{{ vehicle.license_plate }}" 
+                   required placeholder="EJ: ABC123" maxlength="6">
+            <p class="help-text">Máximo 6 caracteres. Se guardará en mayúsculas.</p>
         </div>
 
         <div class="form-group">
             <label for="type">Tipo de Vehículo</label>
             <select name="type" id="type" required>
-                <option value="CAR" {% if vehicle.type == "CAR" %}selected{% endif %}>Carro / Automóvil</option>
-                <option value="MOTORCYCLE" {% if vehicle.type == "MOTORCYCLE" %}selected{% endif %}>Motocicleta</option>
-                <option value="TRUCK" {% if vehicle.type == "TRUCK" %}selected{% endif %}>Camión / Pesado</option>
+                <option value="CAR" {% if vehicle.type == "CAR" %}selected{% endif %}>Carro</option>
+                <option value="MOTORCYCLE" {% if vehicle.type == "MOTORCYCLE" %}selected{% endif %}>Moto</option>
             </select>
         </div>
 
@@ -62,4 +64,14 @@
         </div>
     </form>
 </div>
+
+<script>
+
+    const plateInput = document.getElementById('plate');
+    
+    plateInput.addEventListener('input', function() {
+
+        this.value = this.value.toUpperCase().replace(/\s/g, '');
+    });
+</script>
 {% endblock %}

@@ -127,27 +127,63 @@ def list_clients_view(request):
     clients = ClientModel.objects.all().order_by('id')
     return render(request, 'list_clients.html', {'clients': clients})
 
+from .forms import ClientForm
+
+from .forms import ClientForm
+
+from .forms import ClientForm
+
 def create_client_view(request):
+    form = ClientForm(request.POST or None)
+    
     if request.method == 'POST':
-        repo = DjangoClientRepository()
-        use_case = CreateClient(repo)
-        use_case.execute(
-            request.POST['name'], 
-            request.POST['phone'], 
-            request.POST.get('email')
-        )
-        return redirect('/clientes/')
-    return render(request, 'create_client.html')
+        if form.is_valid():
+            #Extraemos los datos limpios
+            data = form.cleaned_data
+            
+            repo = DjangoClientRepository()
+            use_case = CreateClient(repo)
+            
+            use_case.execute(
+                data['name'], 
+                data['phone'], 
+                data.get('email')
+            )
+            return redirect('/clientes/')
+            
+
+from .forms import ClientForm
 
 def edit_client_view(request, id):
     client_obj = get_object_or_404(ClientModel, id=id)
+    
     if request.method == 'POST':
-        client_obj.name = request.POST['name']
-        client_obj.phone = request.POST['phone']
-        client_obj.email = request.POST.get('email')
-        client_obj.save()
-        return redirect('/clientes/')
-    return render(request, 'edit_client.html', {'client': client_obj})
+        form = ClientForm(request.POST)
+        if form.is_valid():
+
+            data = form.cleaned_data
+            client_obj.name = data['name']
+            client_obj.phone = data['phone']
+            client_obj.email = data.get('email')
+            
+            #Actualizamos también el tipo de cliente
+            client_obj.client_type = data['client_type'] 
+            
+            client_obj.save()
+            return redirect('/clientes/')
+        else:
+
+            print(f"Errores en el formulario: {form.errors}")
+    else:
+        form = ClientForm(initial={
+            'name': client_obj.name,
+            'phone': client_obj.phone,
+            'email': client_obj.email,
+            'client_type': getattr(client_obj, 'client_type', 'REGULAR')
+        })
+
+    return render(request, 'edit_client.html', {'form': form, 'client': client_obj})
+
 
 def delete_client_view(request, id):
     client_obj = get_object_or_404(ClientModel, id=id)
@@ -167,31 +203,37 @@ from django.db import IntegrityError
 
 def create_vehicle_view(request):
     if request.method == 'POST':
+        plate = request.POST.get('plate', '').strip().upper()
+        vehicle_type = request.POST.get('type')
+        client_id = request.POST.get('client_id')
+
+        #(El filtro de seguridad) 
+        if len(plate) > 6:
+            clients = ClientModel.objects.all()
+            return render(request, 'create_vehicle.html', {
+                'clients': clients,
+                'error': f"La placa '{plate}' es demasiado larga. El máximo permitido son 6 caracteres."
+            })
+
         repo = DjangoVehicleRepository()
         use_case = CreateVehicle(repo)
 
         try:
-            use_case.execute(
-                request.POST['plate'].upper(),
-                request.POST['type'],
-                request.POST.get('client_id')
-            )
+            use_case.execute(plate, vehicle_type, client_id)
             messages.success(request, "Vehículo registrado exitosamente.")
             return redirect('/vehiculos/')
-            
         except IntegrityError:
             clients = ClientModel.objects.all()
             return render(request, 'create_vehicle.html', {
                 'clients': clients,
-                'error': f"El vehículo con placa {request.POST['plate'].upper()} ya está registrado."
+                'error': f"El vehículo con placa {plate} ya está registrado."
             })
         except Exception as e:
             clients = ClientModel.objects.all()
             return render(request, 'create_vehicle.html', {
                 'clients': clients, 
-                'error': str(e)
+                'error': f"Ocurrió un error inesperado: {str(e)}"
             })
-
     clients = ClientModel.objects.all()
     return render(request, 'create_vehicle.html', {'clients': clients})
 
@@ -217,20 +259,35 @@ def delete_vehicle_view(request, id):
 
 def entry_vehicle_view(request):
     if request.method == 'POST':
-        plate_text = request.POST.get('license_plate', '').strip().upper()
-        vehicle_type = request.POST.get('vehicle_type', 'CAR') 
 
+        plate_text = request.POST.get('license_plate', '').strip().upper()
+        
+        #Lógica de Detección Automática
+        longitud = len(plate_text)
+        
         if not plate_text:
             return render(request, 'entry_vehicle.html', {'error': 'La placa es obligatoria'})
-
+        
+        if longitud == 6:
+            vehicle_type = 'CAR'
+        elif longitud == 5:
+            vehicle_type = 'MOTORCYCLE'
+        else:
+            #Si no tiene 5 ni 6, devolvemos el error inmediatamente
+            return render(request, 'entry_vehicle.html', {
+                'error': f'Placa inválida ({longitud} caracteres). Use 6 para Carro o 5 para Moto.'
+            })
+        #Lógica de Cliente y Vehículo
         cliente_gen, _ = ClientModel.objects.get_or_create(
-            name="Visitante", defaults={'phone': '000'}
+            name="Visitante", 
+            defaults={'phone': '000'}
         )
+        #Buscamos o creamos el vehículo con el tipo detectado automáticamente
         vehiculo_obj, created = Vehicle.objects.get_or_create(
             license_plate=plate_text,
             defaults={'client': cliente_gen, 'type': vehicle_type}
         )
-        
+        #Si el vehículo ya existía pero cambió de tipo
         if not created and vehiculo_obj.type != vehicle_type:
              vehiculo_obj.type = vehicle_type
              vehiculo_obj.save()
@@ -238,15 +295,21 @@ def entry_vehicle_view(request):
         use_case = CreateTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
         try:
             use_case.execute(vehiculo_obj.id, None)  
-            messages.success(request, f"✅ Ingreso: {plate_text}")
+            messages.success(request, f"✅ Ingreso registrado: {plate_text} ({vehiculo_obj.get_type_display()})")
             return redirect('/ingreso/')
         except Exception as e:
             return render(request, 'entry_vehicle.html', {'error': str(e)})
+            
     return render(request, 'entry_vehicle.html')
 
 def exit_vehicle_view(request):
     if request.method == 'POST':
         plate_text = request.POST.get('license_plate', '').strip().upper()
+
+        if len(plate_text) > 6:
+            messages.error(request, "La placa es inválida (máximo 6 caracteres)")
+            return redirect('/salida/')
+
         try:
             vehicle_obj = Vehicle.objects.get(license_plate=plate_text)
             use_case = CloseTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
@@ -257,6 +320,7 @@ def exit_vehicle_view(request):
             messages.error(request, f"La placa {plate_text} no existe")
         except Exception as e:
             messages.error(request, str(e))
+            
     return render(request, 'exit_vehicle.html')
 
 #PAGOS E HISTORIAL

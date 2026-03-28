@@ -54,22 +54,103 @@ def logout_view(request):
 
 #DASHBOARD Y ESPACIOS
 
+from django.db.models import DecimalField
+from django.db.models.functions import Coalesce
+from django.db.models import Value
+
+from django.utils.timezone import now
+from django.db.models import Sum, Count, DecimalField, Value
+from django.db.models.functions import Coalesce
+
+from django.db.models import Count
+from django.utils.timezone import now
+
+from django.shortcuts import render
+from django.utils.timezone import now
+from django.db.models import Sum, Count, DecimalField
+from django.db.models.functions import Coalesce
+
 def dashboard_view(request):
+
+    #Espacios
     total = ParkingSpot.objects.count()
     available = ParkingSpot.objects.filter(status="AVAILABLE").count()
     occupied = ParkingSpot.objects.filter(status="OCCUPIED").count()
     ocupacion = int((occupied / total) * 100) if total > 0 else 0
 
-    return render(request, "dashboard.html", {
-        "total_spots": total,
-        "available_spots": available,
-        "occupied_spots": occupied,
-        "ocupacion_actual": ocupacion,
-        "vehiculos_hoy": 0,
-        "ingresos_hoy": 0,
-        "actividades_recientes": []
-    })
+    hoy = now().date()
 
+    #Vehículos hoy
+    vehiculos_hoy = Ticket.objects.filter(
+        created_at__date=hoy
+    ).count()
+
+    #Ingresos hoy
+    ingresos_hoy = Ticket.objects.filter(
+        exit_time__date=hoy,
+        status="CLOSED"
+    ).aggregate(
+        total=Coalesce(
+            Sum("total_paid"),
+            0,
+            output_field=DecimalField()
+        )
+    )["total"]
+
+    #Actividad reciente
+    actividades = (
+        Ticket.objects
+        .select_related("vehicle")
+        .only("status", "created_at", "vehicle__license_plate")
+        .order_by("-created_at")[:5]
+    )
+
+    #Vehículos por tipo HOY (CORRECTO)
+    vehiculos_por_tipo = (
+        Ticket.objects
+        .filter(created_at__date=hoy)
+        .values("vehicle__type")
+        .annotate(total=Count("id"))
+    )
+
+    #Listas limpias para JS
+    tipos = [v["vehicle__type"] for v in vehiculos_por_tipo]
+    cantidades = [v["total"] for v in vehiculos_por_tipo]
+
+    #Insight automático
+    insight = None
+    conteo = {v["vehicle__type"]: v["total"] for v in vehiculos_por_tipo}
+
+    carros = conteo.get("CAR", 0)
+    motos = conteo.get("MOTORCYCLE", 0)
+
+    if carros > motos:
+        insight = f"🚗 Hoy han entrado más carros ({carros}) que motos ({motos})"
+    elif motos > carros:
+        insight = f"🏍️ Hoy han entrado más motos ({motos}) que carros ({carros})"
+    elif carros == motos and carros > 0:
+        insight = f"⚖️ Hoy hay igual número de carros y motos ({carros})"
+    else:
+        insight = "Sin datos suficientes hoy"
+
+    #Clientes frecuentes (TOP 5)
+    clientes_frecuentes = (
+        Ticket.objects
+        .values("vehicle__client__name")
+        .annotate(total=Count("id"))
+        .order_by("-total")[:5]
+    )
+
+    return render(request, "dashboard.html", {
+        "ocupacion_actual": ocupacion,
+        "vehiculos_hoy": vehiculos_hoy,
+        "ingresos_hoy": ingresos_hoy,
+        "actividades_recientes": actividades,
+        "tipos": tipos,
+        "cantidades": cantidades,
+        "insight": insight,
+        "clientes_frecuentes": clientes_frecuentes
+    })
 
 def parking_status_view(request):
     repo = DjangoParkingSpotRepository()
@@ -83,7 +164,7 @@ def parking_status_view(request):
         is_occupied = (spot.status == "OCCUPIED")
         
         if is_occupied:
-            # Buscamos el ticket activo solo si el spot dice que está ocupado
+            #Buscamos el ticket activo solo si el spot dice que está ocupado
             ticket = Ticket.objects.filter(parking_spot=spot, status='ACTIVE').first()
         
         spots_with_info.append({
@@ -135,10 +216,9 @@ from .forms import ClientForm
 
 def create_client_view(request):
     form = ClientForm(request.POST or None)
-    
+
     if request.method == 'POST':
         if form.is_valid():
-            #Extraemos los datos limpios
             data = form.cleaned_data
             
             repo = DjangoClientRepository()
@@ -149,7 +229,15 @@ def create_client_view(request):
                 data['phone'], 
                 data.get('email')
             )
+
+            messages.success(request, "Cliente creado correctamente")
             return redirect('/clientes/')
+        else:
+            messages.error(request, "Error en el formulario")
+
+    return render(request, 'create_client.html', {
+        'form': form
+    })
             
 
 from .forms import ClientForm
@@ -262,14 +350,14 @@ def entry_vehicle_view(request):
         plate_text = request.POST.get('license_plate', '').strip().upper()
         vehicle_type = request.POST.get('vehicle_type', 'CAR') 
 
-        # 1. Validaciones de la placa
+        #Validaciones de la placa
         if not plate_text:
             return render(request, 'entry_vehicle.html', {'error': 'La placa es obligatoria'})
         
         if len(plate_text) > 6:
             return render(request, 'entry_vehicle.html', {'error': 'La placa no puede tener más de 6 caracteres'})
 
-        # 2. Lógica de Cliente y Vehículo
+        #Lógica de Cliente y Vehículo
         cliente_gen, _ = ClientModel.objects.get_or_create(
             name="Visitante", defaults={'phone': '000'}
         )
@@ -282,7 +370,7 @@ def entry_vehicle_view(request):
              vehiculo_obj.type = vehicle_type
              vehiculo_obj.save()
 
-        # 3. Creación del Ticket
+        #Creación del Ticket
         use_case = CreateTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
         try:
             use_case.execute(vehiculo_obj.id, None)  
@@ -315,26 +403,6 @@ def exit_vehicle_view(request):
             
     return render(request, 'exit_vehicle.html')
 
-def exit_vehicle_view(request):
-    if request.method == 'POST':
-        plate_text = request.POST.get('license_plate', '').strip().upper()
-
-        if len(plate_text) > 6:
-            messages.error(request, "La placa es inválida (máximo 6 caracteres)")
-            return redirect('/salida/')
-
-        try:
-            vehicle_obj = Vehicle.objects.get(license_plate=plate_text)
-            use_case = CloseTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
-            total = use_case.execute(vehicle_obj)
-            messages.success(request, f"Salida OK - Total: ${total}")
-            return redirect('/salida/')
-        except Vehicle.DoesNotExist:
-            messages.error(request, f"La placa {plate_text} no existe")
-        except Exception as e:
-            messages.error(request, str(e))
-            
-    return render(request, 'exit_vehicle.html')
 
 #PAGOS E HISTORIAL
 
@@ -362,3 +430,44 @@ def history_view(request):
         use_case = GetHistory(repo)
         tickets = use_case.execute()
     return render(request, 'list_history.html', {'tickets': tickets})
+
+from django.core.mail import send_mass_mail
+from django.conf import settings
+
+def enviar_recordatorio_cierre(request):
+
+    #Tickets activos (vehículos dentro)
+    tickets_activos = Ticket.objects.filter(status="ACTIVE").select_related("vehicle__client")
+
+    mensajes = []
+
+    for t in tickets_activos:
+        cliente = t.vehicle.client
+
+        if cliente.email:
+            subject = "⏰ Parqueadero ParkPlace"
+            message = f"""
+Hola {cliente.name},
+
+Tu vehículo con placa {t.vehicle.license_plate} sigue en el parqueadero.
+
+⏳ Recuerda que faltan aproximadamente 20 minutos para el cierre.
+
+Evita recargos adicionales retirándolo a tiempo.
+
+— ParkPlace 🚗
+"""
+            mensajes.append((
+                subject,
+                message,
+                settings.EMAIL_HOST_USER,
+                [cliente.email]
+            ))
+
+    if mensajes:
+        send_mass_mail(mensajes, fail_silently=False)
+        messages.success(request, "📩 Correos enviados correctamente")
+    else:
+        messages.warning(request, "⚠️ No hay clientes con email")
+
+    return redirect("/dashboard/")

@@ -3,32 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}ParkPlace{% endblock %}</title>
-    <style>
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fb; display: flex; }
-        
-        /* SIDEBAR */
-        .sidebar { position: fixed; width: 260px; height: 100vh; background: #0f172a; color: white; display: flex; flex-direction: column; }
-        .sidebar h2 { text-align: center; padding: 20px; border-bottom: 1px solid #1e293b; margin: 0; font-size: 20px; color: #38bdf8; }
-        .sidebar-menu { flex-grow: 1; padding-top: 10px; }
-        .sidebar a { display: block; color: #94a3b8; padding: 12px 25px; text-decoration: none; font-size: 15px; transition: 0.3s; }
-        .sidebar a:hover { background: #1e3a8a; color: white; }
-        .sidebar a.active { background: #1e40af; color: white; border-left: 4px solid #38bdf8; }
-        .sidebar .logout { color: #f87171; border-top: 1px solid #1e293b; margin-top: auto; padding-bottom: 20px; }
 
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fb;
+            display: flex;
+        }
+
+        /* ========================= */
+        /* SIDEBAR */
+        /* ========================= */
+        .sidebar {
+            position: fixed;
+            width: 260px;
+            height: 100vh;
+            background: #0f172a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 1px solid #1e293b;
+            margin: 0;
+            font-size: 20px;
+            color: #38bdf8;
+        }
+
+        .sidebar-menu {
+            flex-grow: 1;
+            padding-top: 10px;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #94a3b8;
+            padding: 12px 25px;
+            text-decoration: none;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+        .sidebar a:hover {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        .sidebar a.active {
+            background: #1e40af;
+            color: white;
+            border-left: 4px solid #38bdf8;
+        }
+
+        .sidebar .logout {
+            color: #f87171;
+            border-top: 1px solid #1e293b;
+            margin-top: auto;
+            padding-bottom: 20px;
+        }
+
+        /* ========================= */
         /* CONTENIDO */
-        .content { margin-left: 260px; width: calc(100% - 260px); padding: 40px; box-sizing: border-box; }
-        
+        /* ========================= */
+        .content {
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        /* ========================= */
         /* ALERTAS */
-        .alert { padding: 15px; margin-bottom: 20px; border-radius: 6px; font-weight: 500; }
-        .alert-success { background: #dcfce7; color: #166534; border: 1px solid #16a34a; }
-        .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #ef4444; }
+        /* ========================= */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #16a34a;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        /* ========================= */
+        /* 🔥 TARJETAS (LO IMPORTANTE) */
+        /* ========================= */
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            transition: 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            margin: 10px 0 0 0;
+            font-size: 28px;
+            color: #0f172a;
+        }
+
+        .card h4 {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+        }
+
+        /* ========================= */
+        /* TARJETAS DESTACADAS */
+        /* ========================= */
+        .highlight-blue {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        .highlight-green {
+            background: #22c55e;
+            color: white;
+        }
+
+        .highlight-blue h4,
+        .highlight-green h4 {
+            color: white;
+        }
+
+        /* ========================= */
+        /* TABLAS */
+        /* ========================= */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th {
+            text-align: left;
+            padding: 10px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        table td {
+            padding: 10px;
+            border-top: 1px solid #e2e8f0;
+        }
+
     </style>
+
     {% block extra_css %}{% endblock %}
 </head>
+
 <body>
 
+    <!-- SIDEBAR -->
     <div class="sidebar">
         <h2>ParkPlace</h2>
+
         <div class="sidebar-menu">
             <a href="/dashboard/">Dashboard</a>
             <a href="/ingreso/">Ingreso de vehículos</a>
@@ -41,10 +191,13 @@
             <a href="#">Reportes</a>
             <a href="#">Usuarios / Empleados</a>
         </div>
+
         <a href="/logout/" class="logout">Cerrar Sesión</a>
     </div>
 
+    <!-- CONTENIDO -->
     <div class="content">
+
         {% if messages %}
             {% for message in messages %}
                 <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
@@ -55,8 +208,11 @@
 
         {% block content %}
         {% endblock %}
+
     </div>
+
+    <!-- 🔥 IMPORTANTE: scripts -->
+    {% block extra_js %}{% endblock %}
 
 </body>
 </html>
-

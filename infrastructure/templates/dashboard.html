@@ -3,113 +3,122 @@
 
 {% block title %}Dashboard - ParkPlace{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-{% endblock %}
-
 {% block content %}
-<div class="dashboard-container">
+<div class="dashboard-container" style="max-width:1200px; margin:auto;">
 
-    <div class="dashboard-header">
-        <h1>Dashboard</h1>
-        <p>Bienvenido al sistema de gestión ParkPlace</p>
+    <!-- HEADER -->
+    <div style="margin-bottom: 30px;">
+        <h1 style="margin:0;">Dashboard</h1>
+        <p style="color:#64748b;">Resumen general del parqueadero</p>
     </div>
 
     <!-- ========================= -->
-    <!-- 📊 TARJETAS -->
+    <!-- 📊 TARJETAS PRINCIPALES -->
     <!-- ========================= -->
-    <div class="stats-grid">
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:20px;">
 
-        <!-- Vehículos hoy (puedes dejarlo en 0 si no lo calculas aún) -->
-        <div class="stat-card">
-            <div class="stat-info">
-                <h3>Vehículos hoy</h3>
-                <p class="stat-number">{{ vehiculos_hoy|default:"0" }}</p>
-            </div>
+        <div class="card">
+            <h4>Vehículos hoy</h4>
+            <h2>{{ vehiculos_hoy }}</h2>
         </div>
 
-        <!-- Ocupación -->
-        <div class="stat-card">
-            <div class="stat-info">
-                <h3>Ocupación actual</h3>
-                <p class="stat-number">{{ ocupacion_actual }}%</p>
-
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: {{ ocupacion_actual|default:0 }}%;"></div>
-                </div>
-            </div>
+        <div class="card">
+            <h4>Ingresos hoy</h4>
+            <h2>${{ ingresos_hoy }}</h2>
         </div>
 
-        <!-- Espacios -->
-        <div class="stat-card">
-            <div class="stat-info">
-                <h3>Espacios disponibles</h3>
-                <p class="stat-number">{{ available_spots }}</p>
-                <span>de {{ total_spots }} totales</span>
-            </div>
-        </div>
-
-        <!-- Ocupados -->
-        <div class="stat-card">
-            <div class="stat-info">
-                <h3>Espacios ocupados</h3>
-                <p class="stat-number">{{ occupied_spots }}</p>
-            </div>
+        <div class="card">
+            <h4>Ocupación</h4>
+            <h2>{{ ocupacion_actual }}%</h2>
         </div>
 
     </div>
 
-
     <!-- ========================= -->
-    <!-- 📍 MAPA DE ESPACIOS -->
+    <!-- 🔥 TARJETAS INTELIGENTES -->
     <!-- ========================= -->
-    <div class="spaces-card">
-        <div class="card-header">
-            <h3>Estado de espacios</h3>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px; margin-top:20px;">
 
-            <div class="legend">
-                <span><span class="legend-color occupied"></span> Ocupado</span>
-                <span><span class="legend-color available"></span> Disponible</span>
-            </div>
+        <div class="card highlight-blue">
+            <h4>🚗 Análisis de hoy</h4>
+            <p>{{ insight|default:"Sin datos suficientes hoy" }}</p>
         </div>
 
-        <div class="spaces-grid">
-            {% for espacio in espacios %}
-            <div class="space 
-                {% if espacio.status == 'OCCUPIED' %}
-                    occupied
+        <div class="card highlight-green">
+            <h4>👑 Cliente destacado</h4>
+            <p>
+                {% if clientes_frecuentes %}
+                    {{ clientes_frecuentes.0.vehicle__client__name }} ({{ clientes_frecuentes.0.total }} visitas)
                 {% else %}
-                    available
+                    Sin registros
                 {% endif %}
-            ">
-                <span class="space-number">{{ espacio.id }}</span>
-            </div>
-            {% endfor %}
+            </p>
         </div>
+
     </div>
 
+    <!-- ========================= -->
+    <!-- 👥 CLIENTES -->
+    <!-- ========================= -->
+    <div class="card" style="margin-top:20px;">
+        <h3>Top clientes</h3>
+
+        <table style="width:100%; margin-top:10px;">
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Visitas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in clientes_frecuentes %}
+                <tr>
+                    <td>{{ c.vehicle__client__name }}</td>
+                    <td>{{ c.total }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2">Sin datos</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ========================= -->
+    <!-- 🧾 ACTIVIDAD -->
+    <!-- ========================= -->
+    <div class="card" style="margin-top:20px;">
+        <h3>Actividad reciente</h3>
+
+        <table style="width:100%; margin-top:10px;">
+            <thead>
+                <tr>
+                    <th>Placa</th>
+                    <th>Estado</th>
+                    <th>Hora</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in actividades_recientes %}
+                <tr>
+                    <td>{{ t.vehicle.license_plate }}</td>
+                    <td>{{ t.status }}</td>
+                    <td>{{ t.created_at|date:"H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">Sin actividad</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+<div style="margin-top:20px; text-align:right;">
+    <a href="/enviar-recordatorio/" 
+       style="background:#f59e0b; color:white; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:bold; box-shadow:0 3px 10px rgba(0,0,0,0.1);">
+        ⏰ Avisar cierre (20 min)
+    </a>
 </div>
-{% endblock %}
-
-
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-const ctx = document.getElementById('occupationChart');
-
-if (ctx) {
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['6am','8am','10am','12pm','2pm','4pm','6pm'],
-            datasets: [{
-                label: 'Ocupación',
-                data: [10,30,50,70,60,80,90],
-                tension: 0.4
-            }]
-        }
-    });
-}
-</script>
+</div>
 {% endblock %}

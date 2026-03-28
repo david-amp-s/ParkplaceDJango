@@ -64,4 +64,6 @@ urlpatterns = [
 
     path('pay/', pay_ticket_view, name='pay_ticket'),
     path('historial/', history_view, name='historial'),
+
+    path('enviar-recordatorio/', views.enviar_recordatorio_cierre),
 ]

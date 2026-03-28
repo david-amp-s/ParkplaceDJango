@@ -4,34 +4,93 @@
 
 {% block content %}
 <div class="card">
-    <h1>Registrar Ingreso</h1>
-    <p>Escriba la placa del vehículo. Si es nuevo, el sistema lo creará automáticamente.</p>
+
+    <h1 style="color: #000000;">Registrar Ingreso</h1>
+    <p>Escriba la placa y seleccione el tipo de vehículo.</p>
     <hr style="margin-bottom: 20px; border: 0; border-top: 1px solid #eee;">
 
     <form method="post" autocomplete="off">
         {% csrf_token %}
+
+        <!-- PLACA -->
         <div style="margin-bottom: 20px;">
-            <label style="display:block; margin-bottom:8px; font-weight:bold;">Placa del Vehículo:</label>
-            <input type="text" name="license_plate" id="license_plate" placeholder="Ej: ABC123" required 
-                   style="width:100%; padding:12px; border-radius:6px; border:1px solid #cbd5e1; text-transform: uppercase; font-size: 18px;">
+            <label style="display:block; margin-bottom:8px; font-weight:bold;">
+                Placa del Vehículo:
+            </label>
+
+            <input 
+                type="text" 
+                name="license_plate"
+                placeholder="Ej: ABC123"
+                maxlength="6"
+                required
+                style="
+                    width:100%;
+                    padding:12px;
+                    border-radius:6px;
+                    border:1px solid #cbd5e1;
+                    text-transform: uppercase;
+                    font-size: 18px;
+                "
+            >
         </div>
 
-        <button type="submit" style="background:#1e3a8a; color:white; border:none; padding:14px 30px; border-radius:6px; cursor:pointer; font-weight:bold; width: 100%;">
+        <!-- TIPO VEHÍCULO -->
+        <div style="margin-bottom: 25px;">
+            <label style="display:block; margin-bottom:8px; font-weight:bold;">
+                Tipo de Vehículo:
+            </label>
+
+            <select name="vehicle_type" style="
+                width:100%;
+                padding:12px;
+                border-radius:6px;
+                border:1px solid #cbd5e1;
+                font-size:16px;
+            ">
+                <option value="CAR">Carro</option>
+                <option value="MOTORCYCLE">Moto</option>
+            </select>
+        </div>
+
+        <!-- BOTÓN -->
+        <button type="submit" style="
+            background:#1e3a8a;
+            color:white;
+            border:none;
+            padding:14px 30px;
+            border-radius:6px;
+            cursor:pointer;
+            font-weight:bold;
+            width: 100%;
+        ">
             Registrar Entrada
         </button>
+
     </form>
 
+    <!-- ERROR -->
     {% if error %}
-    <div style="margin-top:20px; color: #b91c1c; background: #fee2e2; padding: 10px; border-radius: 5px; font-weight: bold;">
-        ⚠️ {{ error }}
-    </div>
+        <div style="
+            margin-top: 20px;
+            padding: 15px;
+            background: #fee2e2;
+            color: #b91c1c;
+            border-radius: 6px;
+            font-weight: bold;
+        ">
+            ⚠️ {{ error }}
+        </div>
     {% endif %}
+
 </div>
 
 <script>
-    //próxima carga limpia
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log("Formulario de ingreso listo.");
-    });
+    // Auto uppercase
+    document.querySelector("input[name='license_plate']")
+        .addEventListener("input", function() {
+            this.value = this.value.toUpperCase();
+        });
 </script>
+
 {% endblock %}

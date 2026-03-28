@@ -1,7 +1,9 @@
 class Employee:
-    def __init__(self, id, user_id, name, phone, created_at):
+    def __init__(self, id, name, phone, username, password, role, created_at):
         self.id = id
-        self.user_id = user_id
         self.name = name
         self.phone = phone
+        self.username = username
+        self.password = password
+        self.role = role
         self.created_at = created_at

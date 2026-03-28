@@ -3,65 +3,56 @@ from django.shortcuts import render
 from django.utils import timezone
 
 #Entidades de Dominio
-from domain.entities.user import User
 from domain.entities.employee import Employee as EmployeeEntity
 from domain.entities.client import Client as ClientEntity
 
-from domain.ports.user_repository import UserRepository
 from domain.ports.employee_repository import EmployeeRepository
 
 #Modelos de Infraestructura
-from .models import (
-    AppUser, 
-    Client as ClientModel, 
-    Vehicle as VehicleModel, 
-    Ticket, 
-    ParkingSpot, 
-    Payment as PaymentModel,
-    Employee as EmployeeModel
-)
+from .models import (Client as ClientModel, EmployeeModel, ParkingSpot, Payment as PaymentModel,
+    Ticket, Vehicle as VehicleModel)
 
 
-#USER REPOSITORY
 
-class DjangoUserRepository(UserRepository):
-    def find_by_username(self, username):
-        try:
-            user = AppUser.objects.get(username=username)
-            return User(
-                id=user.id,
-                username=user.username,
-                password=user.password,
-                role=user.role,
-                is_active=user.is_active
-            )
-        except AppUser.DoesNotExist:
-            return None
 
 #EMPLOYEE REPOSITORY
 
 class DjangoEmployeeRepository(EmployeeRepository):
+    def find_by_username(self, username):
+        return EmployeeModel.objects.filter(username=username).first()
+
+    def create(self, data):
+        return EmployeeModel.objects.create(**data)
+
     def get_all(self):
         return [
-            EmployeeEntity(e.id, e.user.id, e.name, e.phone)
-            for e in EmployeeModel.objects.select_related('user').all()
-        ]
+        EmployeeEntity(e.id, e.name, e.phone, e.username, e.password, e.role, e.created_at)
+        for e in EmployeeModel.objects.all()
+    ]
 
     def get_by_id(self, employee_id):
         e = EmployeeModel.objects.select_related('user').get(id=employee_id)
-        return EmployeeEntity(e.id, e.user.id, e.name, e.phone)
+        return EmployeeModel(e.id, e.name, e.phone)
 
-    def create(self, employee):
-        user = AppUser.objects.get(id=employee.user_id)
-        e = EmployeeModel.objects.create(
-            user=user,
-            name=employee.name,
-            phone=employee.phone
-        )
-        return EmployeeEntity(e.id, e.user.id, e.name, e.phone)
+   
 
     def delete(self, employee_id):
         EmployeeModel.objects.get(id=employee_id).delete()
+    
+    def find_by_username(self, username):
+        try:
+            employee = EmployeeModel.objects.get(username=username)
+            return EmployeeEntity(
+                id=employee.id,
+                name=employee.name,
+                phone=employee.phone,
+                username=employee.username,
+                password=employee.password,
+                role=employee.role,
+                created_at=employee.created_at
+            )
+        except EmployeeModel.DoesNotExist:
+            return None
 
 #CLIENT REPOSITORY
 

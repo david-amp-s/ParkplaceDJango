@@ -1,23 +1,22 @@
 from django.db import models
 
 
-class AppUser(models.Model):
+
+
+
+class EmployeeModel(models.Model):
+    
     ROLE_CHOICES = [
         ('ADMIN', 'ADMIN'),
         ('EMPLOYEE', 'EMPLOYEE')
     ]
 
+
+    name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20, null=True, blank=True)
     username = models.CharField(max_length=50, unique=True)
     password = models.CharField(max_length=255)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-
-class Employee(models.Model):
-    user = models.OneToOneField(AppUser, on_delete=models.CASCADE, db_column="user_id")
-    name = models.CharField(max_length=100)
-    phone = models.CharField(max_length=20, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -78,7 +77,7 @@ class ParkingSpot(models.Model):
 class Ticket(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
     parking_spot = models.ForeignKey(ParkingSpot, on_delete=models.CASCADE)
-    employee = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
+    employee = models.ForeignKey(EmployeeModel, on_delete=models.SET_NULL, null=True)
 
     entry_time = models.DateTimeField()
     exit_time = models.DateTimeField(null=True, blank=True)
@@ -98,7 +97,7 @@ class Payment(models.Model):
     ]
 
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
-    employee = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
+    employee = models.ForeignKey(EmployeeModel, on_delete=models.SET_NULL, null=True)
     method = models.CharField(max_length=20, choices=METHOD_CHOICES)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)

@@ -17,3 +17,7 @@ class EmployeeRepository(ABC):
     @abstractmethod
     def delete(self, employee_id):
         pass
+
+    @abstractmethod
+    def find_by_username(self,username): 
+        pass

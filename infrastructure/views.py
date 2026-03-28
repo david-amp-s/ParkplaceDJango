@@ -3,13 +3,15 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 
 #Modelos de Infraestructura
-from .models import ParkingSpot, Vehicle, Client as ClientModel, AppUser, Ticket
+from .models import ParkingSpot, Vehicle, Client as ClientModel,  Ticket
 
 #Repositorios 
 from .repositories import (
-    DjangoUserRepository, DjangoClientRepository, 
-    DjangoVehicleRepository, DjangoPaymentRepository,
-    DjangoEmployeeRepository, DjangoTicketRepository, 
+    DjangoClientRepository, 
+    DjangoVehicleRepository, 
+    DjangoPaymentRepository,
+    DjangoEmployeeRepository, 
+    DjangoTicketRepository, 
     DjangoParkingSpotRepository
 )
 
@@ -18,7 +20,7 @@ from domain.entities.employee import Employee
 from domain.entities.client import Client as ClientEntity
 from domain.entities.vehicle import Vehicle as VehicleEntity
 
-from .repositories import DjangoParkingSpotRepository
+
 
 #Casos de Uso
 from domain.use_cases.login_user import LoginUser
@@ -35,7 +37,7 @@ def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
-        repo = DjangoUserRepository()
+        repo =  DjangoEmployeeRepository()
         use_case = LoginUser(repo)
         try:
             user = use_case.execute(username, password)
@@ -105,20 +107,19 @@ def list_employees(request):
 
 def create_employee(request):
     if request.method == "POST":
-        user = AppUser.objects.create(
-            username=request.POST["username"],
-            password=request.POST["password"],
-            role="EMPLOYEE"
-        )
         employee = Employee(
             id=None,
-            user_id=user.id,
             name=request.POST["name"],
-            phone=request.POST["phone"]
+            phone=request.POST["phone"],
+            username=request.POST["username"],
+            password=request.POST["password"],
+            role="EMPLOYEE",
+            created_at=None
         )
         repo = DjangoEmployeeRepository()
         repo.create(employee)
         return redirect("/employee/")
+    
     return render(request, "create_employee.html")
 
 #GESTIÓN DE CLIENTES
@@ -315,26 +316,7 @@ def exit_vehicle_view(request):
             
     return render(request, 'exit_vehicle.html')
 
-def exit_vehicle_view(request):
-    if request.method == 'POST':
-        plate_text = request.POST.get('license_plate', '').strip().upper()
 
-        if len(plate_text) > 6:
-            messages.error(request, "La placa es inválida (máximo 6 caracteres)")
-            return redirect('/salida/')
-
-        try:
-            vehicle_obj = Vehicle.objects.get(license_plate=plate_text)
-            use_case = CloseTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
-            total = use_case.execute(vehicle_obj)
-            messages.success(request, f"Salida OK - Total: ${total}")
-            return redirect('/salida/')
-        except Vehicle.DoesNotExist:
-            messages.error(request, f"La placa {plate_text} no existe")
-        except Exception as e:
-            messages.error(request, str(e))
-            
-    return render(request, 'exit_vehicle.html')
 
 #PAGOS E HISTORIAL
 

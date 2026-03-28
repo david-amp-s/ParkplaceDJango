@@ -1,13 +1,17 @@
 from pathlib import Path
 import os
 
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 SECRET_KEY = 'django-insecure-2^(h58v!qs(w)zoshu19cz&j8n0fapce2hfvht^1x22lt2)mm='
 
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -16,8 +20,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'infrastructure',
+    'infrastructure.apps.InfrastructureConfig',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -30,6 +35,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'config.urls'
 
@@ -50,7 +56,9 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'config.wsgi.application'
+
 
 DATABASES = {
     'default': {
@@ -63,12 +71,14 @@ DATABASES = {
     }
 }
 
+
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
+
 
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.BCryptSHA256Hasher',
@@ -77,11 +87,15 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
 ]
 
+
 BCRYPT_ROUNDS = 12
+
+
 LANGUAGE_CODE = 'es'
 TIME_ZONE = 'America/Bogota'
 USE_I18N = True
 USE_TZ = False
+
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
@@ -89,17 +103,15 @@ STATICFILES_DIRS = [
 ]
 
 
-#EMAIL (CLAVE PARA TU DASHBOARD)
-
+# EMAIL (CLAVE PARA TU DASHBOARD)
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-#Correo
+# Correo
 EMAIL_HOST_USER = 'parkplaceadso@gmail.com'
 EMAIL_HOST_PASSWORD = 'eyfu vsdp plcr kgvv'
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-

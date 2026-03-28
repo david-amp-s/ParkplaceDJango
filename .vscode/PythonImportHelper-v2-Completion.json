@@ -1,0 +1,1286 @@
+[
+    {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "get_asgi_application",
+        "importPath": "django.core.asgi",
+        "description": "django.core.asgi",
+        "isExtraImport": true,
+        "detail": "django.core.asgi",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "views",
+        "importPath": "infrastructure",
+        "description": "infrastructure",
+        "isExtraImport": true,
+        "detail": "infrastructure",
+        "documentation": {}
+    },
+    {
+        "label": "login_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "logout_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "dashboard_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "list_employees",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "create_client_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "list_clients_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "edit_client_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "delete_client_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "create_vehicle_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "list_vehicles_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "edit_vehicle_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "delete_vehicle_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "entry_vehicle_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "exit_vehicle_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "pay_ticket_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "parking_status_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "history_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "get_wsgi_application",
+        "importPath": "django.core.wsgi",
+        "description": "django.core.wsgi",
+        "isExtraImport": true,
+        "detail": "django.core.wsgi",
+        "documentation": {}
+    },
+    {
+        "label": "ABC",
+        "importPath": "abc",
+        "description": "abc",
+        "isExtraImport": true,
+        "detail": "abc",
+        "documentation": {}
+    },
+    {
+        "label": "abstractmethod",
+        "importPath": "abc",
+        "description": "abc",
+        "isExtraImport": true,
+        "detail": "abc",
+        "documentation": {}
+    },
+    {
+        "label": "ABC",
+        "importPath": "abc",
+        "description": "abc",
+        "isExtraImport": true,
+        "detail": "abc",
+        "documentation": {}
+    },
+    {
+        "label": "abstractmethod",
+        "importPath": "abc",
+        "description": "abc",
+        "isExtraImport": true,
+        "detail": "abc",
+        "documentation": {}
+    },
+    {
+        "label": "ABC",
+        "importPath": "abc",
+        "description": "abc",
+        "isExtraImport": true,
+        "detail": "abc",
+        "documentation": {}
+    },
+    {
+        "label": "abstractmethod",
+        "importPath": "abc",
+        "description": "abc",
+        "isExtraImport": true,
+        "detail": "abc",
+        "documentation": {}
+    },
+    {
+        "label": "ParkingSpot",
+        "importPath": "domain.entities.parking_spot",
+        "description": "domain.entities.parking_spot",
+        "isExtraImport": true,
+        "detail": "domain.entities.parking_spot",
+        "documentation": {}
+    },
+    {
+        "label": "ParkingSpot",
+        "importPath": "domain.entities.parking_spot",
+        "description": "domain.entities.parking_spot",
+        "isExtraImport": true,
+        "detail": "domain.entities.parking_spot",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "math",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "math",
+        "description": "math",
+        "detail": "math",
+        "documentation": {}
+    },
+    {
+        "label": "Client",
+        "importPath": "domain.entities.client",
+        "description": "domain.entities.client",
+        "isExtraImport": true,
+        "detail": "domain.entities.client",
+        "documentation": {}
+    },
+    {
+        "label": "Client",
+        "importPath": "domain.entities.client",
+        "description": "domain.entities.client",
+        "isExtraImport": true,
+        "detail": "domain.entities.client",
+        "documentation": {}
+    },
+    {
+        "label": "Client",
+        "importPath": "domain.entities.client",
+        "description": "domain.entities.client",
+        "isExtraImport": true,
+        "detail": "domain.entities.client",
+        "documentation": {}
+    },
+    {
+        "label": "ParkingSpotRepository",
+        "importPath": "domain.ports.parking_spot_repository",
+        "description": "domain.ports.parking_spot_repository",
+        "isExtraImport": true,
+        "detail": "domain.ports.parking_spot_repository",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "date",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "check_password",
+        "importPath": "django.contrib.auth.hashers",
+        "description": "django.contrib.auth.hashers",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.hashers",
+        "documentation": {}
+    },
+    {
+        "label": "Ticket",
+        "importPath": "infrastructure.models",
+        "description": "infrastructure.models",
+        "isExtraImport": true,
+        "detail": "infrastructure.models",
+        "documentation": {}
+    },
+    {
+        "label": "django.db.models.deletion",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "django.db.models.deletion",
+        "description": "django.db.models.deletion",
+        "detail": "django.db.models.deletion",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "IntegrityError",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "forms",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "get_object_or_404",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "Employee",
+        "importPath": "domain.entities.employee",
+        "description": "domain.entities.employee",
+        "isExtraImport": true,
+        "detail": "domain.entities.employee",
+        "documentation": {}
+    },
+    {
+        "label": "Employee",
+        "importPath": "domain.entities.employee",
+        "description": "domain.entities.employee",
+        "isExtraImport": true,
+        "detail": "domain.entities.employee",
+        "documentation": {}
+    },
+    {
+        "label": "EmployeeRepository",
+        "importPath": "domain.ports.employee_repository",
+        "description": "domain.ports.employee_repository",
+        "isExtraImport": true,
+        "detail": "domain.ports.employee_repository",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "traceback",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "traceback",
+        "description": "traceback",
+        "detail": "traceback",
+        "documentation": {}
+    },
+    {
+        "label": "Vehicle",
+        "importPath": "domain.entities.vehicle",
+        "description": "domain.entities.vehicle",
+        "isExtraImport": true,
+        "detail": "domain.entities.vehicle",
+        "documentation": {}
+    },
+    {
+        "label": "LoginUser",
+        "importPath": "domain.use_cases.login_user",
+        "description": "domain.use_cases.login_user",
+        "isExtraImport": true,
+        "detail": "domain.use_cases.login_user",
+        "documentation": {}
+    },
+    {
+        "label": "CreateClient",
+        "importPath": "domain.use_cases.create_client",
+        "description": "domain.use_cases.create_client",
+        "isExtraImport": true,
+        "detail": "domain.use_cases.create_client",
+        "documentation": {}
+    },
+    {
+        "label": "CreateVehicle",
+        "importPath": "domain.use_cases.create_vehicle",
+        "description": "domain.use_cases.create_vehicle",
+        "isExtraImport": true,
+        "detail": "domain.use_cases.create_vehicle",
+        "documentation": {}
+    },
+    {
+        "label": "PayticketUseCase",
+        "importPath": "domain.use_cases.pay_ticket",
+        "description": "domain.use_cases.pay_ticket",
+        "isExtraImport": true,
+        "detail": "domain.use_cases.pay_ticket",
+        "documentation": {}
+    },
+    {
+        "label": "CreateTicket",
+        "importPath": "domain.use_cases.create_ticket",
+        "description": "domain.use_cases.create_ticket",
+        "isExtraImport": true,
+        "detail": "domain.use_cases.create_ticket",
+        "documentation": {}
+    },
+    {
+        "label": "GetHistory",
+        "importPath": "domain.use_cases.get_history",
+        "description": "domain.use_cases.get_history",
+        "isExtraImport": true,
+        "detail": "domain.use_cases.get_history",
+        "documentation": {}
+    },
+    {
+        "label": "CloseTicket",
+        "importPath": "domain.use_cases.close_ticket",
+        "description": "domain.use_cases.close_ticket",
+        "isExtraImport": true,
+        "detail": "domain.use_cases.close_ticket",
+        "documentation": {}
+    },
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "application",
+        "kind": 5,
+        "importPath": "config.asgi",
+        "description": "config.asgi",
+        "peekOfCode": "application = get_asgi_application()",
+        "detail": "config.asgi",
+        "documentation": {}
+    },
+    {
+        "label": "BASE_DIR",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent.parent\n# Quick-start development settings - unsuitable for production\n# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = 'django-insecure-2^(h58v!qs(w)zoshu19cz&j8n0fapce2hfvht^1x22lt2)mm='\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "SECRET_KEY",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "SECRET_KEY = 'django-insecure-2^(h58v!qs(w)zoshu19cz&j8n0fapce2hfvht^1x22lt2)mm='\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "DEBUG",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "DEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "ALLOWED_HOSTS",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "ALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'infrastructure',",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "INSTALLED_APPS",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "INSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'infrastructure',\n]\nMIDDLEWARE = [",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "MIDDLEWARE",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "MIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',\n    'django.contrib.auth.middleware.AuthenticationMiddleware',\n    'django.contrib.messages.middleware.MessageMiddleware',\n    'django.middleware.clickjacking.XFrameOptionsMiddleware',\n]\nROOT_URLCONF = 'config.urls'",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "ROOT_URLCONF",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "ROOT_URLCONF = 'config.urls'\nTEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [BASE_DIR / 'infrastructure/templates'],  # donde guardaste login.html\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.debug',\n                'django.template.context_processors.request',   # 🔹 necesario para admin navigation",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "TEMPLATES",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "TEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [BASE_DIR / 'infrastructure/templates'],  # donde guardaste login.html\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.debug',\n                'django.template.context_processors.request',   # 🔹 necesario para admin navigation\n                'django.contrib.auth.context_processors.auth',  # 🔹 necesario para admin y auth",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "WSGI_APPLICATION",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "WSGI_APPLICATION = 'config.wsgi.application'\n# Database\n# https://docs.djangoproject.com/en/5.2/ref/settings/#databases\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'parkplacedj_db',\n        'USER': 'postgres',\n        'PASSWORD': 'sohaz322',\n        'HOST': 'localhost',",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "DATABASES",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "DATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'parkplacedj_db',\n        'USER': 'postgres',\n        'PASSWORD': 'sohaz322',\n        'HOST': 'localhost',\n        'PORT': '5432',\n    }\n}",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "AUTH_PASSWORD_VALIDATORS",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "AUTH_PASSWORD_VALIDATORS = [\n    {\n        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',\n    },",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "PASSWORD_HASHERS",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "PASSWORD_HASHERS = [\n    'django.contrib.auth.hashers.PBKDF2PasswordHasher',\n]\nBCRYPT_ROUNDS = 12\n# Internationalization\n# https://docs.djangoproject.com/en/5.2/topics/i18n/\nLANGUAGE_CODE = 'es'\nTIME_ZONE = 'America/Bogota'\nUSE_I18N = True\nUSE_TZ = False",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "BCRYPT_ROUNDS",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "BCRYPT_ROUNDS = 12\n# Internationalization\n# https://docs.djangoproject.com/en/5.2/topics/i18n/\nLANGUAGE_CODE = 'es'\nTIME_ZONE = 'America/Bogota'\nUSE_I18N = True\nUSE_TZ = False\nSTATICFILES_DIRS = [\n    BASE_DIR / \"infrastructure/static\",\n]",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "LANGUAGE_CODE",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "LANGUAGE_CODE = 'es'\nTIME_ZONE = 'America/Bogota'\nUSE_I18N = True\nUSE_TZ = False\nSTATICFILES_DIRS = [\n    BASE_DIR / \"infrastructure/static\",\n]\n# configuración de precios\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "TIME_ZONE",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "TIME_ZONE = 'America/Bogota'\nUSE_I18N = True\nUSE_TZ = False\nSTATICFILES_DIRS = [\n    BASE_DIR / \"infrastructure/static\",\n]\n# configuración de precios\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = '/static/'",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "USE_I18N",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "USE_I18N = True\nUSE_TZ = False\nSTATICFILES_DIRS = [\n    BASE_DIR / \"infrastructure/static\",\n]\n# configuración de precios\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = '/static/'\n# Default primary key field type",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "USE_TZ",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "USE_TZ = False\nSTATICFILES_DIRS = [\n    BASE_DIR / \"infrastructure/static\",\n]\n# configuración de precios\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = '/static/'\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "STATICFILES_DIRS",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "STATICFILES_DIRS = [\n    BASE_DIR / \"infrastructure/static\",\n]\n# configuración de precios\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = '/static/'\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "STATIC_URL",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "STATIC_URL = '/static/'\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "DEFAULT_AUTO_FIELD",
+        "kind": 5,
+        "importPath": "config.settings",
+        "description": "config.settings",
+        "peekOfCode": "DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "detail": "config.settings",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "config.urls",
+        "description": "config.urls",
+        "peekOfCode": "urlpatterns = [\n    path('admin/', admin.site.urls),\n    #Autenticación y Home\n    path('', login_view, name='login'),\n    path('dashboard/', dashboard_view, name='dashboard'),\n    path('logout/', logout_view, name='logout'),\n    #Empleados\n    path('employee/', list_employees, name='list_employees'),\n    #Clientes\n    path('clientes/', list_clients_view, name='list_clients'),",
+        "detail": "config.urls",
+        "documentation": {}
+    },
+    {
+        "label": "application",
+        "kind": 5,
+        "importPath": "config.wsgi",
+        "description": "config.wsgi",
+        "peekOfCode": "application = get_wsgi_application()",
+        "detail": "config.wsgi",
+        "documentation": {}
+    },
+    {
+        "label": "Client",
+        "kind": 6,
+        "importPath": "domain.entities.client",
+        "description": "domain.entities.client",
+        "peekOfCode": "class Client:\n    def __init__(self, name, phone, email=None):\n        self.name = name\n        self.phone = phone\n        self.email = email",
+        "detail": "domain.entities.client",
+        "documentation": {}
+    },
+    {
+        "label": "Employee",
+        "kind": 6,
+        "importPath": "domain.entities.employee",
+        "description": "domain.entities.employee",
+        "peekOfCode": "class Employee:\n    def __init__(self, id, name, phone, username, password, role, created_at):\n        self.id = id\n        self.name = name\n        self.phone = phone\n        self.username = username\n        self.password = password\n        self.role = role\n        self.created_at = created_at",
+        "detail": "domain.entities.employee",
+        "documentation": {}
+    },
+    {
+        "label": "ParkingSpot",
+        "kind": 6,
+        "importPath": "domain.entities.parking_spot",
+        "description": "domain.entities.parking_spot",
+        "peekOfCode": "class ParkingSpot:\n    def __init__(self, id: int, number: int, status: str = \"AVAILABLE\", type: str = \"CAR\"):\n        self.id = id\n        self.number = number\n        self.status = status\n        self.type = type\n    def occupy(self):\n        self.status = \"OCCUPIED\"\n    def release(self):\n        self.status = \"AVAILABLE\"",
+        "detail": "domain.entities.parking_spot",
+        "documentation": {}
+    },
+    {
+        "label": "Payment",
+        "kind": 6,
+        "importPath": "domain.entities.payment",
+        "description": "domain.entities.payment",
+        "peekOfCode": "class Payment:\n    def __init__(self, ticket_id, method, amount, employee_id=None):\n        self.ticket_id = ticket_id\n        self.method = method\n        self.amount = amount\n        self.employee_id = employee_id",
+        "detail": "domain.entities.payment",
+        "documentation": {}
+    },
+    {
+        "label": "Ticket",
+        "kind": 6,
+        "importPath": "domain.entities.ticket",
+        "description": "domain.entities.ticket",
+        "peekOfCode": "class Ticket:\n    def __init__(self, vehicle_id, parking_spot_id, employee_id, entry_time):\n        self.vehicle_id = vehicle_id\n        self.parking_spot_id = parking_spot_id\n        self.employee_id = employee_id\n        self.entry_time = entry_time\n        self.status = \"ACTIVE\"",
+        "detail": "domain.entities.ticket",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "kind": 6,
+        "importPath": "domain.entities.user",
+        "description": "domain.entities.user",
+        "peekOfCode": "class User:\n    def __init__(self,id,username,password,role,is_active =True):\n        self.id = id\n        self.username = username\n        self.password = password\n        self.role = role\n        self.is_active = is_active",
+        "detail": "domain.entities.user",
+        "documentation": {}
+    },
+    {
+        "label": "Vehicle",
+        "kind": 6,
+        "importPath": "domain.entities.vehicle",
+        "description": "domain.entities.vehicle",
+        "peekOfCode": "class Vehicle:\n    def __init__(self, license_plate, type, client_id, created_at):\n        self.license_plate = license_plate\n        self.type = type  \n        self.client_id = client_id\n        self.created_at = created_at",
+        "detail": "domain.entities.vehicle",
+        "documentation": {}
+    },
+    {
+        "label": "ClientRepository",
+        "kind": 6,
+        "importPath": "domain.ports.client_repository",
+        "description": "domain.ports.client_repository",
+        "peekOfCode": "class ClientRepository:\n    def save(self, client):\n        pass\n    def get_all(self):\n        pass",
+        "detail": "domain.ports.client_repository",
+        "documentation": {}
+    },
+    {
+        "label": "EmployeeRepository",
+        "kind": 6,
+        "importPath": "domain.ports.employee_repository",
+        "description": "domain.ports.employee_repository",
+        "peekOfCode": "class EmployeeRepository(ABC):\n    @abstractmethod\n    def get_all(self):\n        pass\n    @abstractmethod\n    def get_by_id(self, employee_id):\n        pass\n    @abstractmethod\n    def create(self, employee):\n        pass",
+        "detail": "domain.ports.employee_repository",
+        "documentation": {}
+    },
+    {
+        "label": "ParkingSpotRepository",
+        "kind": 6,
+        "importPath": "domain.ports.parking_spot_repository",
+        "description": "domain.ports.parking_spot_repository",
+        "peekOfCode": "class ParkingSpotRepository(ABC):\n    @abstractmethod\n    def get_all(self) -> list[ParkingSpot]:\n        pass\n    @abstractmethod\n    def get_by_id(self, spot_id: int) -> ParkingSpot:\n        pass\n    @abstractmethod\n    def save(self, parking_spot: ParkingSpot) -> ParkingSpot:\n        pass",
+        "detail": "domain.ports.parking_spot_repository",
+        "documentation": {}
+    },
+    {
+        "label": "PaymentRepository",
+        "kind": 6,
+        "importPath": "domain.ports.payment_repository",
+        "description": "domain.ports.payment_repository",
+        "peekOfCode": "class PaymentRepository(ABC):\n    @abstractmethod\n    def save(self, payment):\n        pass",
+        "detail": "domain.ports.payment_repository",
+        "documentation": {}
+    },
+    {
+        "label": "TicketRepository",
+        "kind": 6,
+        "importPath": "domain.ports.ticket_repository",
+        "description": "domain.ports.ticket_repository",
+        "peekOfCode": "class TicketRepository:\n    def create(self, data):\n        pass\n    def get_active_by_vehicle(self, vehicle_id):\n        pass\n    def save(self, ticket):\n        pass",
+        "detail": "domain.ports.ticket_repository",
+        "documentation": {}
+    },
+    {
+        "label": "UserRepository",
+        "kind": 6,
+        "importPath": "domain.ports.user_repository",
+        "description": "domain.ports.user_repository",
+        "peekOfCode": "class UserRepository:\n    def find_by_username(self,username): pass",
+        "detail": "domain.ports.user_repository",
+        "documentation": {}
+    },
+    {
+        "label": "VehicleRepository",
+        "kind": 6,
+        "importPath": "domain.ports.vehicle_repository",
+        "description": "domain.ports.vehicle_repository",
+        "peekOfCode": "class VehicleRepository:\n    def save(self, vehicle):\n        pass",
+        "detail": "domain.ports.vehicle_repository",
+        "documentation": {}
+    },
+    {
+        "label": "CloseTicket",
+        "kind": 6,
+        "importPath": "domain.use_cases.close_ticket",
+        "description": "domain.use_cases.close_ticket",
+        "peekOfCode": "class CloseTicket:\n    TARIFA_UNICA = 3000\n    def __init__(self, ticket_repo, spot_repo):\n        self.ticket_repo = ticket_repo\n        self.spot_repo = spot_repo\n    def execute(self, vehicle):\n        ticket = self.ticket_repo.get_active_by_vehicle(vehicle.id)\n        if not ticket:\n            raise Exception(f\"No hay ticket activo para la placa {vehicle.license_plate}\")\n        #(hora iniciada = hora cobrada)",
+        "detail": "domain.use_cases.close_ticket",
+        "documentation": {}
+    },
+    {
+        "label": "CreateClient",
+        "kind": 6,
+        "importPath": "domain.use_cases.create_client",
+        "description": "domain.use_cases.create_client",
+        "peekOfCode": "class CreateClient:\n    def __init__(self, repository):\n        self.repository = repository\n    def execute(self, name, phone, email):\n        client = Client(name, phone, email)\n        return self.repository.save(client)",
+        "detail": "domain.use_cases.create_client",
+        "documentation": {}
+    },
+    {
+        "label": "CreateParkingSpot",
+        "kind": 6,
+        "importPath": "domain.use_cases.create_parking_spot",
+        "description": "domain.use_cases.create_parking_spot",
+        "peekOfCode": "class CreateParkingSpot:\n    def __init__(self, repository: ParkingSpotRepository):\n        self.repository = repository\n    def execute(self, number: int) -> ParkingSpot:\n        spot = ParkingSpot(id=None, number=number, status=\"AVAILABLE\")\n        return self.repository.save(spot)",
+        "detail": "domain.use_cases.create_parking_spot",
+        "documentation": {}
+    },
+    {
+        "label": "CreateTicket",
+        "kind": 6,
+        "importPath": "domain.use_cases.create_ticket",
+        "description": "domain.use_cases.create_ticket",
+        "peekOfCode": "class CreateTicket:\n    def __init__(self, ticket_repo, spot_repo):\n        self.ticket_repo = ticket_repo\n        self.spot_repo = spot_repo\n    def execute(self, vehicle_id, employee_id):\n        #EVITAR DOBLE INGRESO\n        existing_ticket = self.ticket_repo.get_active_by_vehicle(vehicle_id)\n        if existing_ticket:\n            raise Exception(\"El vehículo ya está dentro del parqueadero\")\n        #Buscar espacio disponible",
+        "detail": "domain.use_cases.create_ticket",
+        "documentation": {}
+    },
+    {
+        "label": "CreateVehicle",
+        "kind": 6,
+        "importPath": "domain.use_cases.create_vehicle",
+        "description": "domain.use_cases.create_vehicle",
+        "peekOfCode": "class CreateVehicle:\n    def __init__(self, vehicle_repository):\n        self.vehicle_repository = vehicle_repository\n    def execute(self, plate, v_type, client_id):\n        return self.vehicle_repository.save(plate, v_type, client_id)",
+        "detail": "domain.use_cases.create_vehicle",
+        "documentation": {}
+    },
+    {
+        "label": "GetHistory",
+        "kind": 6,
+        "importPath": "domain.use_cases.get_history",
+        "description": "domain.use_cases.get_history",
+        "peekOfCode": "class GetHistory:\n    def __init__(self, ticket_repository):\n        self.ticket_repository = ticket_repository\n    def execute(self):\n        return self.ticket_repository.get_history_all()",
+        "detail": "domain.use_cases.get_history",
+        "documentation": {}
+    },
+    {
+        "label": "LoginUser",
+        "kind": 6,
+        "importPath": "domain.use_cases.login_user",
+        "description": "domain.use_cases.login_user",
+        "peekOfCode": "class LoginUser:\n    def __init__(self, employee_repository):\n        self.employee_repository = employee_repository\n    def execute(self, username , password) :\n        employee = self.employee_repository.find_by_username(username)\n        if not employee:\n            raise Exception(\"Usuario no existe\")\n        if not check_password(password, employee.password):\n            raise Exception(\"Credenciales invalidas\")\n        return employee",
+        "detail": "domain.use_cases.login_user",
+        "documentation": {}
+    },
+    {
+        "label": "PayticketUseCase",
+        "kind": 6,
+        "importPath": "domain.use_cases.pay_ticket",
+        "description": "domain.use_cases.pay_ticket",
+        "peekOfCode": "class PayticketUseCase:\n   def __init__(self, payment_repository):\n     self.payment_repository = payment_repository\n   def execute(self, ticket_id, method, amount, employee_id=None):\n     ticket = Ticket.objects.get(id=ticket_id)\n     if ticket.status != 'ACTIVE':\n      raise Exception(\"El ticket ya está cerrado\")\n     # Guardar pago\n     payment = self.payment_repository.save({\n     \"ticket_id\": ticket_id,",
+        "detail": "domain.use_cases.pay_ticket",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "infrastructure.migrations.0001_initial",
+        "description": "infrastructure.migrations.0001_initial",
+        "peekOfCode": "class Migration(migrations.Migration):\n    initial = True\n    dependencies = [\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='Client',\n            fields=[\n                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),\n                ('name', models.CharField(max_length=100)),",
+        "detail": "infrastructure.migrations.0001_initial",
+        "documentation": {}
+    },
+    {
+        "label": "InfrastructureConfig",
+        "kind": 6,
+        "importPath": "infrastructure.apps",
+        "description": "infrastructure.apps",
+        "peekOfCode": "class InfrastructureConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'infrastructure'",
+        "detail": "infrastructure.apps",
+        "documentation": {}
+    },
+    {
+        "label": "ClientForm",
+        "kind": 6,
+        "importPath": "infrastructure.forms",
+        "description": "infrastructure.forms",
+        "peekOfCode": "class ClientForm(forms.Form):\n    # Opciones para el select del HTML\n    CLIENT_TYPES = [\n        ('REGULAR', 'Cliente Regular'),\n        ('SENA', 'Aprendiz SENA 🎓'),\n        ('VISITANTE', 'Visitante Ocasional'),\n    ]\n    name = forms.CharField(max_length=100)\n    client_type = forms.ChoiceField(choices=CLIENT_TYPES)\n    phone = forms.CharField(max_length=20)",
+        "detail": "infrastructure.forms",
+        "documentation": {}
+    },
+    {
+        "label": "EmployeeModel",
+        "kind": 6,
+        "importPath": "infrastructure.models",
+        "description": "infrastructure.models",
+        "peekOfCode": "class EmployeeModel(models.Model):\n    ROLE_CHOICES = [\n        ('ADMIN', 'ADMIN'),\n        ('EMPLOYEE', 'EMPLOYEE')\n    ]\n    name = models.CharField(max_length=100)\n    phone = models.CharField(max_length=20, null=True, blank=True)\n    username = models.CharField(max_length=50, unique=True)\n    password = models.CharField(max_length=255)\n    role = models.CharField(max_length=20, choices=ROLE_CHOICES)",
+        "detail": "infrastructure.models",
+        "documentation": {}
+    },
+    {
+        "label": "Client",
+        "kind": 6,
+        "importPath": "infrastructure.models",
+        "description": "infrastructure.models",
+        "peekOfCode": "class Client(models.Model):\n    name = models.CharField(max_length=100)\n    phone = models.CharField(max_length=20)\n    email = models.CharField(max_length=100, null=True, blank=True)\n    created_at = models.DateTimeField(auto_now_add=True)\n    class Meta:\n        db_table = 'client'\n    def __str__(self):\n        return self.name\nclass Vehicle(models.Model):",
+        "detail": "infrastructure.models",
+        "documentation": {}
+    },
+    {
+        "label": "Vehicle",
+        "kind": 6,
+        "importPath": "infrastructure.models",
+        "description": "infrastructure.models",
+        "peekOfCode": "class Vehicle(models.Model):\n    VEHICLE_TYPES = [\n        ('CAR', 'Carro'),\n        ('MOTORCYCLE', 'Moto'),\n        ('BICYCLE', 'Bici'),\n    ]\n    license_plate = models.CharField(max_length=20, unique=True)\n    type = models.CharField(max_length=20, choices=VEHICLE_TYPES)\n    client = models.ForeignKey(Client, on_delete=models.CASCADE)\n    created_at = models.DateTimeField(auto_now_add=True)",
+        "detail": "infrastructure.models",
+        "documentation": {}
+    },
+    {
+        "label": "ParkingSpot",
+        "kind": 6,
+        "importPath": "infrastructure.models",
+        "description": "infrastructure.models",
+        "peekOfCode": "class ParkingSpot(models.Model):\n    number = models.IntegerField(unique=True)\n    type = models.CharField(max_length=20)\n    status = models.CharField(max_length=20, default='AVAILABLE')\n    created_at = models.DateTimeField(auto_now_add=True)\n    class Meta:\n        db_table = 'parking_spot'\n    def occupy(self):\n        self.status = 'OCCUPIED'\n        self.save()",
+        "detail": "infrastructure.models",
+        "documentation": {}
+    },
+    {
+        "label": "Ticket",
+        "kind": 6,
+        "importPath": "infrastructure.models",
+        "description": "infrastructure.models",
+        "peekOfCode": "class Ticket(models.Model):\n    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)\n    parking_spot = models.ForeignKey(ParkingSpot, on_delete=models.CASCADE)\n    employee = models.ForeignKey(EmployeeModel, on_delete=models.SET_NULL, null=True)\n    entry_time = models.DateTimeField()\n    exit_time = models.DateTimeField(null=True, blank=True)\n    total_paid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)\n    status = models.CharField(max_length=20, default='ACTIVE')\n    created_at = models.DateTimeField(auto_now_add=True)\n    class Meta:",
+        "detail": "infrastructure.models",
+        "documentation": {}
+    },
+    {
+        "label": "Payment",
+        "kind": 6,
+        "importPath": "infrastructure.models",
+        "description": "infrastructure.models",
+        "peekOfCode": "class Payment(models.Model):\n    METHOD_CHOICES = [\n        ('CASH', 'Cash'),\n        ('CARD', 'Card'),\n        ('TRANSFER', 'Transfer'),\n    ]\n    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)\n    employee = models.ForeignKey(EmployeeModel, on_delete=models.SET_NULL, null=True)\n    method = models.CharField(max_length=20, choices=METHOD_CHOICES)\n    amount = models.DecimalField(max_digits=10, decimal_places=2)",
+        "detail": "infrastructure.models",
+        "documentation": {}
+    },
+    {
+        "label": "DjangoEmployeeRepository",
+        "kind": 6,
+        "importPath": "infrastructure.repositories",
+        "description": "infrastructure.repositories",
+        "peekOfCode": "class DjangoEmployeeRepository(EmployeeRepository):\n    def find_by_username(self, username):\n        return EmployeeModel.objects.filter(username=username).first()\n    def create(self, data):\n        return EmployeeModel.objects.create(**data)\n    def get_all(self):\n        return [\n        EmployeeEntity(e.id, e.name, e.phone, e.username, e.password, e.role, e.created_at)\n        for e in EmployeeModel.objects.all()\n    ]",
+        "detail": "infrastructure.repositories",
+        "documentation": {}
+    },
+    {
+        "label": "DjangoClientRepository",
+        "kind": 6,
+        "importPath": "infrastructure.repositories",
+        "description": "infrastructure.repositories",
+        "peekOfCode": "class DjangoClientRepository:\n    def save(self, client):\n        return ClientModel.objects.create(\n            name=client.name,\n            phone=client.phone,\n            email=client.email\n        )\n    def get_all(self):\n        return ClientModel.objects.all()\n#VEHICLE REPOSITORY",
+        "detail": "infrastructure.repositories",
+        "documentation": {}
+    },
+    {
+        "label": "DjangoVehicleRepository",
+        "kind": 6,
+        "importPath": "infrastructure.repositories",
+        "description": "infrastructure.repositories",
+        "peekOfCode": "class DjangoVehicleRepository:\n    def save(self, plate, v_type, client_id):\n        return VehicleModel.objects.create(\n            license_plate=plate, \n            type=v_type,         \n            client_id=client_id \n        )\n#TICKET REPOSITORY\nclass DjangoTicketRepository:\n    def get_history_all(self):",
+        "detail": "infrastructure.repositories",
+        "documentation": {}
+    },
+    {
+        "label": "DjangoTicketRepository",
+        "kind": 6,
+        "importPath": "infrastructure.repositories",
+        "description": "infrastructure.repositories",
+        "peekOfCode": "class DjangoTicketRepository:\n    def get_history_all(self):\n        hoy = date.today() \n        return Ticket.objects.filter(\n            entry_time__date=hoy \n        ).select_related('vehicle', 'vehicle__client').order_by('status', '-entry_time')\n    def filter_by_plate(self, plate):\n        hoy = date.today()\n        return Ticket.objects.filter(\n            vehicle__license_plate__icontains=plate,",
+        "detail": "infrastructure.repositories",
+        "documentation": {}
+    },
+    {
+        "label": "DjangoParkingSpotRepository",
+        "kind": 6,
+        "importPath": "infrastructure.repositories",
+        "description": "infrastructure.repositories",
+        "peekOfCode": "class DjangoParkingSpotRepository:\n    def get_all(self):\n        \"\"\"\n        Trae TODOS los espacios de la base de datos \n        ordenados por 'number' (1, 2, 3...) para la cuadrícula.\n        \"\"\"\n        return ParkingSpot.objects.all().order_by('number')\n    def get_available(self):\n        \"\"\"Trae el primer espacio disponible que encuentre.\"\"\"\n        return ParkingSpot.objects.filter(status='AVAILABLE').order_by('number').first()",
+        "detail": "infrastructure.repositories",
+        "documentation": {}
+    },
+    {
+        "label": "DjangoPaymentRepository",
+        "kind": 6,
+        "importPath": "infrastructure.repositories",
+        "description": "infrastructure.repositories",
+        "peekOfCode": "class DjangoPaymentRepository:\n    def save(self, payment):\n        return PaymentModel.objects.create(\n            ticket_id=payment.ticket_id,\n            employee_id=payment.employee_id,\n            method=payment.method,\n            amount=payment.amount\n        )",
+        "detail": "infrastructure.repositories",
+        "documentation": {}
+    },
+    {
+        "label": "login_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def login_view(request):\n    if request.method == \"POST\":\n        username = request.POST.get(\"username\")\n        password = request.POST.get(\"password\")\n        repo =  DjangoEmployeeRepository()\n        use_case = LoginUser(repo)\n        try:\n            user = use_case.execute(username, password)\n            request.session[\"user_id\"] = user.id\n            request.session[\"username\"] = user.username",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "logout_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def logout_view(request):\n    request.session.flush()\n    return redirect(\"/\")\n#DASHBOARD Y ESPACIOS\ndef dashboard_view(request):\n    total = ParkingSpot.objects.count()\n    available = ParkingSpot.objects.filter(status=\"AVAILABLE\").count()\n    occupied = ParkingSpot.objects.filter(status=\"OCCUPIED\").count()\n    ocupacion = int((occupied / total) * 100) if total > 0 else 0\n    return render(request, \"dashboard.html\", {",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "dashboard_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def dashboard_view(request):\n    total = ParkingSpot.objects.count()\n    available = ParkingSpot.objects.filter(status=\"AVAILABLE\").count()\n    occupied = ParkingSpot.objects.filter(status=\"OCCUPIED\").count()\n    ocupacion = int((occupied / total) * 100) if total > 0 else 0\n    return render(request, \"dashboard.html\", {\n        \"total_spots\": total,\n        \"available_spots\": available,\n        \"occupied_spots\": occupied,\n        \"ocupacion_actual\": ocupacion,",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "parking_status_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def parking_status_view(request):\n    repo = DjangoParkingSpotRepository()\n    all_spots_from_db = repo.get_all() \n    spots_with_info = []\n    #Procesamos cada espacio para ver si tiene ticket\n    for spot in all_spots_from_db:\n        ticket = None\n        is_occupied = (spot.status == \"OCCUPIED\")\n        if is_occupied:\n            # Buscamos el ticket activo solo si el spot dice que está ocupado",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "list_employees",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def list_employees(request):\n    repo = DjangoEmployeeRepository()\n    employees = repo.get_all()\n    return render(request, \"list_employees.html\", {\"employees\": employees})\ndef create_employee(request):\n    if request.method == \"POST\":\n        employee = Employee(\n            id=None,\n            name=request.POST[\"name\"],\n            phone=request.POST[\"phone\"],",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "create_employee",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def create_employee(request):\n    if request.method == \"POST\":\n        employee = Employee(\n            id=None,\n            name=request.POST[\"name\"],\n            phone=request.POST[\"phone\"],\n            username=request.POST[\"username\"],\n            password=request.POST[\"password\"],\n            role=\"EMPLOYEE\",\n            created_at=None",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "list_clients_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def list_clients_view(request):\n    clients = ClientModel.objects.all().order_by('id')\n    return render(request, 'list_clients.html', {'clients': clients})\nfrom .forms import ClientForm\nfrom .forms import ClientForm\nfrom .forms import ClientForm\ndef create_client_view(request):\n    form = ClientForm(request.POST or None)\n    if request.method == 'POST':\n        if form.is_valid():",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "create_client_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def create_client_view(request):\n    form = ClientForm(request.POST or None)\n    if request.method == 'POST':\n        if form.is_valid():\n            #Extraemos los datos limpios\n            data = form.cleaned_data\n            repo = DjangoClientRepository()\n            use_case = CreateClient(repo)\n            use_case.execute(\n                data['name'], ",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "edit_client_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def edit_client_view(request, id):\n    client_obj = get_object_or_404(ClientModel, id=id)\n    if request.method == 'POST':\n        form = ClientForm(request.POST)\n        if form.is_valid():\n            data = form.cleaned_data\n            client_obj.name = data['name']\n            client_obj.phone = data['phone']\n            client_obj.email = data.get('email')\n            #Actualizamos también el tipo de cliente",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "delete_client_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def delete_client_view(request, id):\n    client_obj = get_object_or_404(ClientModel, id=id)\n    if request.method == 'POST':\n        client_obj.delete() \n        messages.success(request, f\"Cliente {client_obj.name} eliminado.\")\n        return redirect('/clientes/')\n    return render(request, 'delete_client.html', {'client': client_obj})\n#GESTIÓN DE VEHÍCULOS\ndef list_vehicles_view(request):\n    vehicles = Vehicle.objects.all().order_by('id')",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "list_vehicles_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def list_vehicles_view(request):\n    vehicles = Vehicle.objects.all().order_by('id')\n    return render(request, 'list_vehicles.html', {'vehicles': vehicles})\nfrom django.db import IntegrityError\ndef create_vehicle_view(request):\n    if request.method == 'POST':\n        plate = request.POST.get('plate', '').strip().upper()\n        vehicle_type = request.POST.get('type')\n        client_id = request.POST.get('client_id')\n        #(El filtro de seguridad) ",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "create_vehicle_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def create_vehicle_view(request):\n    if request.method == 'POST':\n        plate = request.POST.get('plate', '').strip().upper()\n        vehicle_type = request.POST.get('type')\n        client_id = request.POST.get('client_id')\n        #(El filtro de seguridad) \n        if len(plate) > 6:\n            clients = ClientModel.objects.all()\n            return render(request, 'create_vehicle.html', {\n                'clients': clients,",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "edit_vehicle_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def edit_vehicle_view(request, id):\n    vehicle_obj = get_object_or_404(Vehicle, id=id)\n    if request.method == 'POST':\n        vehicle_obj.license_plate = request.POST['plate'].upper()\n        vehicle_obj.type = request.POST['type']\n        vehicle_obj.client_id = request.POST['client_id']\n        vehicle_obj.save()\n        return redirect('/vehiculos/')\n    clients = ClientModel.objects.all()\n    return render(request, 'edit_vehicle.html', {'vehicle': vehicle_obj, 'clients': clients})",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "delete_vehicle_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def delete_vehicle_view(request, id):\n    vehicle_obj = get_object_or_404(Vehicle, id=id)\n    if request.method == 'POST':\n        vehicle_obj.delete()\n        return redirect('/vehiculos/')\n    return render(request, 'delete_vehicle.html', {'vehicle': vehicle_obj})\n#OPERACIONES DE PARQUEADERO (ENTRADA/SALIDA)\ndef entry_vehicle_view(request):\n    if request.method == 'POST':\n        plate_text = request.POST.get('license_plate', '').strip().upper()",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "entry_vehicle_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def entry_vehicle_view(request):\n    if request.method == 'POST':\n        plate_text = request.POST.get('license_plate', '').strip().upper()\n        vehicle_type = request.POST.get('vehicle_type', 'CAR') \n        # 1. Validaciones de la placa\n        if not plate_text:\n            return render(request, 'entry_vehicle.html', {'error': 'La placa es obligatoria'})\n        if len(plate_text) > 6:\n            return render(request, 'entry_vehicle.html', {'error': 'La placa no puede tener más de 6 caracteres'})\n        # 2. Lógica de Cliente y Vehículo",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "exit_vehicle_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def exit_vehicle_view(request):\n    if request.method == 'POST':\n        plate_text = request.POST.get('license_plate', '').strip().upper()\n        # 1. Validación de longitud en salida\n        if len(plate_text) > 6:\n            messages.error(request, \"La placa es inválida (máximo 6 caracteres)\")\n            return redirect('/salida/')\n        try:\n            vehicle_obj = Vehicle.objects.get(license_plate=plate_text)\n            use_case = CloseTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "pay_ticket_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def pay_ticket_view(request):\n    if request.method == \"POST\":\n        try:\n            use_case = PayticketUseCase(DjangoPaymentRepository())\n            use_case.execute(\n                request.POST['ticket_id'], \n                request.POST['method'], \n                request.POST['amount'], \n                request.session.get('user_id')\n            )",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "history_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def history_view(request):\n    query = request.GET.get('q') \n    repo = DjangoTicketRepository()\n    if query:\n        tickets = repo.filter_by_plate(query)\n    else:\n        use_case = GetHistory(repo)\n        tickets = use_case.execute()\n    return render(request, 'list_history.html', {'tickets': tickets})",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "manage",
+        "description": "manage",
+        "peekOfCode": "def main():\n    \"\"\"Run administrative tasks.\"\"\"\n    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')\n    try:\n        from django.core.management import execute_from_command_line\n    except ImportError as exc:\n        raise ImportError(\n            \"Couldn't import Django. Are you sure it's installed and \"\n            \"available on your PYTHONPATH environment variable? Did you \"\n            \"forget to activate a virtual environment?\"",
+        "detail": "manage",
+        "documentation": {}
+    }
+]

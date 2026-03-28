@@ -4,25 +4,17 @@
 
 {% block content %}
 <div class="card">
-    <h1 style="color: #000000;">Registrar Ingreso</h1>
-    <p>Escriba la placa para registrar la entrada del vehículo.</p>
+    <h1>Registrar Ingreso</h1>
+    <p>Escriba la placa del vehículo. Si es nuevo, el sistema lo creará automáticamente.</p>
     <hr style="margin-bottom: 20px; border: 0; border-top: 1px solid #eee;">
 
     <form method="post" autocomplete="off">
         {% csrf_token %}
-        
         <div style="margin-bottom: 20px;">
             <label style="display:block; margin-bottom:8px; font-weight:bold;">Placa del Vehículo:</label>
-            <input type="text" name="license_plate" id="license_plate" 
-                   placeholder="Ej: ABC123" maxlength="6" required 
+            <input type="text" name="license_plate" id="license_plate" placeholder="Ej: ABC123" required 
                    style="width:100%; padding:12px; border-radius:6px; border:1px solid #cbd5e1; text-transform: uppercase; font-size: 18px;">
-            
-            <div id="type_info" style="margin-top: 8px; font-size: 14px; font-weight: bold; color: #64748b;">
-                Tipo detectado: <span id="status_text">Esperando...</span>
-            </div>
         </div>
-
-        <input type="hidden" name="vehicle_type" id="vehicle_type" value="">
 
         <button type="submit" style="background:#1e3a8a; color:white; border:none; padding:14px 30px; border-radius:6px; cursor:pointer; font-weight:bold; width: 100%;">
             Registrar Entrada
@@ -30,38 +22,16 @@
     </form>
 
     {% if error %}
-        <div style="margin-top: 20px; padding: 15px; background: #fee2e2; color: #b91c1c; border-radius: 6px; font-weight: bold;">
-             {{ error }}
-        </div>
+    <div style="margin-top:20px; color: #b91c1c; background: #fee2e2; padding: 10px; border-radius: 5px; font-weight: bold;">
+        ⚠️ {{ error }}
+    </div>
     {% endif %}
 </div>
 
 <script>
+    //próxima carga limpia
     document.addEventListener('DOMContentLoaded', function() {
-        const plateInput = document.getElementById('license_plate');
-        const typeHidden = document.getElementById('vehicle_type');
-        const statusText = document.getElementById('status_text');
-
-        plateInput.focus();
-
-        plateInput.addEventListener('input', function() {
-            let valor = this.value.trim();
-            let largo = valor.length;
-
-            if (largo === 5) {
-                typeHidden.value = 'MOTORCYCLE';
-                statusText.innerText = 'Moto';
-                statusText.style.color = '#854d0e'; 
-            } else if (largo === 6) {
-                typeHidden.value = 'CAR';
-                statusText.innerText = 'Carro';
-                statusText.style.color = '#166534'; 
-            } else {
-                typeHidden.value = '';
-                statusText.innerText = 'Esperando...';
-                statusText.style.color = '#64748b';
-            }
-        });
+        console.log("Formulario de ingreso listo.");
     });
 </script>
 {% endblock %}

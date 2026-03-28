@@ -259,48 +259,61 @@ def delete_vehicle_view(request, id):
 
 def entry_vehicle_view(request):
     if request.method == 'POST':
-
         plate_text = request.POST.get('license_plate', '').strip().upper()
-        
-        #Lógica de Detección Automática
-        longitud = len(plate_text)
-        
+        vehicle_type = request.POST.get('vehicle_type', 'CAR') 
+
+        # 1. Validaciones de la placa
         if not plate_text:
             return render(request, 'entry_vehicle.html', {'error': 'La placa es obligatoria'})
         
-        if longitud == 6:
-            vehicle_type = 'CAR'
-        elif longitud == 5:
-            vehicle_type = 'MOTORCYCLE'
-        else:
-            #Si no tiene 5 ni 6, devolvemos el error inmediatamente
-            return render(request, 'entry_vehicle.html', {
-                'error': f'Placa inválida ({longitud} caracteres). Use 6 para Carro o 5 para Moto.'
-            })
-        #Lógica de Cliente y Vehículo
+        if len(plate_text) > 6:
+            return render(request, 'entry_vehicle.html', {'error': 'La placa no puede tener más de 6 caracteres'})
+
+        # 2. Lógica de Cliente y Vehículo
         cliente_gen, _ = ClientModel.objects.get_or_create(
-            name="Visitante", 
-            defaults={'phone': '000'}
+            name="Visitante", defaults={'phone': '000'}
         )
-        #Buscamos o creamos el vehículo con el tipo detectado automáticamente
         vehiculo_obj, created = Vehicle.objects.get_or_create(
             license_plate=plate_text,
             defaults={'client': cliente_gen, 'type': vehicle_type}
         )
-        #Si el vehículo ya existía pero cambió de tipo
+        
         if not created and vehiculo_obj.type != vehicle_type:
              vehiculo_obj.type = vehicle_type
              vehiculo_obj.save()
 
+        # 3. Creación del Ticket
         use_case = CreateTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
         try:
             use_case.execute(vehiculo_obj.id, None)  
-            messages.success(request, f"✅ Ingreso registrado: {plate_text} ({vehiculo_obj.get_type_display()})")
+            messages.success(request, f"✅ Ingreso: {plate_text}")
             return redirect('/ingreso/')
         except Exception as e:
             return render(request, 'entry_vehicle.html', {'error': str(e)})
             
     return render(request, 'entry_vehicle.html')
+
+def exit_vehicle_view(request):
+    if request.method == 'POST':
+        plate_text = request.POST.get('license_plate', '').strip().upper()
+
+        # 1. Validación de longitud en salida
+        if len(plate_text) > 6:
+            messages.error(request, "La placa es inválida (máximo 6 caracteres)")
+            return redirect('/salida/')
+
+        try:
+            vehicle_obj = Vehicle.objects.get(license_plate=plate_text)
+            use_case = CloseTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
+            total = use_case.execute(vehicle_obj)
+            messages.success(request, f"Salida OK - Total: ${total}")
+            return redirect('/salida/')
+        except Vehicle.DoesNotExist:
+            messages.error(request, f"La placa {plate_text} no existe")
+        except Exception as e:
+            messages.error(request, str(e))
+            
+    return render(request, 'exit_vehicle.html')
 
 def exit_vehicle_view(request):
     if request.method == 'POST':

@@ -1,4 +1,9 @@
+import re
 import traceback
+import os
+import base64
+from datetime import date
+from decimal import Decimal
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -9,21 +14,14 @@ from django.db import IntegrityError
 from django.core.mail import send_mass_mail
 from django.conf import settings
 
+# Utilidades e Infraestructura
 from infrastructure.utils import render_to_pdf
+from .models import ParkingSpot, Vehicle, Client as ClientModel, Ticket, Client
 
-#Modelos de Infraestructura
-from .models import ParkingSpot, Vehicle, Client as ClientModel, Ticket
-
-from django.shortcuts import render
-from django.utils.timezone import now
-from django.db.models import Sum, Count, DecimalField
-from django.db.models.functions import Coalesce
-from .models import ParkingSpot, Ticket
-
-#Formularios
+# Formularios
 from .forms import ClientForm
 
-#Repositorios
+# Repositorios
 from .repositories import (
     DjangoClientRepository,
     DjangoReportRepository,
@@ -32,15 +30,14 @@ from .repositories import (
     DjangoEmployeeRepository,
     DjangoTicketRepository,
     DjangoParkingSpotRepository
-    
 )
 
-#Entidades de Dominio
+# Entidades de Dominio
 from domain.entities.employee import Employee
 from domain.entities.client import Client as ClientEntity
 from domain.entities.vehicle import Vehicle as VehicleEntity
 
-#Casos de Uso
+# Casos de Uso
 from domain.use_cases.login_user import LoginUser
 from domain.use_cases.create_client import CreateClient
 from domain.use_cases.create_vehicle import CreateVehicle
@@ -77,10 +74,9 @@ def logout_view(request):
 
 #DASHBOARD Y ESPACIOS
 
-
 def dashboard_view(request):
     fecha_hoy = now().date()
-    # Definimos el inicio de la semana
+    #Definimos el inicio de la semana
     hace_una_semana = fecha_hoy - timedelta(days=7)
 
     vehiculos_hoy = Ticket.objects.filter(created_at__date=fecha_hoy).count()
@@ -184,10 +180,9 @@ def create_employee(request):
 #GESTIÓN DE CLIENTES
 
 def list_clients_view(request):
-
     query = request.GET.get('q', '').strip()
     
-    # Base de clientes
+    #Base de clientes
     clients = ClientModel.objects.all()
 
     if query:
@@ -207,12 +202,18 @@ def create_client_view(request):
     if request.method == 'POST':
         if form.is_valid():
             data = form.cleaned_data
+            nombre = data['name']
+
+            #Validación
+            if not re.match(r"^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$", nombre):
+                messages.error(request, "El nombre del cliente solo puede contener letras.")
+                return render(request, 'create_client.html', {'form': form})
 
             repo = DjangoClientRepository()
             use_case = CreateClient(repo)
 
             use_case.execute(
-                data['name'],
+                nombre,
                 data['phone'],
                 data.get('email')
             )
@@ -228,21 +229,32 @@ def create_client_view(request):
 
 
 def edit_client_view(request, id):
-    client_obj = get_object_or_404(ClientModel, id=id)
+    client_obj = get_object_or_404(Client, id=id) 
 
     if request.method == 'POST':
         form = ClientForm(request.POST)
         if form.is_valid():
-
             data = form.cleaned_data
-            client_obj.name = data['name']
+            nuevo_nombre = data['name']
+
+            # Validación de solo letras, tildes y espacios
+            if not re.match(r"^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$", nuevo_nombre):
+                messages.error(request, "El nombre del cliente no puede contener números ni caracteres especiales.")
+                return render(request, 'edit_client.html', {'form': form, 'client': client_obj})
+
+            # Si el nombre es válido, actualizamos el objeto
+            client_obj.name = nuevo_nombre
             client_obj.phone = data['phone']
             client_obj.email = data.get('email')
-            client_obj.client_type = data['client_type']
+            # Usamos getattr por si client_type no existe en el modelo aún
+            if 'client_type' in data:
+                client_obj.client_type = data['client_type']
 
             client_obj.save()
+            messages.success(request, f"Cliente {client_obj.name} actualizado correctamente.")
             return redirect('/clientes/')
         else:
+            messages.error(request, "Error al validar los datos del formulario.")
             print(f"Errores en el formulario: {form.errors}")
     else:
         form = ClientForm(initial={
@@ -256,20 +268,34 @@ def edit_client_view(request, id):
 
 
 def delete_client_view(request, id):
-    client_obj = get_object_or_404(ClientModel, id=id)
+    client_obj = get_object_or_404(Client, id=id)
+    
     if request.method == 'POST':
+        #BUSCAR TICKETS ACTIVOS: 
+        tiene_movimiento_activo = Ticket.objects.filter(
+            vehicle__client=client_obj, 
+            status='ACTIVE'
+        ).exists()
+
+        if tiene_movimiento_activo:
+            #Si tiene un carro adentro, bloqueamos la eliminación
+            messages.error(
+                request, 
+                f"No se puede eliminar a {client_obj.name} porque uno de sus vehículos está actualmente en el parqueadero."
+            )
+            return redirect('/clientes/')
+
+        nombre_cliente = client_obj.name 
         client_obj.delete()
-        messages.success(request, f"Cliente {client_obj.name} eliminado.")
+        messages.success(request, f"Cliente {nombre_cliente} eliminado correctamente.")
         return redirect('/clientes/')
+
     return render(request, 'delete_client.html', {'client': client_obj})
 
 
 #GESTIÓN DE VEHÍCULOS
 
-from django.db.models import Q
-
 def list_vehicles_view(request):
-
     query = request.GET.get('q', '').strip()
     registrados = Vehicle.objects.exclude(
         Q(client__name__icontains="Visitante") | Q(client__isnull=True)
@@ -335,7 +361,6 @@ def create_vehicle_view(request):
                 'error': f"Ocurrió un error inesperado: {str(e)}"
             })
 
-
     clients = ClientModel.objects.all()
     return render(request, 'create_vehicle.html', {'clients': clients})
 
@@ -354,9 +379,27 @@ def edit_vehicle_view(request, id):
 
 def delete_vehicle_view(request, id):
     vehicle_obj = get_object_or_404(Vehicle, id=id)
+    
     if request.method == 'POST':
+        #VALIDACIÓN DE SEGURIDAD
+        esta_en_parqueadero = Ticket.objects.filter(
+            vehicle=vehicle_obj, 
+            status='ACTIVE'
+        ).exists()
+
+        if esta_en_parqueadero:
+            #Si el vehículo no ha marcado salida, bloqueamos el borrado
+            messages.error(
+                request, 
+                f"No se puede eliminar el vehículo {vehicle_obj.license_plate} porque tiene un proceso de parqueo activo."
+            )
+            return redirect('/vehiculos/')
+
+        placa = vehicle_obj.license_plate
         vehicle_obj.delete()
+        messages.success(request, f"Vehículo con placa {placa} eliminado exitosamente.")
         return redirect('/vehiculos/')
+
     return render(request, 'delete_vehicle.html', {'vehicle': vehicle_obj})
 
 
@@ -391,7 +434,7 @@ def entry_vehicle_view(request):
         use_case = CreateTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
         try:
             use_case.execute(vehiculo_obj.id, None)
-            messages.success(request, f"✅ Ingreso: {plate_text}")
+            messages.success(request, f"Ingreso: {plate_text}")
             return redirect('/ingreso/')
         except Exception as e:
             return render(request, 'entry_vehicle.html', {'error': str(e)})
@@ -450,10 +493,10 @@ def history_view(request):
         tickets = use_case.execute()
     return render(request, 'list_history.html', {'tickets': tickets})
 
-#Corres Masivos
+
+#CORREOS
 
 def enviar_recordatorio_cierre(request):
-
     #Tickets activos
     tickets_activos = Ticket.objects.filter(status="ACTIVE").select_related("vehicle__client")
 
@@ -490,12 +533,8 @@ Evita recargos adicionales retirándolo a tiempo.
 
     return redirect("/dashboard/")
 
-#Reportes
 
-from django.shortcuts import render
-from datetime import date
-from .repositories import DjangoReportRepository
-from .models import ParkingSpot
+#REPORTES
 
 def reports_view(request):
     repo = DjangoReportRepository()
@@ -537,12 +576,6 @@ def reports_view(request):
     return render(request, "reports.html", context)
 
 
-import os
-import base64
-from decimal import Decimal
-from datetime import date
-from django.shortcuts import render
-
 def export_report_pdf(request):
     repo = DjangoReportRepository()
     
@@ -577,4 +610,4 @@ def export_report_pdf(request):
         "logo_base64": logo_base64
     }
     
-    return render_to_pdf('reports_pdf.html', context) 
+    return render_to_pdf('reports_pdf.html', context)

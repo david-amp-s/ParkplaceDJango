@@ -4,39 +4,17 @@
 
 {% block extra_css %}
 <style>
-    /* Estructura idéntica a Clientes */
+    /* Estructura y botones consistentes con Clientes */
     .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
     .btn { padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; cursor: pointer; border: none; display: inline-block; transition: 0.3s; }
     
-    /* Botón principal azul ParkPlace */
     .btn-primary { background: #0f172a; color: white; border: 1px solid #1e293b; }
     .btn-primary:hover { background: #1e293b; }
 
-    /* Buscador Consistente */
-    .search-container { 
-        background: white; 
-        padding: 15px; 
-        border-radius: 12px; 
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
-        margin-bottom: 25px; 
-        display: flex; 
-        gap: 10px; 
-    }
-    .search-input { 
-        flex-grow: 1; 
-        padding: 10px 15px; 
-        border: 1px solid #e2e8f0; 
-        border-radius: 8px; 
-        outline: none; 
-        font-size: 14px; 
-    }
-    .search-input:focus { border-color: #0f172a; }
-
-    /* Botón Editar - Azul profesional */
+    /* Botones de acción en tabla */
     .btn-edit { background: #1e40af; color: white; padding: 5px 12px; font-size: 12px; text-decoration: none; border-radius: 4px; }
     .btn-edit:hover { background: #1e3a8a; }
 
-    /* Botón Eliminar - Sutil */
     .btn-delete { 
         color: #94a3b8; 
         padding: 5px 10px; 
@@ -52,12 +30,12 @@
         border-color: #fecaca; 
     }
     
+    /* Estilo de Tabla ParkPlace */
     table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
     th { background: #f8fafc; color: #64748b; text-align: left; padding: 15px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-transform: uppercase; }
     td { padding: 14px 15px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 14px; }
     tr:hover { background-color: #f8fafc; }
 
-    /* Badge para Roles (Similar al de SENA pero neutral) */
     .badge-role { 
         background: #f1f5f9; 
         color: #475569; 
@@ -79,13 +57,7 @@
     <a href="{% url 'create_employee' %}" class="btn btn-primary">+ Nuevo Empleado</a>
 </div>
 
-<form method="GET" action="{% url 'list_employees' %}" class="search-container">
-    <input type="text" name="q" class="search-input" placeholder="Buscar empleado por nombre o usuario..." value="{{ query|default:'' }}">
-    <button type="submit" class="btn btn-primary">Buscar</button>
-    {% if query %}
-        <a href="{% url 'list_employees' %}" class="btn" style="background: #f1f5f9; color: #64748b;">Limpiar</a>
-    {% endif %}
-</form>
+{# Se eliminó el buscador a petición del usuario #}
 
 <table>
     <thead>
@@ -118,7 +90,7 @@
         {% empty %}
         <tr>
             <td colspan="6" style="text-align: center; padding: 40px; color: #94a3b8;">
-                No se encontraron empleados registrados.
+                No hay empleados registrados actualmente.
             </td>
         </tr>
         {% endfor %}

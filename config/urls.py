@@ -23,7 +23,8 @@ from infrastructure.views import (
     reports_view,
     employee_create_view,
     employee_update_view,
-    employee_delete_view
+    employee_delete_view,
+    importar_clientes
 )
 
 urlpatterns = [
@@ -78,4 +79,7 @@ urlpatterns = [
     #Reportes
     path('reports/', reports_view, name='reports'),
     path('reports/download/', views.export_report_pdf, name='export_report_pdf'),
+
+    #importar-clientes
+    path('importar-clientes/', importar_clientes, name='importar_clientes'),
 ]

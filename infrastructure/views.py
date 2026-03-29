@@ -9,6 +9,7 @@ from django.db import IntegrityError
 from django.core.mail import send_mass_mail
 from django.conf import settings
 
+from domain.use_cases.client_import_service import ClientImportService
 from infrastructure.utils import render_to_pdf
 
 #Modelos de Infraestructura
@@ -621,3 +622,20 @@ def export_report_pdf(request):
     }
     
     return render_to_pdf('reports_pdf.html', context) 
+
+from django.http import JsonResponse
+
+def importar_clientes(request):
+    try:
+        total = ClientImportService.import_from_java()
+
+        return JsonResponse({
+            "success": True,
+            "message": f"{total} clientes importados correctamente"
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "message": str(e)
+        }, status=500)

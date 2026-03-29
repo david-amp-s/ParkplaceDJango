@@ -67,24 +67,27 @@ def logout_view(request):
 
 # DASHBOARD Y ESPACIOS
 
+import json
+from django.shortcuts import render
+from django.utils.timezone import now
+from django.db.models import Sum, Count, DecimalField
+from django.db.models.functions import Coalesce
+
+from .models import ParkingSpot, Ticket
+
+
 def dashboard_view(request):
 
-    # Espacios
     total = ParkingSpot.objects.count()
-    available = ParkingSpot.objects.filter(status="AVAILABLE").count()
     occupied = ParkingSpot.objects.filter(status="OCCUPIED").count()
     ocupacion = int((occupied / total) * 100) if total > 0 else 0
 
-    hoy = now().date()
+    fecha_hoy = now().date()
 
-    # Vehículos hoy
-    vehiculos_hoy = Ticket.objects.filter(
-        created_at__date=hoy
-    ).count()
+    vehiculos_hoy = Ticket.objects.filter(created_at__date=fecha_hoy).count()
 
-    # Ingresos hoy
     ingresos_hoy = Ticket.objects.filter(
-        exit_time__date=hoy,
+        exit_time__date=fecha_hoy,
         status="CLOSED"
     ).aggregate(
         total=Coalesce(
@@ -94,7 +97,6 @@ def dashboard_view(request):
         )
     )["total"]
 
-    # Actividad reciente
     actividades = (
         Ticket.objects
         .select_related("vehicle")
@@ -102,35 +104,16 @@ def dashboard_view(request):
         .order_by("-created_at")[:5]
     )
 
-    # Vehículos por tipo HOY (CORRECTO)
     vehiculos_por_tipo = (
         Ticket.objects
-        .filter(created_at__date=hoy)
+        .filter(created_at__date=fecha_hoy)
         .values("vehicle__type")
         .annotate(total=Count("id"))
     )
 
-    # Listas limpias para JS
     tipos = [v["vehicle__type"] for v in vehiculos_por_tipo]
     cantidades = [v["total"] for v in vehiculos_por_tipo]
 
-    # Insight automático
-    insight = None
-    conteo = {v["vehicle__type"]: v["total"] for v in vehiculos_por_tipo}
-
-    carros = conteo.get("CAR", 0)
-    motos = conteo.get("MOTORCYCLE", 0)
-
-    if carros > motos:
-        insight = f"🚗 Hoy han entrado más carros ({carros}) que motos ({motos})"
-    elif motos > carros:
-        insight = f"🏍️ Hoy han entrado más motos ({motos}) que carros ({carros})"
-    elif carros == motos and carros > 0:
-        insight = f"⚖️ Hoy hay igual número de carros y motos ({carros})"
-    else:
-        insight = "Sin datos suficientes hoy"
-
-    # Clientes frecuentes (TOP 5)
     clientes_frecuentes = (
         Ticket.objects
         .values("vehicle__client__name")
@@ -138,17 +121,17 @@ def dashboard_view(request):
         .order_by("-total")[:5]
     )
 
-    return render(request, "dashboard.html", {
+    context = {
         "ocupacion_actual": ocupacion,
         "vehiculos_hoy": vehiculos_hoy,
         "ingresos_hoy": ingresos_hoy,
         "actividades_recientes": actividades,
         "tipos": tipos,
         "cantidades": cantidades,
-        "insight": insight,
         "clientes_frecuentes": clientes_frecuentes
-    })
+    }
 
+    return render(request, "dashboard.html", context)
 
 def parking_status_view(request):
     repo = DjangoParkingSpotRepository()
@@ -156,13 +139,13 @@ def parking_status_view(request):
 
     spots_with_info = []
 
-    # Procesamos cada espacio para ver si tiene ticket
+    #EspaciosXtickets
     for spot in all_spots_from_db:
         ticket = None
         is_occupied = (spot.status == "OCCUPIED")
 
         if is_occupied:
-            # Buscamos el ticket activo solo si el spot dice que está ocupado
+            #Buscamos el tickets ocupados
             ticket = Ticket.objects.filter(parking_spot=spot, status='ACTIVE').first()
 
         spots_with_info.append({
@@ -246,8 +229,6 @@ def edit_client_view(request, id):
             client_obj.name = data['name']
             client_obj.phone = data['phone']
             client_obj.email = data.get('email')
-
-            # Actualizamos también el tipo de cliente
             client_obj.client_type = data['client_type']
 
             client_obj.save()
@@ -345,14 +326,14 @@ def entry_vehicle_view(request):
         plate_text = request.POST.get('license_plate', '').strip().upper()
         vehicle_type = request.POST.get('vehicle_type', 'CAR')
 
-        # Validaciones de la placa
+        #Validaciones de la placa
         if not plate_text:
             return render(request, 'entry_vehicle.html', {'error': 'La placa es obligatoria'})
 
         if len(plate_text) > 6:
             return render(request, 'entry_vehicle.html', {'error': 'La placa no puede tener más de 6 caracteres'})
 
-        # Lógica de Cliente y Vehículo
+        #Lógica de Cliente y Vehículo
         cliente_gen, _ = ClientModel.objects.get_or_create(
             name="Visitante", defaults={'phone': '000'}
         )
@@ -365,7 +346,7 @@ def entry_vehicle_view(request):
             vehiculo_obj.type = vehicle_type
             vehiculo_obj.save()
 
-        # Creación del Ticket
+        #Creación del Ticket
         use_case = CreateTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
         try:
             use_case.execute(vehiculo_obj.id, None)
@@ -381,7 +362,7 @@ def exit_vehicle_view(request):
     if request.method == 'POST':
         plate_text = request.POST.get('license_plate', '').strip().upper()
 
-        # 1. Validación de longitud en salida
+        #Validación de longitud en salida
         if len(plate_text) > 6:
             messages.error(request, "La placa es inválida (máximo 6 caracteres)")
             return redirect('/salida/')
@@ -390,7 +371,7 @@ def exit_vehicle_view(request):
             vehicle_obj = Vehicle.objects.get(license_plate=plate_text)
             use_case = CloseTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
             total = use_case.execute(vehicle_obj)
-            messages.success(request, f"Salida OK - Total: ${total}")
+            messages.success(request, f"Salida Registrada - Total: ${total}")
             return redirect('/salida/')
         except Vehicle.DoesNotExist:
             messages.error(request, f"La placa {plate_text} no existe")
@@ -431,7 +412,7 @@ def history_view(request):
 
 def enviar_recordatorio_cierre(request):
 
-    # Tickets activos (vehículos dentro)
+    #Tickets activos
     tickets_activos = Ticket.objects.filter(status="ACTIVE").select_related("vehicle__client")
 
     mensajes = []
@@ -463,6 +444,6 @@ Evita recargos adicionales retirándolo a tiempo.
         send_mass_mail(mensajes, fail_silently=False)
         messages.success(request, "📩 Correos enviados correctamente")
     else:
-        messages.warning(request, "⚠️ No hay clientes con email")
+        messages.warning(request, "No hay clientes con email")
 
     return redirect("/dashboard/")

@@ -23,7 +23,7 @@ class CreateTicket:
         #Ocupar espacio
         spot.occupy() 
 
-        # 🎫 Crear ticket
+        #ticket
         ticket_data = {
             "vehicle_id": vehicle_id,
             "parking_spot_id": spot.id,

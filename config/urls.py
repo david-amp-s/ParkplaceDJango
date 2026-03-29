@@ -26,7 +26,7 @@ urlpatterns = [
     
     path('admin/', admin.site.urls),
 
-    #Autenticación y Home
+    #Autenticación y Login
 
     path('', login_view, name='login'),
     path('dashboard/', dashboard_view, name='dashboard'),
@@ -64,6 +64,8 @@ urlpatterns = [
 
     path('pay/', pay_ticket_view, name='pay_ticket'),
     path('historial/', history_view, name='historial'),
+
+    #Correo
 
     path('enviar-recordatorio/', views.enviar_recordatorio_cierre),
 ]

@@ -2,14 +2,26 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ParkPlace{% endblock %}</title>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
+        :root {
+            --sidebar-bg: #0f172a;
+            --sidebar-hover: #1e293b;
+            --accent-color: #38bdf8;
+            --bg-body: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
         body {
             margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fb;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-body);
             display: flex;
+            min-height: 100vh;
         }
 
         /* ========================= */
@@ -19,154 +31,115 @@
             position: fixed;
             width: 260px;
             height: 100vh;
-            background: #0f172a;
+            background: var(--sidebar-bg);
             color: white;
             display: flex;
             flex-direction: column;
+            z-index: 100;
+            transition: all 0.3s;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
         }
 
         .sidebar h2 {
             text-align: center;
-            padding: 20px;
+            padding: 25px 20px;
             border-bottom: 1px solid #1e293b;
             margin: 0;
-            font-size: 20px;
-            color: #38bdf8;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--accent-color);
+            letter-spacing: 1.5px;
         }
 
         .sidebar-menu {
             flex-grow: 1;
-            padding-top: 10px;
+            padding-top: 15px;
+            overflow-y: auto;
         }
 
         .sidebar a {
-            display: block;
-            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            color: var(--text-muted);
             padding: 12px 25px;
             text-decoration: none;
             font-size: 15px;
-            transition: 0.2s;
+            transition: 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar a i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
         }
 
         .sidebar a:hover {
-            background: #1e3a8a;
+            background: var(--sidebar-hover);
             color: white;
+            padding-left: 30px;
         }
 
+        /* Clase activa */
         .sidebar a.active {
-            background: #1e40af;
+            background: #1e293b;
             color: white;
-            border-left: 4px solid #38bdf8;
+            border-left: 4px solid var(--accent-color);
         }
 
         .sidebar .logout {
             color: #f87171;
             border-top: 1px solid #1e293b;
             margin-top: auto;
-            padding-bottom: 20px;
+            padding: 20px 25px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .sidebar .logout:hover {
+            background: #450a0a;
+            color: #fca5a5;
         }
 
         /* ========================= */
-        /* CONTENIDO */
+        /* CONTENIDO PRINCIPAL */
         /* ========================= */
         .content {
             margin-left: 260px;
             width: calc(100% - 260px);
             padding: 40px;
             box-sizing: border-box;
+            min-height: 100vh;
         }
 
-        /* ========================= */
         /* ALERTAS */
-        /* ========================= */
+        .alert-container {
+            max-width: 1200px;
+            margin: 0 auto 25px auto;
+        }
+
         .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 6px;
+            padding: 16px 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.4s ease-out;
         }
 
-        .alert-success {
-            background: #dcfce7;
-            color: #166534;
-            border: 1px solid #16a34a;
+        @keyframes slideIn {
+            from { transform: translateY(-15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #ef4444;
-        }
+        .alert-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
 
-        /* ========================= */
-        /* 🔥 TARJETAS (LO IMPORTANTE) */
-        /* ========================= */
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-            transition: 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-        }
-
-        .card h2 {
-            margin: 10px 0 0 0;
-            font-size: 28px;
-            color: #0f172a;
-        }
-
-        .card h4 {
-            margin: 0;
-            color: #64748b;
-            font-size: 14px;
-        }
-
-        .card h3 {
-            margin-bottom: 10px;
-        }
-
-        /* ========================= */
-        /* TARJETAS DESTACADAS */
-        /* ========================= */
-        .highlight-blue {
-            background: #0ea5e9;
-            color: white;
-        }
-
-        .highlight-green {
-            background: #22c55e;
-            color: white;
-        }
-
-        .highlight-blue h4,
-        .highlight-green h4 {
-            color: white;
-        }
-
-        /* ========================= */
-        /* TABLAS */
-        /* ========================= */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table th {
-            text-align: left;
-            padding: 10px;
-            color: #64748b;
-            font-weight: 500;
-        }
-
-        table td {
-            padding: 10px;
-            border-top: 1px solid #e2e8f0;
-        }
+        .alert i { margin-right: 12px; font-size: 18px; }
 
     </style>
 
@@ -174,45 +147,63 @@
 </head>
 
 <body>
-
-    <!-- SIDEBAR -->
     <div class="sidebar">
-        <h2>ParkPlace</h2>
-
+        <h2>PARKPLACE</h2>
         <div class="sidebar-menu">
-            <a href="/dashboard/">Dashboard</a>
-            <a href="/ingreso/">Ingreso de vehículos</a>
-            <a href="/salida/">Salida de vehículos</a>
-            <a href="/clientes/">Clientes</a>
-            <a href="/vehiculos/">Vehículos</a>
-            <a href="/historial/">Historial</a>
-            <a href="/gestion-espacios/">Espacios del parqueadero</a>
-            <a href="#">Tarifas</a>
-            <a href="#">Reportes</a>
-            <a href="#">Usuarios / Empleados</a>
+            <a href="/dashboard/" id="nav-dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+            <a href="/ingreso/" id="nav-ingreso"><i class="fa-solid fa-car-side"></i> Ingreso</a>
+            <a href="/salida/" id="nav-salida"><i class="fa-solid fa-door-open"></i> Salida</a>
+            <a href="/clientes/" id="nav-clientes"><i class="fa-solid fa-users"></i> Clientes</a>
+            <a href="/vehiculos/" id="nav-vehiculos"><i class="fa-solid fa-car"></i> Vehículos</a>
+            <a href="/historial/" id="nav-historial"><i class="fa-solid fa-clock-rotate-left"></i> Historial</a>
+            <a href="/gestion-espacios/" id="nav-espacios"><i class="fa-solid fa-border-all"></i> Espacios</a>
+            <a href="#" id="nav-tarifas"><i class="fa-solid fa-sack-dollar"></i> Tarifas</a>
+            <a href="#" id="nav-reportes"><i class="fa-solid fa-file-invoice-dollar"></i> Reportes</a>
+            <a href="/employee/" id="nav-empleados"><i class="fa-solid fa-user-tie"></i> Empleados</a>
         </div>
-
-        <a href="/logout/" class="logout">Cerrar Sesión</a>
+        
+        <a href="/logout/" class="logout">
+            <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+        </a>
     </div>
 
-    <!-- CONTENIDO -->
     <div class="content">
-
         {% if messages %}
+        <div class="alert-container">
             {% for message in messages %}
                 <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+                    {% if message.tags == 'error' %}
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    {% else %}
+                        <i class="fa-solid fa-circle-check"></i>
+                    {% endif %}
                     {{ message }}
                 </div>
             {% endfor %}
+        </div>
         {% endif %}
 
-        {% block content %}
-        {% endblock %}
-
+        {% block content %}{% endblock %}
     </div>
 
-    <!-- 🔥 IMPORTANTE: scripts -->
-    {% block extra_js %}{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <script>
+        // Lógica para marcar el link activo automáticamente
+        document.addEventListener("DOMContentLoaded", function() {
+            const currentPath = window.location.pathname;
+            const menuLinks = document.querySelectorAll('.sidebar-menu a');
+            
+            menuLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                // Si la ruta actual empieza con el href del link, lo activamos
+                if (href !== '#' && currentPath.startsWith(href)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

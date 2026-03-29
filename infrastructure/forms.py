@@ -1,11 +1,10 @@
 from django import forms
 
 class ClientForm(forms.Form):
-    # Opciones para el select del HTML
+
     CLIENT_TYPES = [
         ('REGULAR', 'Cliente Regular'),
         ('SENA', 'Aprendiz SENA 🎓'),
-        ('VISITANTE', 'Visitante Ocasional'),
     ]
 
     name = forms.CharField(max_length=100)

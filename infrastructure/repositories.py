@@ -1,14 +1,17 @@
-from django.db import connection
-from django.utils import timezone
 from datetime import date, datetime
+from django.db import connection
+from django.db.models import Sum, Count, Q
+from django.db.models.functions import ExtractWeekDay, TruncDay, ExtractHour
+from django.utils import timezone
+from django.shortcuts import render
 
-# Entidades de Dominio
+#Entidades de Dominio y Puertos
 from domain.entities.employee import Employee as EmployeeEntity
 from domain.entities.client import Client as ClientEntity
 from domain.ports.employee_repository import EmployeeRepository
 from domain.ports.report_repository import ReportRepositoryPort
 
-# Modelos de Infraestructura
+#Modelos de Infraestructura
 from .models import (
     Client as ClientModel, 
     EmployeeModel, 
@@ -105,7 +108,7 @@ class DjangoTicketRepository:
         ticket.save()
         return ticket
 
-# --- PARKING SPOT REPOSITORY ---
+#PARKING SPOT REPOSITORY
 class DjangoParkingSpotRepository:
     def get_all(self):
         return ParkingSpot.objects.all().order_by('number')
@@ -143,15 +146,7 @@ class DjangoPaymentRepository:
             amount=payment.amount
         )
 
-from django.shortcuts import render
-from datetime import date
-from .models import ParkingSpot
-
-from django.db.models import Sum, Count, Q
-from django.db.models.functions import ExtractWeekDay, TruncDay
-from django.utils import timezone
-from .models import Ticket
-
+#REPORT REPOSITORY
 class DjangoReportRepository:
     
     def get_financial_summary(self):
@@ -195,7 +190,6 @@ class DjangoReportRepository:
 
     def get_peak_hours(self):
         """Calcula cuántos vehículos entraron por cada hora del día (Hoy)"""
-        from django.db.models.functions import ExtractHour
         hoy = timezone.now().date()
         
         return Ticket.objects.filter(
@@ -207,4 +201,10 @@ class DjangoReportRepository:
         ).order_by('hora')
 
     def get_monthly_income(self):
-        return Ticket.objects.filter(status="CLOSED", exit_time__month=timezone.now().month).annotate(day=TruncDay('exit_time')).values('day').annotate(total=Sum('total_paid'), ticket_count=Count('id')).order_by('-day')
+        return Ticket.objects.filter(
+            status="CLOSED", 
+            exit_time__month=timezone.now().month
+        ).annotate(day=TruncDay('exit_time')).values('day').annotate(
+            total=Sum('total_paid'), 
+            ticket_count=Count('id')
+        ).order_by('-day')

@@ -111,7 +111,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 #Correo
-EMAIL_HOST_USER = 'parkplaceadso@gmail.com'
-EMAIL_HOST_PASSWORD = 'eyfu vsdp plcr kgvv'
+EMAIL_HOST_USER = 'stiveeen08@gmail.com'
+EMAIL_HOST_PASSWORD = 'ttrh wzof igsd aumu'
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

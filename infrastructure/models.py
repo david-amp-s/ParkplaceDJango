@@ -2,8 +2,6 @@ from django.db import models
 
 
 
-
-
 class EmployeeModel(models.Model):
     
     ROLE_CHOICES = [

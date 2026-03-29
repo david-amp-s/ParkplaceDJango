@@ -5,12 +5,14 @@
 
 {% block extra_css %}
 <style>
+    /* Tarjetas de indicadores */
     .card {
         background: white;
         padding: 20px;
         border-radius: 12px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.06);
         transition: 0.2s;
+        border: 1px solid #f1f5f9;
     }
     .card:hover {
         transform: translateY(-3px);
@@ -19,8 +21,9 @@
     .card h2 { margin: 10px 0 0 0; font-size: 28px; color: #0f172a; }
     .card h4 { margin: 0; color: #64748b; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
     
+    /* Tablas internas */
     table { width: 100%; border-collapse: collapse; }
-    table th { text-align: left; padding: 10px; color: #64748b; font-weight: 500; font-size: 13px; }
+    table th { text-align: left; padding: 10px; color: #64748b; font-weight: 500; font-size: 12px; text-transform: uppercase; }
     table td { padding: 12px 10px; border-top: 1px solid #e2e8f0; font-size: 14px; }
 
     .chart-container {
@@ -35,9 +38,29 @@
         border-radius: 6px;
         font-size: 11px;
         font-weight: bold;
-        background: #f1f5f9;
-        color: #475569;
         text-transform: uppercase;
+    }
+
+    /* Botón de Acción Principal (Correos) */
+    .btn-action {
+        background: #0f172a;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.3s;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        border: none;
+    }
+    .btn-action:hover {
+        background: #1e293b;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        color: white;
     }
 </style>
 {% endblock %}
@@ -45,9 +68,16 @@
 {% block content %}
 <div class="dashboard-container" style="max-width:1200px; margin:auto;">
 
-    <div style="margin-bottom: 30px;">
-        <h1 style="margin:0; color: #0f172a;">Dashboard</h1>
-        <p style="color:#64748b;">Resumen operativo y análisis semanal</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div>
+            <h1 style="margin:0; color: #0f172a; font-weight: 800;">Dashboard</h1>
+            <p style="color:#64748b; margin: 5px 0 0 0;">Resumen operativo y análisis del parqueadero</p>
+        </div>
+        
+        <a href="/enviar-recordatorio/" class="btn-action">
+            <i class="fa-solid fa-paper-plane"></i>
+            Enviar Recordatorio de Cierre
+        </a>
     </div>
 
     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:20px;">
@@ -95,12 +125,12 @@
 
     <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap:20px; margin-top:20px;">
         <div class="card">
-            <h3 style="font-size: 16px;"><i class="fa-solid fa-ranking-star"></i> Ranking Semanal</h3>
+            <h3 style="font-size: 16px; margin-bottom: 15px;"><i class="fa-solid fa-ranking-star"></i> Ranking Semanal</h3>
             <table>
                 <thead>
                     <tr>
                         <th>Cliente</th>
-                        <th style="text-align: center;">Visitas (7d)</th>
+                        <th style="text-align: center;">Visitas</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -117,7 +147,7 @@
         </div>
 
         <div class="card">
-            <h3 style="font-size: 16px;"><i class="fa-solid fa-list-ul"></i> Actividad Reciente</h3>
+            <h3 style="font-size: 16px; margin-bottom: 15px;"><i class="fa-solid fa-list-ul"></i> Actividad Reciente</h3>
             <table>
                 <thead>
                     <tr>
@@ -131,7 +161,7 @@
                     <tr>
                         <td><strong style="color:#0f172a;">{{ t.vehicle.license_plate }}</strong></td>
                         <td>
-                            <span class="badge-status" style="background-color: {% if t.status == 'OPEN' %}#ecfdf5{% else %}#f1f5f9{% endif %}; color: {% if t.status == 'OPEN' %}#059669{% else %}#475569{% endif %};">
+                            <span class="badge-status" style="background-color: {% if t.status == 'ACTIVE' %}#ecfdf5{% else %}#f1f5f9{% endif %}; color: {% if t.status == 'ACTIVE' %}#059669{% else %}#475569{% endif %};">
                                 {{ t.status }}
                             </span>
                         </td>

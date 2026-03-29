@@ -1,9 +1,8 @@
 {% extends "base/base.html" %}
-
-{% block title %}Crear Empleado{% endblock %}
+{% block title %}Editar Empleado{% endblock %}
 
 {% block content %}
-<h1 style="margin-bottom: 20px; color:#0f172a;">Crear Empleado</h1>
+<h1 style="margin-bottom: 20px; color:#0f172a;">Editar Empleado</h1>
 
 <div
     style="background:white; padding:30px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.05); max-width:600px; margin:auto;">
@@ -12,32 +11,31 @@
 
         <div style="display:flex; flex-direction:column;">
             <label style="font-weight:500; margin-bottom:5px;">Nombre:</label>
-            <input type="text" name="name" required style="padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
-        </div>
-
-        <div style="display:flex; flex-direction:column;">
-            <label style="font-weight:500; margin-bottom:5px;">Teléfono:</label>
-            <input type="text" name="phone" style="padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
-        </div>
-
-        <div style="display:flex; flex-direction:column;">
-            <label style="font-weight:500; margin-bottom:5px;">Usuario:</label>
-            <input type="text" name="username" required
+            <input type="text" name="name" value="{{ employee.name }}" required
                 style="padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
         </div>
 
         <div style="display:flex; flex-direction:column;">
-            <label style="font-weight:500; margin-bottom:5px;">Contraseña:</label>
-            <input type="password" name="password" required
+            <label style="font-weight:500; margin-bottom:5px;">Teléfono:</label>
+            <input type="text" name="phone" value="{{ employee.phone }}"
+                style="padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+        </div>
+
+        <div style="display:flex; flex-direction:column;">
+            <label style="font-weight:500; margin-bottom:5px;">Usuario:</label>
+            <input type="text" name="username" value="{{ employee.username }}" required
                 style="padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
         </div>
 
         <div style="display:flex; flex-direction:column;">
             <label style="font-weight:500; margin-bottom:5px;">Rol:</label>
-            <select name="role" required style="padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
-                <option value="ADMIN">ADMIN</option>
-                <option value="EMPLOYEE">EMPLOYEE</option>
-            </select>
+            <input type="text" name="role" value="{{ employee.role }}" required
+                style="padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+        </div>
+
+        <div style="display:flex; flex-direction:column;">
+            <label style="font-weight:500; margin-bottom:5px;">Contraseña (dejar vacío para no cambiar):</label>
+            <input type="password" name="password" style="padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
         </div>
 
         <button type="submit" style="
@@ -50,7 +48,7 @@
             cursor:pointer;
             transition: background 0.3s;
         " onmouseover="this.style.background='#1e3a8a'" onmouseout="this.style.background='#1e40af'">
-            Guardar
+            Guardar Cambios
         </button>
     </form>
 

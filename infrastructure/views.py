@@ -163,24 +163,67 @@ def list_employees(request):
     return render(request, "list_employees.html", {"employees": employees})
 
 
-def create_employee(request):
+from django.shortcuts import render, redirect
+from django.contrib.auth.hashers import make_password
+from .models import EmployeeModel
+
+def employee_create_view(request):
     if request.method == "POST":
-        employee = Employee(
-            id=None,
-            name=request.POST["name"],
-            phone=request.POST["phone"],
-            username=request.POST["username"],
-            password=request.POST["password"],
-            role="EMPLOYEE",
-            created_at=None
+        name = request.POST.get("name")
+        phone = request.POST.get("phone")
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        role = request.POST.get("role")
+
+        # Guardar contraseña hasheada
+        hashed_password = make_password(password)
+
+        EmployeeModel.objects.create(
+            name=name,
+            phone=phone,
+            username=username,
+            password=hashed_password,
+            role=role
         )
-        repo = DjangoEmployeeRepository()
-        repo.create(employee)
         return redirect("/employee/")
 
     return render(request, "create_employee.html")
 
+from django.shortcuts import get_object_or_404
 
+def employee_update_view(request, employee_id):
+    # Obtener el empleado o devolver 404 si no existe
+    employee = get_object_or_404(EmployeeModel, id=employee_id)
+
+    if request.method == "POST":
+        employee.name = request.POST.get("name")
+        employee.phone = request.POST.get("phone")
+        employee.username = request.POST.get("username")
+        role = request.POST.get("role")
+        employee.role = role
+
+        password = request.POST.get("password")
+        if password:
+            # Solo actualizar la contraseña si el usuario ingresó una nueva
+            employee.password = make_password(password)
+
+        employee.save()
+        return redirect("/employee/")  # Redirigir a la lista de empleados
+
+    # GET: mostrar formulario con datos actuales
+    context = {"employee": employee}
+    return render(request, "update_employee.html", context)
+
+def employee_delete_view(request, employee_id):
+    employee = get_object_or_404(EmployeeModel, id=employee_id)
+    
+    if request.method == "POST":
+        employee.delete()
+        return redirect("/employee/")
+    
+    # GET: confirmar eliminación
+    context = {"employee": employee}
+    return render(request, "delete_employee.html", context)
 #GESTIÓN DE CLIENTES
 
 def list_clients_view(request):

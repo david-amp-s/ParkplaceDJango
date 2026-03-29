@@ -20,7 +20,10 @@ from infrastructure.views import (
     pay_ticket_view,
     parking_status_view,
     history_view,
-    reports_view
+    reports_view,
+    employee_create_view,
+    employee_update_view,
+    employee_delete_view
 )
 
 urlpatterns = [
@@ -36,7 +39,9 @@ urlpatterns = [
     #Empleados
 
     path('employee/', list_employees, name='list_employees'),
-
+    path('employee/create/', employee_create_view, name='create_employee'),
+    path('employee/update/<int:employee_id>/', employee_update_view, name='update_employee'),
+    path('employee/delete/<int:employee_id>/', employee_delete_view, name='delete_employee'),
     #Clientes
 
     path('clientes/', list_clients_view, name='list_clients'),

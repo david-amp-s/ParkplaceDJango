@@ -7,7 +7,7 @@
 <h1 style="margin-bottom: 20px;">Gestión de Empleados</h1>
 
 <div style="margin-bottom: 20px;">
-    <a href="/employees/create/" style="
+    <a href="{% url 'create_employee' %}" style="
         background:#1e40af;
         color:white;
         padding:10px 15px;
@@ -29,6 +29,7 @@
                 <th style="text-align:left;">Nombre</th>
                 <th style="text-align:left;">Teléfono</th>
                 <th style="text-align:left;">Usuario</th>
+                <th style="text-align:left;">rol</th>
                 <th style="text-align:center;">Acciones</th>
             </tr>
         </thead>
@@ -39,18 +40,26 @@
                 <td style="padding:12px;">{{ e.id }}</td>
                 <td>{{ e.name }}</td>
                 <td>{{ e.phone|default:"-" }}</td>
-                <td>{{ e.user_id }}</td>
+                <td>{{ e.username }}</td>
+                <td>{{e.role}}</td>
 
-                <td style="text-align:center;">
-                    <a href="/employees/delete/{{ e.id }}/" style="
-                        color:#ef4444;
-                        text-decoration:none;
-                        font-weight:500;
-                    "
-                    onclick="return confirm('¿Eliminar este empleado?')">
-                        Eliminar
-                    </a>
-                </td>
+        <td style="text-align:center;">
+            <a href="{% url 'update_employee' e.id %}" style="
+                color:#2563eb;
+                text-decoration:none;
+                font-weight:500;
+                margin-right: 10px;
+            ">
+                Editar
+            </a>
+            <a href="{% url 'delete_employee' e.id %}" style="
+                color:#ef4444;
+                text-decoration:none;
+                font-weight:500;
+            " onclick="return confirm('¿Eliminar este empleado?')">
+                Eliminar
+            </a>
+        </td>
             </tr>
             {% empty %}
             <tr>

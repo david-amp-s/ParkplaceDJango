@@ -1,7 +1,6 @@
 import requests
 import urllib3
 
-# Desactiva los avisos de certificados inseguros (útil para entornos de desarrollo/SENA)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class WeatherService:

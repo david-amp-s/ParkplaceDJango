@@ -74,13 +74,24 @@ def logout_view(request):
 
 #DASHBOARD Y ESPACIOS
 
+from django.shortcuts import render
+from django.utils.timezone import now
+from datetime import timedelta
+from django.db.models import Sum, Count, DecimalField
+from django.db.models.functions import Coalesce
+from .models import Ticket, ParkingSpot
+# Importamos el servicio que creamos
+from .services import WeatherService 
+
 def dashboard_view(request):
     fecha_hoy = now().date()
-    #Definimos el inicio de la semana
+    # Definimos el inicio de la semana
     hace_una_semana = fecha_hoy - timedelta(days=7)
 
+    # Lógica de vehículos hoy
     vehiculos_hoy = Ticket.objects.filter(created_at__date=fecha_hoy).count()
     
+    # Lógica de ingresos hoy
     ingresos_hoy = Ticket.objects.filter(
         exit_time__date=fecha_hoy,
         status="CLOSED"
@@ -88,10 +99,12 @@ def dashboard_view(request):
         total=Coalesce(Sum("total_paid"), 0, output_field=DecimalField())
     )["total"]
 
+    # Lógica de ocupación
     total_spots = ParkingSpot.objects.count()
     occupied_count = ParkingSpot.objects.filter(status="OCCUPIED").count()
     ocupacion = int((occupied_count / total_spots) * 100) if total_spots > 0 else 0
 
+    # Gráfica de vehículos por tipo
     vehiculos_por_tipo = (
         Ticket.objects
         .filter(created_at__date=fecha_hoy)
@@ -99,6 +112,7 @@ def dashboard_view(request):
         .annotate(total=Count("id"))
     )
 
+    # Clientes frecuentes (Top 5)
     clientes_frecuentes = (
         Ticket.objects
         .filter(created_at__date__gte=hace_una_semana)
@@ -107,11 +121,16 @@ def dashboard_view(request):
         .order_by("-total")[:5]
     )
 
+    # Últimas actividades
     actividades = (
         Ticket.objects
         .select_related("vehicle")
         .order_by("-created_at")[:5]
     )
+
+    # --- CONSUMO DEL WEB SERVICE (Punto 6) ---
+    # Llamamos al método que creamos en services.py
+    estado_clima = WeatherService.get_clima_bogota()
 
     context = {
         "vehiculos_hoy": vehiculos_hoy,
@@ -121,6 +140,7 @@ def dashboard_view(request):
         "actividades_recientes": actividades,
         "tipos": [v["vehicle__type"] for v in vehiculos_por_tipo],
         "cantidades": [v["total"] for v in vehiculos_por_tipo],
+        "clima": estado_clima,  # <-- ESTO ES LO QUE EL HTML NECESITA
     }
 
     return render(request, "dashboard.html", context)

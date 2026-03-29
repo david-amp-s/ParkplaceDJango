@@ -1,0 +1,151 @@
+{% extends "base/base.html" %}
+
+{% block title %}Reportes de Operación - ParkPlace{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #0f172a;    /* Azul ParkPlace */
+        --secondary: #64748b;  /* Gris de tus encabezados */
+        --border: #e2e8f0;     /* Color de tus bordes */
+        --bg-light: #f8fafc;   /* Fondo de tus th */
+    }
+
+    /* Botón consistente con tu gestión de clientes */
+    .btn { padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; cursor: pointer; border: none; display: inline-block; transition: 0.3s; }
+    .btn-primary { background: #0f172a; color: white; border: 1px solid #1e293b; font-size: 14px; }
+    .btn-primary:hover { background: #1e293b; }
+
+    .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    
+    .rep-container { padding: 5px 0; }
+
+    .rep-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+        gap: 20px; 
+        margin-bottom: 25px; 
+    }
+
+    .rep-card { 
+        background: white; 
+        padding: 20px; 
+        border-radius: 12px; 
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+        border: 1px solid var(--border);
+    }
+
+    .rep-card h3 { font-size: 24px; color: var(--primary); margin: 10px 0; font-weight: 700; }
+    .rep-card label { color: var(--secondary); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .rep-card small { color: #22c55e; font-weight: 600; font-size: 13px; }
+
+    .rep-table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+    .rep-table th { background: var(--bg-light); color: var(--secondary); text-align: left; padding: 12px 15px; border-bottom: 1px solid var(--border); font-size: 12px; text-transform: uppercase; }
+    .rep-table td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 14px; }
+
+    .peak-row { display: flex; align-items: center; margin-bottom: 12px; gap: 15px; }
+    .peak-time { width: 50px; font-size: 13px; font-weight: 600; color: var(--secondary); }
+    .peak-bar-container { flex-grow: 1; background: #f1f5f9; height: 10px; border-radius: 5px; overflow: hidden; }
+    .peak-bar-fill { background: var(--primary); height: 100%; border-radius: 5px; }
+    .peak-count { width: 45px; text-align: right; font-size: 13px; font-weight: 700; color: var(--primary); }
+
+    .badge-stat {
+        background: #f1f5f9;
+        color: var(--primary);
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 700;
+        border: 1px solid var(--border);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rep-container">
+    <div class="header-actions">
+        <h1 style="color: var(--primary); margin: 0; font-size: 28px;">Reportes de Operación</h1>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <a href="{% url 'export_report_pdf' %}" class="btn btn-primary">Descargar PDF</a>
+            <div class="badge-stat">
+                Ocupación: {{ occupancy_rate }}%
+            </div>
+        </div>
+    </div>
+
+    <div class="rep-grid">
+        <div class="rep-card" style="border-top: 4px solid #22c55e;">
+            <label>Ingresos Hoy</label>
+            <h3>${{ finanzas.hoy|floatformat:2 }}</h3>
+            <small>{{ finanzas.tickets_hoy }} servicios cerrados</small>
+        </div>
+        <div class="rep-card" style="border-top: 4px solid var(--primary);">
+            <label>Esta Semana</label>
+            <h3>${{ finanzas.semana|floatformat:2 }}</h3>
+            <span style="font-size: 12px; color: var(--secondary);">Acumulado 7 días</span>
+        </div>
+        <div class="rep-card" style="background: var(--primary); color: white;">
+            <label style="color: #94a3b8;">Total {{ hoy|date:"F"|upper }}</label>
+            <h3 style="color: white;">${{ finanzas.mes|floatformat:2 }}</h3>
+            <span style="font-size: 12px; color: #94a3b8;">Corte al {{ hoy|date:"d/m/Y" }}</span>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px;">
+        
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="rep-card">
+                <label>Tiempos de Estadía</label>
+                <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                    <div>
+                        <span style="display:block; font-size: 22px; font-weight: 800; color: var(--primary);">{{ stay_avg }}</span>
+                        <small style="color: var(--secondary); text-transform: uppercase; font-size: 10px;">Promedio (Min)</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="display:block; font-size: 22px; font-weight: 800; color: #dc2626;">{{ stay_max }}</span>
+                        <small style="color: var(--secondary); text-transform: uppercase; font-size: 10px;">Máximo (Min)</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rep-card">
+                <label>Servicios por Tipo</label>
+                <table class="rep-table">
+                    <thead>
+                        <tr>
+                            <th>Vehículo</th>
+                            <th style="text-align: right;">Cantidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in vehicle_stats %}
+                        <tr>
+                            <td><strong>{{ v.vehicle__type }}</strong></td>
+                            <td style="text-align: right; font-weight: 700;">{{ v.total_services }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="rep-card">
+            <label>Flujo de Entradas por Hora (Hoy)</label>
+            <div style="margin-top: 20px;">
+                {% for h in horas_pico %}
+                <div class="peak-row">
+                    <div class="peak-time">{{ h.hora }}:00</div>
+                    <div class="peak-bar-container">
+                        <div class="peak-bar-fill" style="width: {% if h.cantidad > 10 %}100{% else %}{{ h.cantidad }}0{% endif %}%;"></div>
+                    </div>
+                    <div class="peak-count">{{ h.cantidad }}</div>
+                </div>
+                {% empty %}
+                <p style="text-align: center; color: var(--secondary); padding: 20px;">No hay datos de ingresos hoy.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

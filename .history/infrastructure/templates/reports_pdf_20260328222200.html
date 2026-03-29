@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: letter;
+            margin: 0; /* Controlamos el margen manualmente para el header */
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #1e293b;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        /* Encabezado elegante */
+        .header-band {
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 30px 40px;
+            text-align: left;
+        }
+        .header-band h1 {
+            margin: 0;
+            font-size: 26px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .header-band p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .content {
+            padding: 30px 40px;
+        }
+
+        /* Grid de KPIs simulado con tablas */
+        .kpi-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 10px 0;
+            margin-bottom: 30px;
+        }
+        .kpi-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .kpi-label {
+            font-size: 9px;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .kpi-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        /* Secciones Principales */
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #0f172a;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .main-grid {
+            width: 100%;
+        }
+
+        /* Tablas de datos */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th {
+            text-align: left;
+            font-size: 10px;
+            color: #64748b;
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+        }
+        .data-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 11px;
+        }
+
+        /* Barras de flujo estilizadas */
+        .bar-container {
+            background-color: #f1f5f9;
+            border-radius: 4px;
+            height: 12px;
+            width: 100%;
+            position: relative;
+        }
+        .bar-fill {
+            background-color: #3b82f6; /* Azul un poco más vivo para el gráfico */
+            height: 12px;
+            border-radius: 4px;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 10px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-band">
+        <h1>ParkPlace</h1>
+        <p>Reporte Ejecutivo de Operaciones | Generado el {{ hoy|date:"d/m/Y" }}</p>
+    </div>
+
+    <div class="content">
+        <table class="kpi-table">
+            <tr>
+                <td class="kpi-card" style="border-left: 5px solid #22c55e;">
+                    <div class="kpi-label">Ingresos del Día</div>
+                    <div class="kpi-value">${{ finanzas.hoy|floatformat:2 }}</div>
+                </td>
+                <td class="kpi-card" style="border-left: 5px solid #3b82f6;">
+                    <div class="kpi-label">Acumulado Semanal</div>
+                    <div class="kpi-value">${{ finanzas.semana|floatformat:2 }}</div>
+                </td>
+                <td class="kpi-card" style="border-left: 5px solid #6366f1;">
+                    <div class="kpi-label">Proyección Mensual</div>
+                    <div class="kpi-value">${{ finanzas.mes|floatformat:2 }}</div>
+                </td>
+            </tr>
+        </table>
+
+        <table class="main-grid" cellpadding="0" cellspacing="15">
+            <tr>
+                <td width="45%" valign="top">
+                    <div class="section-title">Estadísticas de Uso</div>
+                    <div style="background-color: #ffffff; border: 1px solid #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <table width="100%">
+                            <tr>
+                                <td>
+                                    <div class="kpi-label">Estadía Promedio</div>
+                                    <div style="font-size: 18px; font-weight: bold;">{{ stay_avg }} <span style="font-size: 11px; font-weight: normal; color: #64748b;">min</span></div>
+                                </td>
+                                <td align="right">
+                                    <div class="kpi-label">Tiempo Máximo</div>
+                                    <div style="font-size: 18px; font-weight: bold; color: #ef4444;">{{ stay_max }} <span style="font-size: 11px; font-weight: normal; color: #64748b;">min</span></div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="section-title">Servicios por Tipo</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Categoría de Vehículo</th>
+                                <th align="right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for v in vehicle_stats %}
+                            <tr>
+                                <td style="font-weight: bold;">{{ v.vehicle__type }}</td>
+                                <td align="right" style="color: #0f172a;">{{ v.total_services }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+
+                <td width="55%" valign="top">
+                    <div class="section-title">Distribución de Flujo (Hoy)</div>
+                    <table width="100%" cellpadding="5">
+                        {% for h in horas_pico %}
+                        <tr>
+                            <td width="40" style="font-size: 10px; color: #64748b; font-weight: bold;">{{ h.hora }}:00</td>
+                            <td>
+                                <div class="bar-container">
+                                    <div class="bar-fill" style="width: {% if h.cantidad > 20 %}100{% else %}{{ h.cantidad|add:h.cantidad|add:h.cantidad|add:h.cantidad|add:h.cantidad }}{% endif %}%;"></div>
+                                </div>
+                            </td>
+                            <td width="20" align="right" style="font-size: 11px; font-weight: bold;">{{ h.cantidad }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    {% if not horas_pico %}
+                    <p style="text-align: center; font-size: 11px; color: #94a3b8; padding-top: 20px;">Sin registros de actividad para la fecha actual.</p>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        Este documento es un reporte automático generado por el sistema de gestión ParkPlace.<br>
+        &copy; 2026 ParkPlace Software de Gestión.
+    </div>
+
+</body>
+</html>

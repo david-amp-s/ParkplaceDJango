@@ -1,0 +1,138 @@
+{% extends "base/base.html" %}
+
+{% block title %}Reportes — ParkPlace{% endblock %}
+
+{% block content %}
+<div class="rep-wrap">
+
+  <p class="rep-title">
+    <i class="fa-solid fa-chart-line" style="color:#38bdf8; margin-right:8px;"></i>
+    Reportes Avanzados
+  </p>
+  <p class="rep-sub">Análisis y métricas del parqueadero</p>
+
+  <!-- FILTROS -->
+  <div class="section-box">
+    <div class="section-head">Filtros</div>
+    <div class="section-body">
+      <form method="get" class="filter-form">
+        <input type="date" name="date" value="{{ selected_date }}">
+
+        <select name="month">
+          {% for num, name in months %}
+            <option value="{{ num }}" {% if num == selected_month %}selected{% endif %}>{{ name }}</option>
+          {% endfor %}
+        </select>
+
+        <select name="year">
+          {% for y in years %}
+            <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+          {% endfor %}
+        </select>
+
+        <button type="submit">Aplicar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- INGRESO DEL DÍA -->
+  <div class="section-box">
+    <div class="section-head">Ingresos del Día</div>
+    <div class="section-body daily-center">
+      <p class="day-date">{{ daily_income.date }}</p>
+      <p class="day-amount">${{ daily_income.total|floatformat:2 }}</p>
+      <span class="day-count">{{ daily_income.ticket_count }} transacciones</span>
+    </div>
+  </div>
+
+  <!-- COMPARACIÓN -->
+  <div class="section-box">
+    <div class="section-head">Comparación Mensual</div>
+    <div class="section-body">
+      <p>Mes actual: ${{ monthly_comparison.current|floatformat:2 }}</p>
+      <p>Mes anterior: ${{ monthly_comparison.previous|floatformat:2 }}</p>
+      <p>Variación: {{ monthly_comparison.percentage }}%</p>
+    </div>
+  </div>
+
+  <!-- MÉTRICAS -->
+  <div class="cards-row">
+
+    <div class="card-box">
+      <p class="c-label">Ticket Promedio</p>
+      <p class="c-value">${{ average_ticket|floatformat:2 }}</p>
+    </div>
+
+    <div class="card-box">
+      <p class="c-label">Ocupación Promedio</p>
+      <p class="c-value">{{ occupancy_rate }}%</p>
+    </div>
+
+    <div class="card-box">
+      <p class="c-label">Tiempo Promedio</p>
+      <p class="c-value">{{ average_stay_time }} min</p>
+    </div>
+
+  </div>
+
+  <!-- INGRESOS POR TIPO -->
+  <div class="section-box">
+    <div class="section-head">Ingresos por Tipo de Vehículo</div>
+    <div class="section-body">
+      <table class="rep-table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th style="text-align:right;">Ingresos</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in income_by_vehicle_type %}
+          <tr>
+            <td>{{ v.vehicle_type }}</td>
+            <td style="text-align:right; font-weight:700;">
+              ${{ v.total|floatformat:2 }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MEJORES DÍAS -->
+  <div class="section-box">
+    <div class="section-head">Top Días con Más Ingresos</div>
+    <div class="section-body">
+      <table class="rep-table">
+        <thead>
+          <tr>
+            <th>Día</th>
+            <th style="text-align:right;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in top_revenue_days %}
+          <tr>
+            <td>{{ d.date }}</td>
+            <td style="text-align:right; font-weight:700;">
+              ${{ d.total|floatformat:2 }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CLIENTES -->
+  <div class="section-box">
+    <div class="section-head">Clientes (Análisis)</div>
+    <div class="section-body">
+      <p>Clientes nuevos: {{ client_type_stats.new }}</p>
+      <p>Clientes recurrentes: {{ client_type_stats.repeat }}</p>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

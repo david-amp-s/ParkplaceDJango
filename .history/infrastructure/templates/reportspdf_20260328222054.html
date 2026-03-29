@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: letter;
+            margin: 1cm;
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #334155;
+            font-size: 12px;
+        }
+        .header {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .title {
+            font-size: 24px;
+            color: #0f172a;
+            font-weight: bold;
+        }
+        /* Layout con tablas (xhtml2pdf no soporta Grid/Flexbox bien) */
+        .stats-table { width: 100%; margin-bottom: 20px; }
+        .card {
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .label {
+            color: #64748b;
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .value {
+            font-size: 18px;
+            color: #0f172a;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .data-table th {
+            background-color: #f8fafc;
+            color: #64748b;
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .data-table td {
+            padding: 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        /* Simulación de barras para el PDF */
+        .bar-bg { background-color: #f1f5f9; width: 100%; height: 10px; border-radius: 5px; }
+        .bar-fill { background-color: #0f172a; height: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <table width="100%">
+            <tr>
+                <td><div class="title">Reporte de Operación - ParkPlace</div></td>
+                <td align="right">Fecha: {{ hoy|date:"d/m/Y" }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <table class="stats-table" cellspacing="10">
+        <tr>
+            <td class="card" style="border-top: 4px solid #22c55e;">
+                <div class="label">Ingresos Hoy</div>
+                <div class="value">${{ finanzas.hoy|floatformat:2 }}</div>
+                <div style="color: #22c55e;">{{ finanzas.tickets_hoy }} servicios</div>
+            </td>
+            <td class="card" style="border-top: 4px solid #0f172a;">
+                <div class="label">Esta Semana</div>
+                <div class="value">${{ finanzas.semana|floatformat:2 }}</div>
+            </td>
+            <td class="card" style="background-color: #0f172a;">
+                <div class="label" style="color: #94a3b8;">Total Mes</div>
+                <div class="value" style="color: white;">${{ finanzas.mes|floatformat:2 }}</div>
+            </td>
+        </tr>
+    </table>
+
+    <table width="100%" cellspacing="10">
+        <tr>
+            <td width="50%" valign="top">
+                <div class="card">
+                    <div class="label">Estadía Promedio</div>
+                    <div class="value" style="color: #0f172a;">{{ stay_avg }} min</div>
+                    <div class="label">Máximo: {{ stay_max }} min</div>
+                </div>
+                <br>
+                <div class="card">
+                    <div class="label">Servicios por Tipo</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Tipo</th><th align="right">Cant.</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for v in vehicle_stats %}
+                            <tr>
+                                <td>{{ v.vehicle__type }}</td>
+                                <td align="right">{{ v.total_services }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </td>
+            <td width="50%" valign="top">
+                <div class="card">
+                    <div class="label">Flujo por Horas (Hoy)</div>
+                    <table width="100%" style="margin-top:10px;">
+                        {% for h in horas_pico %}
+                        <tr>
+                            <td width="40">{{ h.hora }}:00</td>
+                            <td>
+                                <div class="bar-bg">
+                                    <div class="bar-fill" style="width: {{ h.cantidad }}0%;"></div>
+                                </div>
+                            </td>
+                            <td width="30" align="right">{{ h.cantidad }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

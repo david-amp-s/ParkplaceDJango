@@ -19,7 +19,8 @@ from infrastructure.views import (
     exit_vehicle_view,
     pay_ticket_view,
     parking_status_view,
-    history_view
+    history_view,
+    reports_view
 )
 
 urlpatterns = [
@@ -68,4 +69,8 @@ urlpatterns = [
     #Correo
 
     path('enviar-recordatorio/', views.enviar_recordatorio_cierre),
+
+    #Reportes
+    path('reports/', reports_view, name='reports'),
+    path('reports/download/', views.export_report_pdf, name='export_report_pdf'),
 ]

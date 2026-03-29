@@ -1,0 +1,100 @@
+{% extends "base/base.html" %}
+
+{% block title %}Reportes — ParkPlace{% endblock %}
+
+{% block content %}
+<div class="rep-container">
+
+  <div class="rep-header">
+    <h2>Reportes</h2>
+    <p>Vista general del parqueadero — {{ today|date:"d/m/Y" }}</p>
+  </div>
+
+  <div class="rep-grid"> <div class="rep-card highlight">
+        <p>Ingresos del día</p>
+        <h3>${{ daily_income.total|floatformat:2 }}</h3>
+        <small>{{ daily_income.ticket_count }} transacciones</small>
+      </div>
+
+      <div class="rep-card">
+        <p>Ticket promedio</p>
+        <h3>${{ average_ticket|floatformat:2 }}</h3>
+      </div>
+
+      <div class="rep-card">
+        <p>Ocupación Actual</p>
+        <h3>{{ occupancy_rate }}%</h3>
+        <small>{{ usage_stats.active }} vehículos activos</small>
+      </div>
+  </div>
+
+  <div class="rep-card">
+    <div class="rep-card-title">Ingresos por tipo de vehículo</div>
+    <table class="rep-table">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Total de Servicios</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in vehicle_stats %}
+        <tr>
+          <td>{{ v.vehicle_type }}</td>
+          <td>{{ v.total_services }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2">Sin datos disponibles</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="rep-card">
+    <div class="rep-card-title">Historial de Ingresos del Mes</div>
+    <table class="rep-table">
+      <thead>
+        <tr>
+          <th>Día</th>
+          <th>Total Recaudado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in monthly_income %}
+        <tr>
+          <td>{{ d.day }}</td>
+          <td>${{ d.total|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2">Sin datos para este mes</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="rep-card">
+    <div class="rep-card-title">Clientes Frecuentes</div>
+    <table class="rep-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Teléfono</th>
+          <th>Visitas</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in frequent_clients %}
+        <tr>
+          <td>{{ c.name }}</td>
+          <td>{{ c.phone }}</td>
+          <td>{{ c.visit_count }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">No hay clientes registrados</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock %}

@@ -9,7 +9,9 @@ from django.db import IntegrityError
 from django.core.mail import send_mass_mail
 from django.conf import settings
 
-# Modelos de Infraestructura
+from infrastructure.utils import render_to_pdf
+
+#Modelos de Infraestructura
 from .models import ParkingSpot, Vehicle, Client as ClientModel, Ticket
 
 from django.shortcuts import render
@@ -17,12 +19,14 @@ from django.utils.timezone import now
 from django.db.models import Sum, Count, DecimalField
 from django.db.models.functions import Coalesce
 from .models import ParkingSpot, Ticket
-# Formularios
+
+#Formularios
 from .forms import ClientForm
 
-# Repositorios
+#Repositorios
 from .repositories import (
     DjangoClientRepository,
+    DjangoReportRepository,
     DjangoVehicleRepository,
     DjangoPaymentRepository,
     DjangoEmployeeRepository,
@@ -31,12 +35,12 @@ from .repositories import (
     
 )
 
-# Entidades de Dominio
+#Entidades de Dominio
 from domain.entities.employee import Employee
 from domain.entities.client import Client as ClientEntity
 from domain.entities.vehicle import Vehicle as VehicleEntity
 
-# Casos de Uso
+#Casos de Uso
 from domain.use_cases.login_user import LoginUser
 from domain.use_cases.create_client import CreateClient
 from domain.use_cases.create_vehicle import CreateVehicle
@@ -46,7 +50,7 @@ from domain.use_cases.get_history import GetHistory
 from domain.use_cases.close_ticket import CloseTicket
 
 
-# AUTENTICACIÓN Y LOGOUT
+#AUTENTICACIÓN Y LOGOUT
 
 def login_view(request):
     if request.method == "POST":
@@ -71,7 +75,7 @@ def logout_view(request):
     return redirect("/")
 
 
-# DASHBOARD Y ESPACIOS
+#DASHBOARD Y ESPACIOS
 
 
 def dashboard_view(request):
@@ -151,7 +155,7 @@ def parking_status_view(request):
     })
 
 
-# GESTIÓN DE EMPLEADOS
+#GESTIÓN DE EMPLEADOS
 
 def list_employees(request):
     repo = DjangoEmployeeRepository()
@@ -177,7 +181,7 @@ def create_employee(request):
     return render(request, "create_employee.html")
 
 
-# GESTIÓN DE CLIENTES
+#GESTIÓN DE CLIENTES
 
 def list_clients_view(request):
 
@@ -260,7 +264,7 @@ def delete_client_view(request, id):
     return render(request, 'delete_client.html', {'client': client_obj})
 
 
-# GESTIÓN DE VEHÍCULOS
+#GESTIÓN DE VEHÍCULOS
 
 from django.db.models import Q
 
@@ -356,7 +360,7 @@ def delete_vehicle_view(request, id):
     return render(request, 'delete_vehicle.html', {'vehicle': vehicle_obj})
 
 
-# OPERACIONES DE PARQUEADERO (ENTRADA/SALIDA)
+#OPERACIONES DE PARQUEADERO (ENTRADA/SALIDA)
 
 def entry_vehicle_view(request):
     if request.method == 'POST':
@@ -418,7 +422,7 @@ def exit_vehicle_view(request):
     return render(request, 'exit_vehicle.html')
 
 
-# PAGOS E HISTORIAL
+#PAGOS E HISTORIAL
 
 def pay_ticket_view(request):
     if request.method == "POST":
@@ -446,6 +450,7 @@ def history_view(request):
         tickets = use_case.execute()
     return render(request, 'list_history.html', {'tickets': tickets})
 
+#Corres Masivos
 
 def enviar_recordatorio_cierre(request):
 
@@ -484,3 +489,92 @@ Evita recargos adicionales retirándolo a tiempo.
         messages.warning(request, "No hay clientes con email")
 
     return redirect("/dashboard/")
+
+#Reportes
+
+from django.shortcuts import render
+from datetime import date
+from .repositories import DjangoReportRepository
+from .models import ParkingSpot
+
+def reports_view(request):
+    repo = DjangoReportRepository()
+    
+    finanzas = repo.get_financial_summary()
+    comparativo_dias = repo.get_revenue_by_day_of_week()
+    stay_metrics = repo.get_stay_metrics()
+    vehicle_stats = repo.get_vehicle_type_stats()
+    monthly_income = repo.get_monthly_income()
+    
+    #Horas Pico
+    horas_pico = repo.get_peak_hours()
+
+    #Ocupación actual
+    total_spots = ParkingSpot.objects.count()
+    occupied_count = ParkingSpot.objects.filter(status="OCCUPIED").count()
+    ocupacion = int((occupied_count / total_spots) * 100) if total_spots > 0 else 0
+
+    #Cálculo de ticket promedio
+    average_ticket = finanzas['hoy'] / finanzas['tickets_hoy'] if finanzas['tickets_hoy'] > 0 else 0
+
+    context = {
+        #Dinero
+        "finanzas": finanzas,
+        "comparativo_dias": comparativo_dias,
+        "monthly_income": monthly_income,
+        "average_ticket": average_ticket,
+        
+        #Operación y Tiempos
+        "stay_avg": stay_metrics['avg_time'],
+        "stay_max": stay_metrics['max_time'],
+        "occupancy_rate": ocupacion,
+        "vehicle_stats": vehicle_stats,
+        "horas_pico": horas_pico,
+    
+        "hoy": date.today(),
+    }
+    
+    return render(request, "reports.html", context)
+
+
+import os
+import base64
+from decimal import Decimal
+from datetime import date
+from django.shortcuts import render
+
+def export_report_pdf(request):
+    repo = DjangoReportRepository()
+    
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    #infrastructure/assets/pezokoi.png'
+    path_al_logo = os.path.join(current_dir, 'assets', 'pezokoi.png')
+    
+    try:
+        with open(path_al_logo, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+            logo_base64 = f"data:image/png;base64,{encoded_string}"
+    except (FileNotFoundError, Exception):
+        logo_base64 = ""
+
+    finanzas_raw = repo.get_financial_summary() or {}
+    horas_pico_raw = repo.get_peak_hours() or []
+    stay_metrics_raw = repo.get_stay_metrics() or {}
+    vehicle_stats_raw = repo.get_vehicle_type_stats() or []
+
+    context = {
+        "finanzas": {
+            "hoy": finanzas_raw.get('hoy') if finanzas_raw.get('hoy') is not None else Decimal('0.00'),
+            "semana": finanzas_raw.get('semana') if finanzas_raw.get('semana') is not None else Decimal('0.00'),
+            "mes": finanzas_raw.get('mes') if finanzas_raw.get('mes') is not None else Decimal('0.00'),
+        },
+        "horas_pico": list(horas_pico_raw),
+        "stay_avg": stay_metrics_raw.get('avg_time') or 0,
+        "stay_max": stay_metrics_raw.get('max_time') or 0,
+        "vehicle_stats": list(vehicle_stats_raw),
+        "hoy": date.today(),
+        "logo_base64": logo_base64
+    }
+    
+    return render_to_pdf('reports_pdf.html', context) 

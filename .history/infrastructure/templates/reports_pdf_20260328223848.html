@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { size: letter; margin: 50px; }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #1e293b;
+            line-height: 1.6;
+            font-size: 13px;
+        }
+        .header {
+            position: relative; 
+            border-bottom: 3px solid #0f172a;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            height: 80px; /* Asegura espacio para el logo */
+        }
+        .logo-koi {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px; 
+            height: auto;
+        }
+        .header-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        h1 { margin: 0; font-size: 24px; color: #0f172a; }
+        h2 { 
+            background-color: #f1f5f9; 
+            padding: 5px 10px; 
+            font-size: 16px; 
+            color: #334155;
+            border-left: 4px solid #3b82f6;
+            margin-top: 20px;
+        }
+        .symbol {
+            font-size: 16px;
+            margin-right: 5px;
+        }
+        .kpi-group { margin: 10px 0; }
+        .kpi-item { margin-bottom: 5px; font-size: 14px; }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 10px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-text">
+            <h1>ParkPlace</h1>
+            <p style="margin:0;">Reporte de Operaciones | {{ hoy|date:"d/m/Y"|default:"--" }}</p>
+        </div>
+        
+        {% if logo_base64 %}
+            <img src="{{ logo_base64 }}" class="logo-koi">
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h2><span class="symbol">&#128181;</span> Resumen Financiero</h2>
+        <div class="kpi-group">
+            <div class="kpi-item"><strong>Ingresos Hoy:</strong> ${{ finanzas.hoy|default:0 }}</div>
+            <div class="kpi-item"><strong>Acumulado Semana:</strong> ${{ finanzas.semana|default:0 }}</div>
+            <div class="kpi-item"><strong>Proyección Mes:</strong> ${{ finanzas.mes|default:0 }}</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2><span class="symbol">&#9200;</span> Tiempos de Estadía</h2>
+        <div class="kpi-group">
+            <div class="kpi-item">Promedio: {{ stay_avg|default:0 }} min</div>
+            <div class="kpi-item">Máximo: {{ stay_max|default:0 }} min</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2><span class="symbol">&#128663;</span> Vehículos por Tipo</h2>
+        <ul style="list-style: none; padding-left: 10px;">
+            {% for v in vehicle_stats %}
+                <li style="margin-bottom: 5px;">
+                    <strong>{{ v.vehicle__type|upper|default:"N/A" }}:</strong> {{ v.total_services|default:0 }} servicios
+                </li>
+            {% empty %}
+                <li>No hay datos registrados.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2><span class="symbol">&#128200;</span> Actividad de Hoy</h2>
+        <div style="margin-top: 10px;">
+            {% for h in horas_pico %}
+                <div style="margin-bottom: 3px;">
+                    <code>{{ h.hora|default:0 }}:00 hs</code> &mdash; {{ h.cantidad|default:0 }} vehículos
+                </div>
+            {% empty %}
+                <p>Sin registros hoy.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="footer">
+        Generado automáticamente por ParkPlace &copy; 2026
+    </div>
+
+</body>
+</html>

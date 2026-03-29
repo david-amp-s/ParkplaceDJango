@@ -2,8 +2,8 @@ import traceback
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.utils.timezone import now
-from django.db.models import Sum, Count, DecimalField
+from django.utils.timezone import now, timedelta
+from django.db.models import Q, Sum, Count, DecimalField
 from django.db.models.functions import Coalesce
 from django.db import IntegrityError
 from django.core.mail import send_mass_mail
@@ -12,6 +12,11 @@ from django.conf import settings
 # Modelos de Infraestructura
 from .models import ParkingSpot, Vehicle, Client as ClientModel, Ticket
 
+from django.shortcuts import render
+from django.utils.timezone import now
+from django.db.models import Sum, Count, DecimalField
+from django.db.models.functions import Coalesce
+from .models import ParkingSpot, Ticket
 # Formularios
 from .forms import ClientForm
 
@@ -23,6 +28,7 @@ from .repositories import (
     DjangoEmployeeRepository,
     DjangoTicketRepository,
     DjangoParkingSpotRepository
+    
 )
 
 # Entidades de Dominio
@@ -67,42 +73,24 @@ def logout_view(request):
 
 # DASHBOARD Y ESPACIOS
 
-import json
-from django.shortcuts import render
-from django.utils.timezone import now
-from django.db.models import Sum, Count, DecimalField
-from django.db.models.functions import Coalesce
-
-from .models import ParkingSpot, Ticket
-
 
 def dashboard_view(request):
-
-    total = ParkingSpot.objects.count()
-    occupied = ParkingSpot.objects.filter(status="OCCUPIED").count()
-    ocupacion = int((occupied / total) * 100) if total > 0 else 0
-
     fecha_hoy = now().date()
+    # Definimos el inicio de la semana
+    hace_una_semana = fecha_hoy - timedelta(days=7)
 
     vehiculos_hoy = Ticket.objects.filter(created_at__date=fecha_hoy).count()
-
+    
     ingresos_hoy = Ticket.objects.filter(
         exit_time__date=fecha_hoy,
         status="CLOSED"
     ).aggregate(
-        total=Coalesce(
-            Sum("total_paid"),
-            0,
-            output_field=DecimalField()
-        )
+        total=Coalesce(Sum("total_paid"), 0, output_field=DecimalField())
     )["total"]
 
-    actividades = (
-        Ticket.objects
-        .select_related("vehicle")
-        .only("status", "created_at", "vehicle__license_plate")
-        .order_by("-created_at")[:5]
-    )
+    total_spots = ParkingSpot.objects.count()
+    occupied_count = ParkingSpot.objects.filter(status="OCCUPIED").count()
+    ocupacion = int((occupied_count / total_spots) * 100) if total_spots > 0 else 0
 
     vehiculos_por_tipo = (
         Ticket.objects
@@ -111,24 +99,28 @@ def dashboard_view(request):
         .annotate(total=Count("id"))
     )
 
-    tipos = [v["vehicle__type"] for v in vehiculos_por_tipo]
-    cantidades = [v["total"] for v in vehiculos_por_tipo]
-
     clientes_frecuentes = (
         Ticket.objects
+        .filter(created_at__date__gte=hace_una_semana)
         .values("vehicle__client__name")
         .annotate(total=Count("id"))
         .order_by("-total")[:5]
     )
 
+    actividades = (
+        Ticket.objects
+        .select_related("vehicle")
+        .order_by("-created_at")[:5]
+    )
+
     context = {
-        "ocupacion_actual": ocupacion,
         "vehiculos_hoy": vehiculos_hoy,
         "ingresos_hoy": ingresos_hoy,
+        "ocupacion_actual": ocupacion,
+        "clientes_frecuentes": clientes_frecuentes,
         "actividades_recientes": actividades,
-        "tipos": tipos,
-        "cantidades": cantidades,
-        "clientes_frecuentes": clientes_frecuentes
+        "tipos": [v["vehicle__type"] for v in vehiculos_por_tipo],
+        "cantidades": [v["total"] for v in vehiculos_por_tipo],
     }
 
     return render(request, "dashboard.html", context)
@@ -188,8 +180,21 @@ def create_employee(request):
 # GESTIÓN DE CLIENTES
 
 def list_clients_view(request):
-    clients = ClientModel.objects.all().order_by('id')
-    return render(request, 'list_clients.html', {'clients': clients})
+
+    query = request.GET.get('q', '').strip()
+    
+    # Base de clientes
+    clients = ClientModel.objects.all()
+
+    if query:
+        clients = clients.filter(name__icontains=query)
+
+    context = {
+        'clients': clients.order_by('id'),
+        'query': query
+    }
+    
+    return render(request, 'list_clients.html', context)
 
 
 def create_client_view(request):
@@ -257,10 +262,33 @@ def delete_client_view(request, id):
 
 # GESTIÓN DE VEHÍCULOS
 
-def list_vehicles_view(request):
-    vehicles = Vehicle.objects.all().order_by('id')
-    return render(request, 'list_vehicles.html', {'vehicles': vehicles})
+from django.db.models import Q
 
+def list_vehicles_view(request):
+
+    query = request.GET.get('q', '').strip()
+    registrados = Vehicle.objects.exclude(
+        Q(client__name__icontains="Visitante") | Q(client__isnull=True)
+    )
+
+    #Definimos la base de VISITANTES
+    visitantes = Vehicle.objects.filter(
+        Q(client__name__icontains="Visitante") | Q(client__isnull=True)
+    )
+
+    if query:
+        search_filter = Q(license_plate__icontains=query) | Q(client__name__icontains=query)
+        
+        registrados = registrados.filter(search_filter)
+        visitantes = visitantes.filter(search_filter)
+
+    context = {
+        'registrados': registrados.order_by('id'),
+        'visitantes': visitantes.order_by('-id'),
+        'query': query
+    }
+    
+    return render(request, 'list_vehicles.html', context)
 
 def create_vehicle_view(request):
     if request.method == 'POST':
@@ -268,7 +296,14 @@ def create_vehicle_view(request):
         vehicle_type = request.POST.get('type')
         client_id = request.POST.get('client_id')
 
-        # (El filtro de seguridad)
+        if not client_id:
+            clients = ClientModel.objects.all()
+            return render(request, 'create_vehicle.html', {
+                'clients': clients,
+                'error': "Debes seleccionar un cliente. Para visitantes ocasionales, usa el registro de entrada directo."
+            })
+
+        #Filtro de seguridad
         if len(plate) > 6:
             clients = ClientModel.objects.all()
             return render(request, 'create_vehicle.html', {
@@ -295,6 +330,8 @@ def create_vehicle_view(request):
                 'clients': clients,
                 'error': f"Ocurrió un error inesperado: {str(e)}"
             })
+
+
     clients = ClientModel.objects.all()
     return render(request, 'create_vehicle.html', {'clients': clients})
 
@@ -362,7 +399,7 @@ def exit_vehicle_view(request):
     if request.method == 'POST':
         plate_text = request.POST.get('license_plate', '').strip().upper()
 
-        #Validación de longitud en salida
+        #Validación en salida
         if len(plate_text) > 6:
             messages.error(request, "La placa es inválida (máximo 6 caracteres)")
             return redirect('/salida/')

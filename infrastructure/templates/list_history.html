@@ -5,171 +5,129 @@
 
 {% block extra_css %}
 <style>
-    /* Título fuera del cuadro */
-    .page-header {
-        margin-bottom: 25px;
+    /* Consistencia con Gestión de Vehículos */
+    .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .btn { padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; cursor: pointer; border: none; display: inline-block; transition: 0.3s; }
+    .btn-primary { background: #0f172a; color: white; }
+    .btn-primary:hover { background: #1e293b; }
+
+    /* Buscador Idéntico al de Vehículos */
+    .search-container { 
+        background: white; 
+        padding: 15px; 
+        border-radius: 12px; 
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+        margin-bottom: 25px; 
+        display: flex; 
+        gap: 10px; 
     }
-    .page-title {
-        font-size: 28px;
-        color: #0f172a;
-        font-weight: 700;
-        margin: 0;
+    .search-input { 
+        flex-grow: 1; 
+        padding: 10px 15px; 
+        border: 1px solid #e2e8f0; 
+        border-radius: 8px; 
+        outline: none; 
+        font-size: 14px; 
+    }
+    .search-input:focus { border-color: #0f172a; }
+
+    /* Estilo de Tabla Consistente */
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
+    th { background: #f8fafc; color: #64748b; text-align: left; padding: 15px 20px; border-bottom: 1px solid #e2e8f0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+    td { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 14px; vertical-align: middle; }
+    
+    .plate-badge { 
+        background: #f1f5f9; 
+        border: 1px solid #cbd5e1; 
+        padding: 5px 10px; 
+        border-radius: 4px; 
+        font-family: 'Courier New', Courier, monospace; 
+        font-weight: bold; 
+        color: #0f172a; 
+        letter-spacing: 1px;
     }
 
-    /* Contenedor principal estilo Gestión de Vehículos */
-    .history-container {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        overflow: hidden; /* Para que los bordes de la tabla no sobresalgan */
-    }
-
-    .header-section {
-        display: flex;
-        justify-content: flex-end; /* Buscador a la derecha */
-        padding: 20px;
-        background: #ffffff;
-    }
-
-    .search-box {
-        padding: 10px 15px;
-        border: 1px solid #e2e8f0;
-        border-radius: 6px;
-        width: 300px;
-        outline: none;
-        font-size: 14px;
-    }
-    .search-box:focus { border-color: #38bdf8; }
-
-    /* Estilo de Tabla similar a la imagen 2 */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    th {
-        text-align: left;
-        padding: 15px 20px;
+    .type-tag {
+        font-weight: 500;
+        color: #475569;
+        font-size: 11px;
         background: #f8fafc;
-        color: #64748b;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        border-bottom: 1px solid #e2e8f0;
-    }
-    td {
-        padding: 20px;
-        border-bottom: 1px solid #f1f5f9;
-        vertical-align: middle;
-    }
-
-    /* Etiquetas de Vehículo estilo 'Pill' */
-    .plate-badge {
-        background: #f1f5f9;
-        padding: 6px 12px;
-        border-radius: 6px;
-        border: 1px solid #e2e8f0;
-        font-weight: 600;
-        color: #1e293b;
-        display: inline-block;
-    }
-
-    .type-pill {
-        display: inline-block;
-        padding: 2px 10px;
+        padding: 2px 8px;
         border-radius: 12px;
         border: 1px solid #e2e8f0;
-        color: #64748b;
-        font-size: 11px;
-        font-weight: 600;
-        margin-left: 10px;
+        text-transform: uppercase;
     }
 
-    .client-name {
-        font-weight: 700;
-        color: #1e293b;
-    }
-
-    .badge {
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 700;
-    }
+    /* Badges de Estado */
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
     .badge-active { background: #dcfce7; color: #166534; }
-    .badge-closed { background: #e2e8f0; color: #475569; }
+    .badge-closed { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
 
     tr:hover { background-color: #f8fafc; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1 class="page-title">Historial de Movimientos</h1>
+<div class="header-actions">
+    <h1 style="color: #0f172a; margin: 0;">Historial de Movimientos</h1>
 </div>
 
-<div class="history-container">
-    <div class="header-section">
-        <form method="GET" action="/historial/">
-            <input type="text" 
-                   name="q" 
-                   class="search-box" 
-                   placeholder="Buscar por placa..." 
-                   value="{{ request.GET.q|default:'' }}">
-            {% if request.GET.q %}
-                <a href="/historial/" style="font-size: 12px; color: #ef4444; margin-left: 10px; text-decoration: none;">✕ Limpiar</a>
-            {% endif %}
-        </form>
-    </div>
+<form method="GET" action="/historial/" class="search-container">
+    <input type="text" name="q" class="search-input" placeholder="Buscar por placa o propietario..." value="{{ request.GET.q|default:'' }}">
+    <button type="submit" class="btn btn-primary">Buscar</button>
+    {% if request.GET.q %}
+        <a href="/historial/" class="btn" style="background: #f1f5f9; color: #64748b;">Limpiar</a>
+    {% endif %}
+</form>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Placa</th>
-                <th>Tipo</th>
-                <th>Propietario</th>
-                <th>Entrada</th>
-                <th>Salida</th>
-                <th>Total</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for ticket in tickets %}
-            <tr>
-                <td><span class="plate-badge">{{ ticket.vehicle.license_plate }}</span></td>
-                <td><span class="type-pill">{{ ticket.vehicle.get_type_display|default:ticket.vehicle.type }}</span></td>
-                <td><span class="client-name">{{ ticket.vehicle.client.name|default:"Visitante" }}</span></td>
-                <td style="color: #64748b;">{{ ticket.entry_time|date:"d/m/Y H:i" }}</td>
-                <td style="color: #64748b;">
-                    {% if ticket.exit_time %}
-                        {{ ticket.exit_time|date:"d/m/Y H:i" }}
-                    {% else %}
-                        <span style="color: #cbd5e1;">--:--</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if ticket.total_paid %}
-                        <strong style="color: #0f172a;">${{ ticket.total_paid|floatformat:0 }}</strong>
-                    {% else %}
-                        <span style="color: #94a3b8;">$0</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if ticket.status == 'ACTIVE' %}
-                        <span class="badge badge-active">EN CURSO</span>
-                    {% else %}
-                        <span class="badge badge-closed">FINALIZADO</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="7" style="text-align: center; padding: 50px; color: #94a3b8;">
-                    No hay movimientos registrados.
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<table>
+    <thead>
+        <tr>
+            <th>Placa</th>
+            <th>Tipo</th>
+            <th>Propietario</th>
+            <th>Entrada</th>
+            <th>Salida</th>
+            <th>Total</th>
+            <th style="text-align: center;">Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ticket in tickets %}
+        <tr>
+            <td><span class="plate-badge">{{ ticket.vehicle.license_plate }}</span></td>
+            <td><span class="type-tag">{{ ticket.vehicle.get_type_display|default:ticket.vehicle.type }}</span></td>
+            <td><strong>{{ ticket.vehicle.client.name|default:"Visitante" }}</strong></td>
+            <td style="color: #64748b;">{{ ticket.entry_time|date:"d/m/Y H:i" }}</td>
+            <td style="color: #64748b;">
+                {% if ticket.exit_time %}
+                    {{ ticket.exit_time|date:"d/m/Y H:i" }}
+                {% else %}
+                    <span style="color: #cbd5e1;">--:--</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if ticket.total_paid %}
+                    <strong style="color: #0f172a;">${{ ticket.total_paid|floatformat:0 }}</strong>
+                {% else %}
+                    <span style="color: #94a3b8;">$0</span>
+                {% endif %}
+            </td>
+            <td style="text-align: center;">
+                {% if ticket.status == 'ACTIVE' %}
+                    <span class="badge badge-active">En Curso</span>
+                {% else %}
+                    <span class="badge badge-closed">Finalizado</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;">
+                No se encontraron movimientos.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

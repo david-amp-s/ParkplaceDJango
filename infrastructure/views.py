@@ -2,21 +2,26 @@ import re
 import traceback
 import os
 import base64
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
+# Django Core
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.utils.timezone import now, timedelta
+from django.utils.timezone import now
 from django.db.models import Q, Sum, Count, DecimalField
 from django.db.models.functions import Coalesce
 from django.db import IntegrityError
 from django.core.mail import send_mass_mail
 from django.conf import settings
+from django.contrib.auth.hashers import make_password
+from django.http import JsonResponse
 
 # Utilidades e Infraestructura
+from domain.use_cases.client_import_service import ClientImportService
 from infrastructure.utils import render_to_pdf
-from .models import ParkingSpot, Vehicle, Client as ClientModel, Ticket, Client
+from .models import ParkingSpot, Vehicle, Client as ClientModel, Ticket, Client, EmployeeModel
+from .services import WeatherService 
 
 # Formularios
 from .forms import ClientForm
@@ -47,7 +52,7 @@ from domain.use_cases.get_history import GetHistory
 from domain.use_cases.close_ticket import CloseTicket
 
 
-#AUTENTICACIÓN Y LOGOUT
+# --- AUTENTICACIÓN Y LOGOUT ---
 
 def login_view(request):
     if request.method == "POST":
@@ -72,26 +77,14 @@ def logout_view(request):
     return redirect("/")
 
 
-#DASHBOARD Y ESPACIOS
-
-from django.shortcuts import render
-from django.utils.timezone import now
-from datetime import timedelta
-from django.db.models import Sum, Count, DecimalField
-from django.db.models.functions import Coalesce
-from .models import Ticket, ParkingSpot
-# Importamos el servicio que creamos
-from .services import WeatherService 
+# --- DASHBOARD Y ESPACIOS ---
 
 def dashboard_view(request):
     fecha_hoy = now().date()
-    # Definimos el inicio de la semana
     hace_una_semana = fecha_hoy - timedelta(days=7)
 
-    # Lógica de vehículos hoy
     vehiculos_hoy = Ticket.objects.filter(created_at__date=fecha_hoy).count()
     
-    # Lógica de ingresos hoy
     ingresos_hoy = Ticket.objects.filter(
         exit_time__date=fecha_hoy,
         status="CLOSED"
@@ -99,12 +92,10 @@ def dashboard_view(request):
         total=Coalesce(Sum("total_paid"), 0, output_field=DecimalField())
     )["total"]
 
-    # Lógica de ocupación
     total_spots = ParkingSpot.objects.count()
     occupied_count = ParkingSpot.objects.filter(status="OCCUPIED").count()
     ocupacion = int((occupied_count / total_spots) * 100) if total_spots > 0 else 0
 
-    # Gráfica de vehículos por tipo
     vehiculos_por_tipo = (
         Ticket.objects
         .filter(created_at__date=fecha_hoy)
@@ -112,7 +103,6 @@ def dashboard_view(request):
         .annotate(total=Count("id"))
     )
 
-    # Clientes frecuentes (Top 5)
     clientes_frecuentes = (
         Ticket.objects
         .filter(created_at__date__gte=hace_una_semana)
@@ -121,15 +111,12 @@ def dashboard_view(request):
         .order_by("-total")[:5]
     )
 
-    # Últimas actividades
     actividades = (
         Ticket.objects
         .select_related("vehicle")
         .order_by("-created_at")[:5]
     )
 
-    # --- CONSUMO DEL WEB SERVICE (Punto 6) ---
-    # Llamamos al método que creamos en services.py
     estado_clima = WeatherService.get_clima_bogota()
 
     context = {
@@ -140,24 +127,22 @@ def dashboard_view(request):
         "actividades_recientes": actividades,
         "tipos": [v["vehicle__type"] for v in vehiculos_por_tipo],
         "cantidades": [v["total"] for v in vehiculos_por_tipo],
-        "clima": estado_clima,  # <-- ESTO ES LO QUE EL HTML NECESITA
+        "clima": estado_clima,
     }
 
     return render(request, "dashboard.html", context)
 
+
 def parking_status_view(request):
     repo = DjangoParkingSpotRepository()
     all_spots_from_db = repo.get_all()
-
     spots_with_info = []
 
-    #EspaciosXtickets
     for spot in all_spots_from_db:
         ticket = None
         is_occupied = (spot.status == "OCCUPIED")
 
         if is_occupied:
-            #Buscamos el tickets ocupados
             ticket = Ticket.objects.filter(parking_spot=spot, status='ACTIVE').first()
 
         spots_with_info.append({
@@ -171,7 +156,7 @@ def parking_status_view(request):
     })
 
 
-#GESTIÓN DE EMPLEADOS
+# --- GESTIÓN DE EMPLEADOS ---
 
 def list_employees(request):
     repo = DjangoEmployeeRepository()
@@ -179,30 +164,64 @@ def list_employees(request):
     return render(request, "list_employees.html", {"employees": employees})
 
 
-def create_employee(request):
+def employee_create_view(request):
     if request.method == "POST":
-        employee = Employee(
-            id=None,
-            name=request.POST["name"],
-            phone=request.POST["phone"],
-            username=request.POST["username"],
-            password=request.POST["password"],
-            role="EMPLOYEE",
-            created_at=None
+        name = request.POST.get("name")
+        phone = request.POST.get("phone")
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        role = request.POST.get("role")
+
+        hashed_password = make_password(password)
+
+        EmployeeModel.objects.create(
+            name=name,
+            phone=phone,
+            username=username,
+            password=hashed_password,
+            role=role
         )
-        repo = DjangoEmployeeRepository()
-        repo.create(employee)
         return redirect("/employee/")
 
     return render(request, "create_employee.html")
 
 
-#GESTIÓN DE CLIENTES
+def employee_update_view(request, employee_id):
+    employee = get_object_or_404(EmployeeModel, id=employee_id)
+
+    if request.method == "POST":
+        employee.name = request.POST.get("name")
+        employee.phone = request.POST.get("phone")
+        employee.username = request.POST.get("username")
+        role = request.POST.get("role")
+        employee.role = role
+
+        password = request.POST.get("password")
+        if password:
+            employee.password = make_password(password)
+
+        employee.save()
+        return redirect("/employee/")
+
+    context = {"employee": employee}
+    return render(request, "update_employee.html", context)
+
+
+def employee_delete_view(request, employee_id):
+    employee = get_object_or_404(EmployeeModel, id=employee_id)
+    
+    if request.method == "POST":
+        employee.delete()
+        return redirect("/employee/")
+    
+    context = {"employee": employee}
+    return render(request, "delete_employee.html", context)
+
+
+# --- GESTIÓN DE CLIENTES ---
 
 def list_clients_view(request):
     query = request.GET.get('q', '').strip()
-    
-    #Base de clientes
     clients = ClientModel.objects.all()
 
     if query:
@@ -224,7 +243,6 @@ def create_client_view(request):
             data = form.cleaned_data
             nombre = data['name']
 
-            #Validación
             if not re.match(r"^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$", nombre):
                 messages.error(request, "El nombre del cliente solo puede contener letras.")
                 return render(request, 'create_client.html', {'form': form})
@@ -257,16 +275,14 @@ def edit_client_view(request, id):
             data = form.cleaned_data
             nuevo_nombre = data['name']
 
-            # Validación de solo letras, tildes y espacios
             if not re.match(r"^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$", nuevo_nombre):
                 messages.error(request, "El nombre del cliente no puede contener números ni caracteres especiales.")
                 return render(request, 'edit_client.html', {'form': form, 'client': client_obj})
 
-            # Si el nombre es válido, actualizamos el objeto
             client_obj.name = nuevo_nombre
             client_obj.phone = data['phone']
             client_obj.email = data.get('email')
-            # Usamos getattr por si client_type no existe en el modelo aún
+            
             if 'client_type' in data:
                 client_obj.client_type = data['client_type']
 
@@ -275,7 +291,6 @@ def edit_client_view(request, id):
             return redirect('/clientes/')
         else:
             messages.error(request, "Error al validar los datos del formulario.")
-            print(f"Errores en el formulario: {form.errors}")
     else:
         form = ClientForm(initial={
             'name': client_obj.name,
@@ -291,14 +306,12 @@ def delete_client_view(request, id):
     client_obj = get_object_or_404(Client, id=id)
     
     if request.method == 'POST':
-        #BUSCAR TICKETS ACTIVOS: 
         tiene_movimiento_activo = Ticket.objects.filter(
             vehicle__client=client_obj, 
             status='ACTIVE'
         ).exists()
 
         if tiene_movimiento_activo:
-            #Si tiene un carro adentro, bloqueamos la eliminación
             messages.error(
                 request, 
                 f"No se puede eliminar a {client_obj.name} porque uno de sus vehículos está actualmente en el parqueadero."
@@ -313,7 +326,7 @@ def delete_client_view(request, id):
     return render(request, 'delete_client.html', {'client': client_obj})
 
 
-#GESTIÓN DE VEHÍCULOS
+# --- GESTIÓN DE VEHÍCULOS ---
 
 def list_vehicles_view(request):
     query = request.GET.get('q', '').strip()
@@ -321,14 +334,12 @@ def list_vehicles_view(request):
         Q(client__name__icontains="Visitante") | Q(client__isnull=True)
     )
 
-    #Definimos la base de VISITANTES
     visitantes = Vehicle.objects.filter(
         Q(client__name__icontains="Visitante") | Q(client__isnull=True)
     )
 
     if query:
         search_filter = Q(license_plate__icontains=query) | Q(client__name__icontains=query)
-        
         registrados = registrados.filter(search_filter)
         visitantes = visitantes.filter(search_filter)
 
@@ -340,6 +351,7 @@ def list_vehicles_view(request):
     
     return render(request, 'list_vehicles.html', context)
 
+
 def create_vehicle_view(request):
     if request.method == 'POST':
         plate = request.POST.get('plate', '').strip().upper()
@@ -350,15 +362,14 @@ def create_vehicle_view(request):
             clients = ClientModel.objects.all()
             return render(request, 'create_vehicle.html', {
                 'clients': clients,
-                'error': "Debes seleccionar un cliente. Para visitantes ocasionales, usa el registro de entrada directo."
+                'error': "Debes seleccionar un cliente."
             })
 
-        #Filtro de seguridad
         if len(plate) > 6:
             clients = ClientModel.objects.all()
             return render(request, 'create_vehicle.html', {
                 'clients': clients,
-                'error': f"La placa '{plate}' es demasiado larga. El máximo permitido son 6 caracteres."
+                'error': f"La placa '{plate}' es demasiado larga (máx 6)."
             })
 
         repo = DjangoVehicleRepository()
@@ -378,7 +389,7 @@ def create_vehicle_view(request):
             clients = ClientModel.objects.all()
             return render(request, 'create_vehicle.html', {
                 'clients': clients,
-                'error': f"Ocurrió un error inesperado: {str(e)}"
+                'error': f"Error: {str(e)}"
             })
 
     clients = ClientModel.objects.all()
@@ -401,17 +412,15 @@ def delete_vehicle_view(request, id):
     vehicle_obj = get_object_or_404(Vehicle, id=id)
     
     if request.method == 'POST':
-        #VALIDACIÓN DE SEGURIDAD
         esta_en_parqueadero = Ticket.objects.filter(
             vehicle=vehicle_obj, 
             status='ACTIVE'
         ).exists()
 
         if esta_en_parqueadero:
-            #Si el vehículo no ha marcado salida, bloqueamos el borrado
             messages.error(
                 request, 
-                f"No se puede eliminar el vehículo {vehicle_obj.license_plate} porque tiene un proceso de parqueo activo."
+                f"No se puede eliminar el vehículo {vehicle_obj.license_plate} porque tiene un proceso activo."
             )
             return redirect('/vehiculos/')
 
@@ -423,21 +432,19 @@ def delete_vehicle_view(request, id):
     return render(request, 'delete_vehicle.html', {'vehicle': vehicle_obj})
 
 
-#OPERACIONES DE PARQUEADERO (ENTRADA/SALIDA)
+# --- OPERACIONES DE PARQUEADERO (ENTRADA/SALIDA) ---
 
 def entry_vehicle_view(request):
     if request.method == 'POST':
         plate_text = request.POST.get('license_plate', '').strip().upper()
         vehicle_type = request.POST.get('vehicle_type', 'CAR')
 
-        #Validaciones de la placa
         if not plate_text:
             return render(request, 'entry_vehicle.html', {'error': 'La placa es obligatoria'})
 
         if len(plate_text) > 6:
-            return render(request, 'entry_vehicle.html', {'error': 'La placa no puede tener más de 6 caracteres'})
+            return render(request, 'entry_vehicle.html', {'error': 'Placa inválida (máx 6)'})
 
-        #Lógica de Cliente y Vehículo
         cliente_gen, _ = ClientModel.objects.get_or_create(
             name="Visitante", defaults={'phone': '000'}
         )
@@ -450,7 +457,6 @@ def entry_vehicle_view(request):
             vehiculo_obj.type = vehicle_type
             vehiculo_obj.save()
 
-        #Creación del Ticket
         use_case = CreateTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
         try:
             use_case.execute(vehiculo_obj.id, None)
@@ -466,9 +472,8 @@ def exit_vehicle_view(request):
     if request.method == 'POST':
         plate_text = request.POST.get('license_plate', '').strip().upper()
 
-        #Validación en salida
         if len(plate_text) > 6:
-            messages.error(request, "La placa es inválida (máximo 6 caracteres)")
+            messages.error(request, "La placa es inválida")
             return redirect('/salida/')
 
         try:
@@ -485,7 +490,7 @@ def exit_vehicle_view(request):
     return render(request, 'exit_vehicle.html')
 
 
-#PAGOS E HISTORIAL
+# --- PAGOS E HISTORIAL ---
 
 def pay_ticket_view(request):
     if request.method == "POST":
@@ -514,120 +519,99 @@ def history_view(request):
     return render(request, 'list_history.html', {'tickets': tickets})
 
 
-#CORREOS
+# --- CORREOS ---
 
 def enviar_recordatorio_cierre(request):
-    #Tickets activos
     tickets_activos = Ticket.objects.filter(status="ACTIVE").select_related("vehicle__client")
-
     mensajes = []
 
     for t in tickets_activos:
         cliente = t.vehicle.client
-
         if cliente.email:
             subject = "⏰ Parqueadero ParkPlace"
-            message = f"""
-Hola {cliente.name},
-
-Tu vehículo con placa {t.vehicle.license_plate} sigue en el parqueadero.
-
-⏳ Recuerda que faltan aproximadamente 20 minutos para el cierre.
-
-Evita recargos adicionales retirándolo a tiempo.
-
-— ParkPlace 🚗
-"""
+            message = f"Hola {cliente.name}, tu vehículo con placa {t.vehicle.license_plate} sigue aquí. Faltan 20 min para el cierre."
             mensajes.append((
-                subject,
-                message,
-                settings.EMAIL_HOST_USER,
-                [cliente.email]
+                subject, message, settings.EMAIL_HOST_USER, [cliente.email]
             ))
 
     if mensajes:
         send_mass_mail(mensajes, fail_silently=False)
-        messages.success(request, "📩 Correos enviados correctamente")
+        messages.success(request, "📩 Correos enviados")
     else:
         messages.warning(request, "No hay clientes con email")
-
     return redirect("/dashboard/")
 
 
-#REPORTES
+# --- REPORTES ---
 
 def reports_view(request):
     repo = DjangoReportRepository()
-    
     finanzas = repo.get_financial_summary()
     comparativo_dias = repo.get_revenue_by_day_of_week()
     stay_metrics = repo.get_stay_metrics()
     vehicle_stats = repo.get_vehicle_type_stats()
     monthly_income = repo.get_monthly_income()
-    
-    #Horas Pico
     horas_pico = repo.get_peak_hours()
 
-    #Ocupación actual
     total_spots = ParkingSpot.objects.count()
     occupied_count = ParkingSpot.objects.filter(status="OCCUPIED").count()
     ocupacion = int((occupied_count / total_spots) * 100) if total_spots > 0 else 0
 
-    #Cálculo de ticket promedio
     average_ticket = finanzas['hoy'] / finanzas['tickets_hoy'] if finanzas['tickets_hoy'] > 0 else 0
 
     context = {
-        #Dinero
         "finanzas": finanzas,
         "comparativo_dias": comparativo_dias,
         "monthly_income": monthly_income,
         "average_ticket": average_ticket,
-        
-        #Operación y Tiempos
         "stay_avg": stay_metrics['avg_time'],
         "stay_max": stay_metrics['max_time'],
         "occupancy_rate": ocupacion,
         "vehicle_stats": vehicle_stats,
         "horas_pico": horas_pico,
-    
         "hoy": date.today(),
     }
-    
     return render(request, "reports.html", context)
 
 
 def export_report_pdf(request):
     repo = DjangoReportRepository()
-    
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    
-    #infrastructure/assets/pezokoi.png'
     path_al_logo = os.path.join(current_dir, 'assets', 'pezokoi.png')
     
     try:
         with open(path_al_logo, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
             logo_base64 = f"data:image/png;base64,{encoded_string}"
-    except (FileNotFoundError, Exception):
+    except:
         logo_base64 = ""
 
     finanzas_raw = repo.get_financial_summary() or {}
-    horas_pico_raw = repo.get_peak_hours() or []
-    stay_metrics_raw = repo.get_stay_metrics() or {}
-    vehicle_stats_raw = repo.get_vehicle_type_stats() or []
-
     context = {
         "finanzas": {
-            "hoy": finanzas_raw.get('hoy') if finanzas_raw.get('hoy') is not None else Decimal('0.00'),
-            "semana": finanzas_raw.get('semana') if finanzas_raw.get('semana') is not None else Decimal('0.00'),
-            "mes": finanzas_raw.get('mes') if finanzas_raw.get('mes') is not None else Decimal('0.00'),
+            "hoy": finanzas_raw.get('hoy') or Decimal('0.00'),
+            "semana": finanzas_raw.get('semana') or Decimal('0.00'),
+            "mes": finanzas_raw.get('mes') or Decimal('0.00'),
         },
-        "horas_pico": list(horas_pico_raw),
-        "stay_avg": stay_metrics_raw.get('avg_time') or 0,
-        "stay_max": stay_metrics_raw.get('max_time') or 0,
-        "vehicle_stats": list(vehicle_stats_raw),
+        "horas_pico": list(repo.get_peak_hours() or []),
+        "stay_avg": (repo.get_stay_metrics() or {}).get('avg_time') or 0,
+        "stay_max": (repo.get_stay_metrics() or {}).get('max_time') or 0,
+        "vehicle_stats": list(repo.get_vehicle_type_stats() or []),
         "hoy": date.today(),
         "logo_base64": logo_base64
     }
-    
     return render_to_pdf('reports_pdf.html', context)
+
+
+def importar_clientes(request):
+    try:
+        total = ClientImportService.import_from_java()
+        return JsonResponse({
+            "success": True,
+            "message": f"{total} clientes importados correctamente"
+        })
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "message": str(e)
+        }, status=500)

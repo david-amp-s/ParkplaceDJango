@@ -1737,6 +1737,30 @@
         "documentation": {}
     },
     {
+        "label": "employee_create_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "employee_update_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "employee_delete_view",
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "isExtraImport": true,
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
         "label": "connection",
         "importPath": "django.db",
         "description": "django.db",
@@ -7378,6 +7402,30 @@
     },
     {
         "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "get_object_or_404",
         "importPath": "django.shortcuts",
         "description": "django.shortcuts",
         "isExtraImport": true,
@@ -27125,6 +27173,14 @@
         "documentation": {}
     },
     {
+        "label": "make_password",
+        "importPath": "django.contrib.auth.hashers",
+        "description": "django.contrib.auth.hashers",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.hashers",
+        "documentation": {}
+    },
+    {
         "label": "Ticket",
         "importPath": "infrastructure.models",
         "description": "infrastructure.models",
@@ -43901,7 +43957,7 @@
         "kind": 5,
         "importPath": "config.settings",
         "description": "config.settings",
-        "peekOfCode": "WSGI_APPLICATION = 'config.wsgi.application'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'parkplacedj_db',\n        'USER': 'postgres',\n        'PASSWORD': '123456789',\n        'HOST': 'localhost',\n        'PORT': '5432',\n    }",
+        "peekOfCode": "WSGI_APPLICATION = 'config.wsgi.application'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'parkplacedj_db',\n        'USER': 'postgres',\n        'PASSWORD': 'postgres123',\n        'HOST': 'localhost',\n        'PORT': '5432',\n    }",
         "detail": "config.settings",
         "documentation": {}
     },
@@ -43910,7 +43966,7 @@
         "kind": 5,
         "importPath": "config.settings",
         "description": "config.settings",
-        "peekOfCode": "DATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'parkplacedj_db',\n        'USER': 'postgres',\n        'PASSWORD': '123456789',\n        'HOST': 'localhost',\n        'PORT': '5432',\n    }\n}",
+        "peekOfCode": "DATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'parkplacedj_db',\n        'USER': 'postgres',\n        'PASSWORD': 'postgres123',\n        'HOST': 'localhost',\n        'PORT': '5432',\n    }\n}",
         "detail": "config.settings",
         "documentation": {}
     },
@@ -43919,7 +43975,7 @@
         "kind": 5,
         "importPath": "config.settings",
         "description": "config.settings",
-        "peekOfCode": "AUTH_PASSWORD_VALIDATORS = [\n    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},\n    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},\n    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},\n    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},\n]\nPASSWORD_HASHERS = [\n    'django.contrib.auth.hashers.BCryptSHA256Hasher',\n    'django.contrib.auth.hashers.BCryptPasswordHasher',\n    'django.contrib.auth.hashers.PBKDF2PasswordHasher',",
+        "peekOfCode": "AUTH_PASSWORD_VALIDATORS = [\n    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},\n    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},\n    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},\n    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},\n]\nPASSWORD_HASHERS = [\n    'django.contrib.auth.hashers.PBKDF2PasswordHasher',        # seguro y por defecto\n    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',    # opcional\n]",
         "detail": "config.settings",
         "documentation": {}
     },
@@ -43928,7 +43984,7 @@
         "kind": 5,
         "importPath": "config.settings",
         "description": "config.settings",
-        "peekOfCode": "PASSWORD_HASHERS = [\n    'django.contrib.auth.hashers.BCryptSHA256Hasher',\n    'django.contrib.auth.hashers.BCryptPasswordHasher',\n    'django.contrib.auth.hashers.PBKDF2PasswordHasher',\n    'django.contrib.auth.hashers.Argon2PasswordHasher',\n]\nBCRYPT_ROUNDS = 12\nLANGUAGE_CODE = 'es'\nTIME_ZONE = 'America/Bogota'\nUSE_I18N = True",
+        "peekOfCode": "PASSWORD_HASHERS = [\n    'django.contrib.auth.hashers.PBKDF2PasswordHasher',        # seguro y por defecto\n    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',    # opcional\n]\nBCRYPT_ROUNDS = 12\nLANGUAGE_CODE = 'es'\nTIME_ZONE = 'America/Bogota'\nUSE_I18N = True\nUSE_TZ = False\nSTATIC_URL = '/static/'",
         "detail": "config.settings",
         "documentation": {}
     },
@@ -44063,7 +44119,7 @@
         "kind": 5,
         "importPath": "config.urls",
         "description": "config.urls",
-        "peekOfCode": "urlpatterns = [\n    path('admin/', admin.site.urls),\n    #Autenticación y Login\n    path('', login_view, name='login'),\n    path('dashboard/', dashboard_view, name='dashboard'),\n    path('logout/', logout_view, name='logout'),\n    #Empleados\n    path('employee/', list_employees, name='list_employees'),\n    #Clientes\n    path('clientes/', list_clients_view, name='list_clients'),",
+        "peekOfCode": "urlpatterns = [\n    path('admin/', admin.site.urls),\n    #Autenticación y Login\n    path('', login_view, name='login'),\n    path('dashboard/', dashboard_view, name='dashboard'),\n    path('logout/', logout_view, name='logout'),\n    #Empleados\n    path('employee/', list_employees, name='list_employees'),\n    path('employee/create/', employee_create_view, name='create_employee'),\n    path('employee/update/<int:employee_id>/', employee_update_view, name='update_employee'),",
         "detail": "config.urls",
         "documentation": {}
     },
@@ -44119,15 +44175,6 @@
         "description": "domain.entities.ticket",
         "peekOfCode": "class Ticket:\n    def __init__(self, vehicle_id, parking_spot_id, employee_id, entry_time):\n        self.vehicle_id = vehicle_id\n        self.parking_spot_id = parking_spot_id\n        self.employee_id = employee_id\n        self.entry_time = entry_time\n        self.status = \"ACTIVE\"",
         "detail": "domain.entities.ticket",
-        "documentation": {}
-    },
-    {
-        "label": "User",
-        "kind": 6,
-        "importPath": "domain.entities.user",
-        "description": "domain.entities.user",
-        "peekOfCode": "class User:\n    def __init__(self,id,username,password,role,is_active =True):\n        self.id = id\n        self.username = username\n        self.password = password\n        self.role = role\n        self.is_active = is_active",
-        "detail": "domain.entities.user",
         "documentation": {}
     },
     {
@@ -44486,16 +44533,34 @@
         "kind": 2,
         "importPath": "infrastructure.views",
         "description": "infrastructure.views",
-        "peekOfCode": "def list_employees(request):\n    repo = DjangoEmployeeRepository()\n    employees = repo.get_all()\n    return render(request, \"list_employees.html\", {\"employees\": employees})\ndef create_employee(request):\n    if request.method == \"POST\":\n        employee = Employee(\n            id=None,\n            name=request.POST[\"name\"],\n            phone=request.POST[\"phone\"],",
+        "peekOfCode": "def list_employees(request):\n    repo = DjangoEmployeeRepository()\n    employees = repo.get_all()\n    return render(request, \"list_employees.html\", {\"employees\": employees})\nfrom django.shortcuts import render, redirect\nfrom django.contrib.auth.hashers import make_password\nfrom .models import EmployeeModel\ndef employee_create_view(request):\n    if request.method == \"POST\":\n        name = request.POST.get(\"name\")",
         "detail": "infrastructure.views",
         "documentation": {}
     },
     {
-        "label": "create_employee",
+        "label": "employee_create_view",
         "kind": 2,
         "importPath": "infrastructure.views",
         "description": "infrastructure.views",
-        "peekOfCode": "def create_employee(request):\n    if request.method == \"POST\":\n        employee = Employee(\n            id=None,\n            name=request.POST[\"name\"],\n            phone=request.POST[\"phone\"],\n            username=request.POST[\"username\"],\n            password=request.POST[\"password\"],\n            role=\"EMPLOYEE\",\n            created_at=None",
+        "peekOfCode": "def employee_create_view(request):\n    if request.method == \"POST\":\n        name = request.POST.get(\"name\")\n        phone = request.POST.get(\"phone\")\n        username = request.POST.get(\"username\")\n        password = request.POST.get(\"password\")\n        role = request.POST.get(\"role\")\n        # Guardar contraseña hasheada\n        hashed_password = make_password(password)\n        EmployeeModel.objects.create(",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "employee_update_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def employee_update_view(request, employee_id):\n    # Obtener el empleado o devolver 404 si no existe\n    employee = get_object_or_404(EmployeeModel, id=employee_id)\n    if request.method == \"POST\":\n        employee.name = request.POST.get(\"name\")\n        employee.phone = request.POST.get(\"phone\")\n        employee.username = request.POST.get(\"username\")\n        role = request.POST.get(\"role\")\n        employee.role = role\n        password = request.POST.get(\"password\")",
+        "detail": "infrastructure.views",
+        "documentation": {}
+    },
+    {
+        "label": "employee_delete_view",
+        "kind": 2,
+        "importPath": "infrastructure.views",
+        "description": "infrastructure.views",
+        "peekOfCode": "def employee_delete_view(request, employee_id):\n    employee = get_object_or_404(EmployeeModel, id=employee_id)\n    if request.method == \"POST\":\n        employee.delete()\n        return redirect(\"/employee/\")\n    # GET: confirmar eliminación\n    context = {\"employee\": employee}\n    return render(request, \"delete_employee.html\", context)\n#GESTIÓN DE CLIENTES\ndef list_clients_view(request):",
         "detail": "infrastructure.views",
         "documentation": {}
     },

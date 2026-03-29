@@ -1,7 +1,7 @@
-{% extends "base/base.html" %}
-{% load static %}
+{% extends "base/base.html" %} 
+{% load static %} 
 
-{% block title %}Dashboard - ParkPlace{% endblock %}
+{% block title %}Dashboard - ParkPlace{% endblock %} 
 
 {% block extra_css %}
 <style>
@@ -21,7 +21,7 @@
     .card h2 { margin: 10px 0 0 0; font-size: 28px; color: #0f172a; }
     .card h4 { margin: 0; color: #64748b; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
     
-    /* Nueva Tarjeta de Clima (Web Service) */
+    /* Barra de Clima */
     .weather-bar {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
@@ -35,17 +35,10 @@
         font-size: 14px;
     }
 
-    /* Tablas internas */
+    /* Tablas */
     table { width: 100%; border-collapse: collapse; }
     table th { text-align: left; padding: 10px; color: #64748b; font-weight: 500; font-size: 12px; text-transform: uppercase; }
     table td { padding: 12px 10px; border-top: 1px solid #e2e8f0; font-size: 14px; }
-
-    .chart-container {
-        position: relative;
-        height: 250px;
-        width: 100%;
-        margin-top: 15px;
-    }
 
     .badge-status {
         padding: 4px 8px;
@@ -55,7 +48,7 @@
         text-transform: uppercase;
     }
 
-    /* Botón de Acción Principal (Correos) */
+    /* Botones */
     .btn-action {
         background: #0f172a;
         color: white;
@@ -67,27 +60,54 @@
         align-items: center;
         gap: 8px;
         transition: 0.3s;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         border: none;
     }
     .btn-action:hover {
         background: #1e293b;
         transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         color: white;
     }
+
+    .btn-import {
+        background: #0ea5e9;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-import:disabled { background: #94a3b8; cursor: not-allowed; }
+
+    .chart-container {
+        position: relative;
+        height: 250px;
+        width: 100%;
+        margin-top: 15px;
+    }
+    .feedback { margin-top: 8px; font-size: 13px; font-weight: 500; }
 </style>
-{% endblock %}
+{% endblock %} 
 
 {% block content %}
-<div class="dashboard-container" style="max-width:1200px; margin:auto;">
-
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+<div class="dashboard-container" style="max-width: 1200px; margin: auto">
+    
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px;">
         <div>
-            <h1 style="margin:0; color: #0f172a; font-weight: 800;">Dashboard</h1>
-            <p style="color:#64748b; margin: 5px 0 0 0;">Resumen operativo y análisis del parqueadero</p>
+            <h1 style="margin: 0; color: #0f172a">Dashboard</h1>
+            <p style="color: #64748b; margin-top: 5px;">Resumen operativo y análisis del parqueadero</p>
+            
+            <div style="margin-top: 15px">
+                <button id="btnImport" class="btn-import" onclick="importarClientes()">
+                    <i class="fa-solid fa-database"></i> Cargar 500 clientes
+                </button>
+                <div id="feedback" class="feedback"></div>
+            </div>
         </div>
-        
+
         <a href="/enviar-recordatorio/" class="btn-action">
             <i class="fa-solid fa-paper-plane"></i>
             Enviar Recordatorio de Cierre
@@ -97,7 +117,7 @@
     <div class="weather-bar">
         <i class="fa-solid fa-cloud-sun fa-lg" style="color: #38bdf8;"></i>
         <span>
-            <strong>Estado del Tiempo (Servicio Externo):</strong> 
+            <strong>Estado del Tiempo:</strong> 
             {{ clima|default:"Cargando datos del clima..." }}
         </span>
     </div>
@@ -197,49 +217,81 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %} 
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const etiquetas = JSON.parse(document.getElementById('tipos-data').textContent);
-        const datos = JSON.parse(document.getElementById('cantidades-data').textContent);
-        const canvas = document.getElementById('vehiculosChart');
+    // Lógica del botón de David
+    function importarClientes() {
+        const btn = document.getElementById("btnImport");
+        const feedback = document.getElementById("feedback");
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Importando...';
+        feedback.innerText = "Conectando con el servicio Java...";
+
+        fetch("/importar-clientes/")
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    feedback.innerText = "✅ " + data.message;
+                    feedback.style.color = "#059669";
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    feedback.innerText = "❌ " + data.message;
+                    feedback.style.color = "#dc2626";
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-database"></i> Cargar 500 clientes';
+                }
+            })
+            .catch(() => {
+                feedback.innerText = "Error de conexión";
+                feedback.style.color = "#dc2626";
+                btn.disabled = false;
+            });
+    }
+
+    // Lógica del Gráfico
+    document.addEventListener("DOMContentLoaded", function () {
+        const etiquetas = JSON.parse(document.getElementById("tipos-data").textContent);
+        const datos = JSON.parse(document.getElementById("cantidades-data").textContent);
+        const canvas = document.getElementById("vehiculosChart");
         if (!canvas) return;
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext("2d");
 
         if (!etiquetas || etiquetas.length === 0) {
             ctx.font = "14px Segoe UI";
             ctx.fillStyle = "#94a3b8";
             ctx.textAlign = "center";
-            ctx.fillText("No hay datos hoy", canvas.width/2, canvas.height/2);
+            ctx.fillText("No hay datos hoy", canvas.width / 2, canvas.height / 2);
             return;
         }
 
         new Chart(ctx, {
-            type: 'doughnut',
+            type: "doughnut",
             data: {
                 labels: etiquetas,
                 datasets: [{
                     data: datos,
-                    backgroundColor: ['#38bdf8', '#818cf8', '#fbbf24', '#34d399', '#f87171'],
+                    backgroundColor: ["#38bdf8", "#818cf8", "#fbbf24", "#34d399", "#f87171"],
                     hoverOffset: 15,
                     borderWidth: 2,
-                    borderColor: '#ffffff'
-                }]
+                    borderColor: "#ffffff",
+                }],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '70%',
+                cutout: "70%",
                 plugins: {
                     legend: {
-                        position: 'bottom',
-                        labels: { usePointStyle: true, padding: 15 }
-                    }
-                }
-            }
+                        position: "bottom",
+                        labels: { usePointStyle: true, padding: 15 },
+                    },
+                },
+            },
         });
     });
 </script>

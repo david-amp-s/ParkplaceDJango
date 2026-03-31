@@ -107,3 +107,20 @@ class Payment(models.Model):
     class Meta:
         db_table = 'payment'
 
+class Tarifa(models.Model):
+    tarifa_carro = models.IntegerField(default=3000)
+    tarifa_moto = models.IntegerField(default=2000)
+    descuento_registrado = models.IntegerField(default=20)  # porcentaje ej: 20 = 20%
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'tarifa'
+
+    @classmethod
+    def get_config(cls):
+        obj, _ = cls.objects.get_or_create(id=1, defaults={
+            'tarifa_carro': 3000,
+            'tarifa_moto': 2000,
+            'descuento_registrado': 20
+        })
+        return obj

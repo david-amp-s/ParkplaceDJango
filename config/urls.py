@@ -82,4 +82,7 @@ urlpatterns = [
 
     #importar-clientes
     path('importar-clientes/', importar_clientes, name='importar_clientes'),
+
+    #tarifa
+    path('tarifas/', views.tarifa_view, name='tarifas'),
 ]

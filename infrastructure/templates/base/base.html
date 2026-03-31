@@ -116,7 +116,7 @@
 
         /* ALERTAS */
         .alert-container {
-            max-width: 1200px;
+            max-width: 500px;
             margin: 0 auto 25px auto;
         }
 
@@ -210,3 +210,19 @@
     {% block extra_js %}{% endblock %}
 </body>
 </html>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+
+            alerts.forEach(alert => {
+                alert.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+                alert.style.opacity = "0";
+                alert.style.transform = "translateY(-10px)";
+
+                setTimeout(() => alert.remove(), 500);
+            });
+
+        }, 3500); // 3 segundos
+    });
+</script>

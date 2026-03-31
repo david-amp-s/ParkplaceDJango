@@ -638,3 +638,34 @@ def importar_clientes(request):
             "success": False,
             "message": str(e)
         }, status=500)
+    
+#tarifa
+
+from .models import Tarifa
+
+@admin_required
+def tarifa_view(request):
+    config = Tarifa.get_config()
+
+    if request.method == 'POST':
+        try:
+            tarifa_carro = int(request.POST.get('tarifa_carro', 0))
+            tarifa_moto = int(request.POST.get('tarifa_moto', 0))
+            descuento = int(request.POST.get('descuento_registrado', 0))
+
+            if tarifa_carro <= 0 or tarifa_moto <= 0:
+                raise ValueError("Las tarifas deben ser mayores a 0")
+            if not (0 <= descuento <= 100):
+                raise ValueError("El descuento debe estar entre 0 y 100")
+
+            config.tarifa_carro = tarifa_carro
+            config.tarifa_moto = tarifa_moto
+            config.descuento_registrado = descuento
+            config.save()
+
+            messages.success(request, "Tarifas actualizadas correctamente.")
+            return redirect('/tarifas/')
+        except ValueError as e:
+            messages.error(request, str(e))
+
+    return render(request, 'tarifas.html', {'config': config})

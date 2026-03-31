@@ -1,0 +1,287 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Tarifas - ParkPlace{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+        border: 1px solid #f1f5f9;
+    }
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control {
+        width: 100%;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 14px;
+        color: #334155;
+        box-sizing: border-box;
+        transition: 0.2s;
+        outline: none;
+    }
+    .form-control:focus {
+        border-color: #0f172a;
+        box-shadow: 0 0 0 3px rgba(15,23,42,0.08);
+    }
+
+    .input-group {
+        display: flex;
+        align-items: center;
+    }
+    .input-prefix {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-right: none;
+        border-radius: 8px 0 0 8px;
+        padding: 12px 15px;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    .input-suffix {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-left: none;
+        border-radius: 0 8px 8px 0;
+        padding: 12px 15px;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    .input-prefix + .form-control { border-radius: 0 8px 8px 0; }
+    .form-control.with-suffix     { border-radius: 8px 0 0 8px; }
+
+    .section-divider {
+        border: none;
+        border-top: 1px solid #e2e8f0;
+        margin: 24px 0;
+    }
+
+    .section-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0 0 18px 0;
+    }
+
+    .preview-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .preview-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 15px;
+        font-size: 14px;
+        color: #334155;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .preview-row:last-child { border-bottom: none; }
+    .preview-row span:last-child {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .btn-primary {
+        background: #0f172a;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.3s;
+        font-size: 14px;
+        text-decoration: none;
+    }
+    .btn-primary:hover { background: #1e293b; color: white; }
+
+    .btn-secondary {
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        border: 1px solid #e2e8f0;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        transition: 0.2s;
+    }
+    .btn-secondary:hover { background: #e2e8f0; color: #0f172a; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px;">
+    <div>
+        <h1 style="color: #0f172a; margin: 0;">Tarifas</h1>
+        <p style="color: #64748b; margin-top: 5px;">Configura las tarifas por hora y el descuento para clientes registrados</p>
+    </div>
+</div>
+
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; align-items: start;">
+
+    <!-- Formulario -->
+    <div class="card">
+        <form method="POST">
+            {% csrf_token %}
+
+            <p class="section-title"><i class="fa-solid fa-sliders"></i> Tarifas por hora</p>
+
+            <div style="margin-bottom: 20px;">
+                <label class="form-label">🚗 Carro</label>
+                <div class="input-group">
+                    <span class="input-prefix">$</span>
+                    <input type="number" name="tarifa_carro" id="tarifa_carro"
+                        class="form-control" value="{{ config.tarifa_carro }}"
+                        min="1" required oninput="actualizarPreview()">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label class="form-label">🏍️ Moto</label>
+                <div class="input-group">
+                    <span class="input-prefix">$</span>
+                    <input type="number" name="tarifa_moto" id="tarifa_moto"
+                        class="form-control" value="{{ config.tarifa_moto }}"
+                        min="1" required oninput="actualizarPreview()">
+                </div>
+            </div>
+
+            <hr class="section-divider">
+
+            <p class="section-title"><i class="fa-solid fa-tag"></i> Descuento clientes registrados</p>
+
+            <div style="margin-bottom: 28px;">
+                <label class="form-label">Porcentaje de descuento</label>
+                <div class="input-group">
+                    <input type="number" name="descuento_registrado" id="descuento_registrado"
+                        class="form-control with-suffix" value="{{ config.descuento_registrado }}"
+                        min="0" max="100" required oninput="actualizarPreview()">
+                    <span class="input-suffix">%</span>
+                </div>
+                <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 0 0;">
+                    Los visitantes pagan tarifa completa.
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar
+                </button>
+                <a href="/dashboard/" class="btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Previews -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+
+        <div class="card">
+            <p class="section-title"><i class="fa-solid fa-calculator"></i> Vista previa — 1 hora</p>
+            <div class="preview-box">
+                <div class="preview-row">
+                    <span>🚗 Carro visitante</span>
+                    <span id="prev-carro-visit">$0</span>
+                </div>
+                <div class="preview-row">
+                    <span>🚗 Carro registrado</span>
+                    <span id="prev-carro-reg">$0</span>
+                </div>
+                <div class="preview-row">
+                    <span>🏍️ Moto visitante</span>
+                    <span id="prev-moto-visit">$0</span>
+                </div>
+                <div class="preview-row">
+                    <span>🏍️ Moto registrada</span>
+                    <span id="prev-moto-reg">$0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <p class="section-title"><i class="fa-solid fa-calculator"></i> Vista previa — 24 horas</p>
+            <div class="preview-box">
+                <div class="preview-row">
+                    <span>🚗 Carro visitante</span>
+                    <span id="prev-carro-visit-24">$0</span>
+                </div>
+                <div class="preview-row">
+                    <span>🚗 Carro registrado</span>
+                    <span id="prev-carro-reg-24">$0</span>
+                </div>
+                <div class="preview-row">
+                    <span>🏍️ Moto visitante</span>
+                    <span id="prev-moto-visit-24">$0</span>
+                </div>
+                <div class="preview-row">
+                    <span>🏍️ Moto registrada</span>
+                    <span id="prev-moto-reg-24">$0</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: right; color: #94a3b8; font-size: 12px;">
+            <i class="fa-regular fa-clock"></i>
+            Última actualización: {{ config.updated_at|date:"d/m/Y H:i" }}
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function fmt(n) {
+        return "$" + Math.round(n).toLocaleString("es-CO");
+    }
+
+    function actualizarPreview() {
+        const carro  = parseInt(document.getElementById("tarifa_carro").value) || 0;
+        const moto   = parseInt(document.getElementById("tarifa_moto").value)  || 0;
+        const desc   = parseInt(document.getElementById("descuento_registrado").value) || 0;
+        const factor = 1 - (desc / 100);
+
+        document.getElementById("prev-carro-visit").textContent    = fmt(carro);
+        document.getElementById("prev-carro-reg").textContent      = fmt(carro * factor);
+        document.getElementById("prev-moto-visit").textContent     = fmt(moto);
+        document.getElementById("prev-moto-reg").textContent       = fmt(moto * factor);
+
+        document.getElementById("prev-carro-visit-24").textContent = fmt(carro * 24);
+        document.getElementById("prev-carro-reg-24").textContent   = fmt(carro * 24 * factor);
+        document.getElementById("prev-moto-visit-24").textContent  = fmt(moto * 24);
+        document.getElementById("prev-moto-reg-24").textContent    = fmt(moto * 24 * factor);
+    }
+
+    document.addEventListener("DOMContentLoaded", actualizarPreview);
+</script>
+{% endblock %}

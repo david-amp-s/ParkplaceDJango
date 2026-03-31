@@ -4,8 +4,9 @@ import os
 import base64
 from datetime import date, timedelta
 from decimal import Decimal
+from .decorators import login_required, admin_required
 
-# Django Core
+#Django Core
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils.timezone import now
@@ -17,16 +18,16 @@ from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 
-# Utilidades e Infraestructura
+#Utilidades e Infraestructura
 from domain.use_cases.client_import_service import ClientImportService
 from infrastructure.utils import render_to_pdf
 from .models import ParkingSpot, Vehicle, Client as ClientModel, Ticket, Client, EmployeeModel
 from .services import WeatherService 
 
-# Formularios
+#Formularios
 from .forms import ClientForm
 
-# Repositorios
+#Repositorios
 from .repositories import (
     DjangoClientRepository,
     DjangoReportRepository,
@@ -37,12 +38,12 @@ from .repositories import (
     DjangoParkingSpotRepository
 )
 
-# Entidades de Dominio
+#Entidades de Dominio
 from domain.entities.employee import Employee
 from domain.entities.client import Client as ClientEntity
 from domain.entities.vehicle import Vehicle as VehicleEntity
 
-# Casos de Uso
+#Casos de Uso
 from domain.use_cases.login_user import LoginUser
 from domain.use_cases.create_client import CreateClient
 from domain.use_cases.create_vehicle import CreateVehicle
@@ -52,7 +53,7 @@ from domain.use_cases.get_history import GetHistory
 from domain.use_cases.close_ticket import CloseTicket
 
 
-# --- AUTENTICACIÓN Y LOGOUT ---
+#AUTENTICACIÓN Y LOGOUT
 
 def login_view(request):
     if request.method == "POST":
@@ -77,8 +78,9 @@ def logout_view(request):
     return redirect("/")
 
 
-# --- DASHBOARD Y ESPACIOS ---
+#DASHBOARD Y ESPACIOS
 
+@login_required
 def dashboard_view(request):
     fecha_hoy = now().date()
     hace_una_semana = fecha_hoy - timedelta(days=7)
@@ -133,6 +135,7 @@ def dashboard_view(request):
     return render(request, "dashboard.html", context)
 
 
+@login_required
 def parking_status_view(request):
     repo = DjangoParkingSpotRepository()
     all_spots_from_db = repo.get_all()
@@ -156,14 +159,16 @@ def parking_status_view(request):
     })
 
 
-# --- GESTIÓN DE EMPLEADOS ---
+#GESTIÓN DE EMPLEADOS
 
+@admin_required
 def list_employees(request):
     repo = DjangoEmployeeRepository()
     employees = repo.get_all()
     return render(request, "list_employees.html", {"employees": employees})
 
 
+@admin_required
 def employee_create_view(request):
     if request.method == "POST":
         name = request.POST.get("name")
@@ -186,6 +191,7 @@ def employee_create_view(request):
     return render(request, "create_employee.html")
 
 
+@admin_required
 def employee_update_view(request, employee_id):
     employee = get_object_or_404(EmployeeModel, id=employee_id)
 
@@ -207,6 +213,7 @@ def employee_update_view(request, employee_id):
     return render(request, "update_employee.html", context)
 
 
+@admin_required
 def employee_delete_view(request, employee_id):
     employee = get_object_or_404(EmployeeModel, id=employee_id)
     
@@ -218,8 +225,9 @@ def employee_delete_view(request, employee_id):
     return render(request, "delete_employee.html", context)
 
 
-# --- GESTIÓN DE CLIENTES ---
+#GESTIÓN DE CLIENTES
 
+@login_required
 def list_clients_view(request):
     query = request.GET.get('q', '').strip()
     clients = ClientModel.objects.all()
@@ -235,6 +243,7 @@ def list_clients_view(request):
     return render(request, 'list_clients.html', context)
 
 
+@login_required
 def create_client_view(request):
     form = ClientForm(request.POST or None)
 
@@ -266,6 +275,7 @@ def create_client_view(request):
     })
 
 
+@login_required
 def edit_client_view(request, id):
     client_obj = get_object_or_404(Client, id=id) 
 
@@ -302,6 +312,7 @@ def edit_client_view(request, id):
     return render(request, 'edit_client.html', {'form': form, 'client': client_obj})
 
 
+@login_required
 def delete_client_view(request, id):
     client_obj = get_object_or_404(Client, id=id)
     
@@ -326,8 +337,9 @@ def delete_client_view(request, id):
     return render(request, 'delete_client.html', {'client': client_obj})
 
 
-# --- GESTIÓN DE VEHÍCULOS ---
+#GESTIÓN DE VEHÍCULOS
 
+@login_required
 def list_vehicles_view(request):
     query = request.GET.get('q', '').strip()
     registrados = Vehicle.objects.exclude(
@@ -352,6 +364,7 @@ def list_vehicles_view(request):
     return render(request, 'list_vehicles.html', context)
 
 
+@login_required
 def create_vehicle_view(request):
     if request.method == 'POST':
         plate = request.POST.get('plate', '').strip().upper()
@@ -396,6 +409,7 @@ def create_vehicle_view(request):
     return render(request, 'create_vehicle.html', {'clients': clients})
 
 
+@login_required
 def edit_vehicle_view(request, id):
     vehicle_obj = get_object_or_404(Vehicle, id=id)
     if request.method == 'POST':
@@ -408,6 +422,7 @@ def edit_vehicle_view(request, id):
     return render(request, 'edit_vehicle.html', {'vehicle': vehicle_obj, 'clients': clients})
 
 
+@login_required
 def delete_vehicle_view(request, id):
     vehicle_obj = get_object_or_404(Vehicle, id=id)
     
@@ -432,8 +447,9 @@ def delete_vehicle_view(request, id):
     return render(request, 'delete_vehicle.html', {'vehicle': vehicle_obj})
 
 
-# --- OPERACIONES DE PARQUEADERO (ENTRADA/SALIDA) ---
+#OPERACIONES DE PARQUEADERO - ENTRADA/SALIDA
 
+@login_required
 def entry_vehicle_view(request):
     if request.method == 'POST':
         plate_text = request.POST.get('license_plate', '').strip().upper()
@@ -468,6 +484,7 @@ def entry_vehicle_view(request):
     return render(request, 'entry_vehicle.html')
 
 
+@login_required
 def exit_vehicle_view(request):
     if request.method == 'POST':
         plate_text = request.POST.get('license_plate', '').strip().upper()
@@ -490,8 +507,9 @@ def exit_vehicle_view(request):
     return render(request, 'exit_vehicle.html')
 
 
-# --- PAGOS E HISTORIAL ---
+#PAGOS E HISTORIAL
 
+@admin_required
 def pay_ticket_view(request):
     if request.method == "POST":
         try:
@@ -508,6 +526,7 @@ def pay_ticket_view(request):
     return render(request, "pay_ticket.html")
 
 
+@login_required
 def history_view(request):
     query = request.GET.get('q')
     repo = DjangoTicketRepository()
@@ -519,8 +538,9 @@ def history_view(request):
     return render(request, 'list_history.html', {'tickets': tickets})
 
 
-# --- CORREOS ---
+#CORREOS
 
+@login_required
 def enviar_recordatorio_cierre(request):
     tickets_activos = Ticket.objects.filter(status="ACTIVE").select_related("vehicle__client")
     mensajes = []
@@ -542,8 +562,9 @@ def enviar_recordatorio_cierre(request):
     return redirect("/dashboard/")
 
 
-# --- REPORTES ---
+#REPORTES
 
+@admin_required
 def reports_view(request):
     repo = DjangoReportRepository()
     finanzas = repo.get_financial_summary()
@@ -574,6 +595,7 @@ def reports_view(request):
     return render(request, "reports.html", context)
 
 
+@login_required
 def export_report_pdf(request):
     repo = DjangoReportRepository()
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -603,6 +625,7 @@ def export_report_pdf(request):
     return render_to_pdf('reports_pdf.html', context)
 
 
+@login_required
 def importar_clientes(request):
     try:
         total = ClientImportService.import_from_java()

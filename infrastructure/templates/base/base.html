@@ -157,10 +157,12 @@
             <a href="/vehiculos/" id="nav-vehiculos"><i class="fa-solid fa-car"></i> Vehículos</a>
             <a href="/historial/" id="nav-historial"><i class="fa-solid fa-clock-rotate-left"></i> Historial</a>
             <a href="/gestion-espacios/" id="nav-espacios"><i class="fa-solid fa-border-all"></i> Espacios</a>
+
+            {% if request.session.role == "ADMIN" %}
             <a href="/reports/" id="nav-reportes"><i class="fa-solid fa-file-invoice-dollar"></i> Reportes</a>
             <a href="/tarifas/" id="nav-tarifas"><i class="fa-solid fa-sack-dollar"></i> Tarifas</a>
-            
             <a href="/employee/" id="nav-empleados"><i class="fa-solid fa-user-tie"></i> Empleados</a>
+            {% endif %}
         </div>
         
         <a href="/logout/" class="logout">
@@ -190,14 +192,14 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        // Lógica para marcar el link activo automáticamente
+
         document.addEventListener("DOMContentLoaded", function() {
             const currentPath = window.location.pathname;
             const menuLinks = document.querySelectorAll('.sidebar-menu a');
             
             menuLinks.forEach(link => {
                 const href = link.getAttribute('href');
-                // Si la ruta actual empieza con el href del link, lo activamos
+  
                 if (href !== '#' && currentPath.startsWith(href)) {
                     link.classList.add('active');
                 }

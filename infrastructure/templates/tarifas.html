@@ -12,7 +12,6 @@
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
         border: 1px solid #f1f5f9;
     }
-
     .form-label {
         font-size: 13px;
         font-weight: 600;
@@ -22,7 +21,6 @@
         margin-bottom: 8px;
         display: block;
     }
-
     .form-control {
         width: 100%;
         border: 1px solid #e2e8f0;
@@ -38,11 +36,7 @@
         border-color: #0f172a;
         box-shadow: 0 0 0 3px rgba(15,23,42,0.08);
     }
-
-    .input-group {
-        display: flex;
-        align-items: center;
-    }
+    .input-group { display: flex; align-items: center; }
     .input-prefix {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
@@ -65,13 +59,7 @@
     }
     .input-prefix + .form-control { border-radius: 0 8px 8px 0; }
     .form-control.with-suffix     { border-radius: 8px 0 0 8px; }
-
-    .section-divider {
-        border: none;
-        border-top: 1px solid #e2e8f0;
-        margin: 24px 0;
-    }
-
+    .section-divider { border: none; border-top: 1px solid #e2e8f0; margin: 24px 0; }
     .section-title {
         font-size: 13px;
         font-weight: 700;
@@ -80,13 +68,7 @@
         letter-spacing: 0.5px;
         margin: 0 0 18px 0;
     }
-
-    .preview-box {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        overflow: hidden;
-    }
+    .preview-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
     .preview-row {
         display: flex;
         justify-content: space-between;
@@ -97,43 +79,34 @@
         border-bottom: 1px solid #f1f5f9;
     }
     .preview-row:last-child { border-bottom: none; }
-    .preview-row span:last-child {
-        font-weight: 700;
-        color: #0f172a;
-    }
-
+    .preview-row span:last-child { font-weight: 700; color: #0f172a; }
     .btn-primary {
-        background: #0f172a;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 6px;
-        font-weight: 600;
-        border: none;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: 0.3s;
-        font-size: 14px;
-        text-decoration: none;
+        background: #0f172a; color: white; padding: 10px 20px; border-radius: 6px;
+        font-weight: 600; border: none; cursor: pointer; display: inline-flex;
+        align-items: center; gap: 8px; transition: 0.3s; font-size: 14px; text-decoration: none;
     }
     .btn-primary:hover { background: #1e293b; color: white; }
-
     .btn-secondary {
-        background: #f1f5f9;
-        color: #64748b;
-        padding: 10px 20px;
-        border-radius: 6px;
-        font-weight: 600;
-        border: 1px solid #e2e8f0;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 14px;
-        transition: 0.2s;
+        background: #f1f5f9; color: #64748b; padding: 10px 20px; border-radius: 6px;
+        font-weight: 600; border: 1px solid #e2e8f0; text-decoration: none;
+        display: inline-flex; align-items: center; gap: 8px; font-size: 14px; transition: 0.2s;
     }
     .btn-secondary:hover { background: #e2e8f0; color: #0f172a; }
+    .desc-badge {
+        display: inline-block; font-size: 11px; padding: 2px 8px;
+        border-radius: 20px; font-weight: 600; margin-left: 6px; vertical-align: middle;
+    }
+    .badge-sena       { background: #dcfce7; color: #16a34a; }
+    .badge-trabajador { background: #dbeafe; color: #1d4ed8; }
+    .badge-regular    { background: #f1f5f9; color: #64748b; }
+    .scenario-tabs { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .tab-btn {
+        padding: 6px 14px; border-radius: 20px; border: 1px solid #e2e8f0;
+        background: #f8fafc; color: #64748b; font-size: 12px; font-weight: 600;
+        cursor: pointer; transition: 0.2s;
+    }
+    .tab-btn.active, .tab-btn:hover { background: #0f172a; color: #fff; border-color: #0f172a; }
+    .scenario-note { font-size: 11px; color: #94a3b8; margin-bottom: 14px; }
 </style>
 {% endblock %}
 
@@ -142,10 +115,9 @@
 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px;">
     <div>
         <h1 style="color: #0f172a; margin: 0;">Tarifas</h1>
-        <p style="color: #64748b; margin-top: 5px;">Configura las tarifas por hora y el descuento para clientes registrados</p>
+        <p style="color: #64748b; margin-top: 5px;">Configura las tarifas por hora y los descuentos según tipo de cliente</p>
     </div>
 </div>
-
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; align-items: start;">
 
@@ -155,6 +127,9 @@
             {% csrf_token %}
 
             <p class="section-title"><i class="fa-solid fa-sliders"></i> Tarifas por hora</p>
+            <p style="font-size:12px; color:#94a3b8; margin-top:-12px; margin-bottom:16px;">
+                El cobro se realiza por minuto (tarifa hora ÷ 60).
+            </p>
 
             <div style="margin-bottom: 20px;">
                 <label class="form-label">🚗 Carro</label>
@@ -178,20 +153,41 @@
 
             <hr class="section-divider">
 
-            <p class="section-title"><i class="fa-solid fa-tag"></i> Descuento clientes registrados</p>
+            <p class="section-title"><i class="fa-solid fa-tag"></i> Descuentos por tipo de cliente</p>
 
-            <div style="margin-bottom: 28px;">
-                <label class="form-label">Porcentaje de descuento</label>
+            <div style="margin-bottom: 16px;">
+                <label class="form-label">Cliente regular <span class="desc-badge badge-regular">REGULAR</span></label>
                 <div class="input-group">
                     <input type="number" name="descuento_registrado" id="descuento_registrado"
                         class="form-control with-suffix" value="{{ config.descuento_registrado }}"
                         min="0" max="100" required oninput="actualizarPreview()">
                     <span class="input-suffix">%</span>
                 </div>
-                <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 0 0;">
-                    Los visitantes pagan tarifa completa.
-                </p>
             </div>
+
+            <div style="margin-bottom: 16px;">
+                <label class="form-label">Aprendiz SENA <span class="desc-badge badge-sena">SENA</span></label>
+                <div class="input-group">
+                    <input type="number" name="descuento_sena" id="descuento_sena"
+                        class="form-control with-suffix" value="{{ config.descuento_sena }}"
+                        min="0" max="100" required oninput="actualizarPreview()">
+                    <span class="input-suffix">%</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 28px;">
+                <label class="form-label">Trabajador <span class="desc-badge badge-trabajador">TRABAJADOR</span></label>
+                <div class="input-group">
+                    <input type="number" name="descuento_trabajador" id="descuento_trabajador"
+                        class="form-control with-suffix" value="{{ config.descuento_trabajador }}"
+                        min="0" max="100" required oninput="actualizarPreview()">
+                    <span class="input-suffix">%</span>
+                </div>
+            </div>
+
+            <p style="font-size: 12px; color: #94a3b8; margin-top: -18px; margin-bottom: 20px;">
+                Los visitantes siempre pagan tarifa completa.
+            </p>
 
             <div style="display: flex; gap: 10px;">
                 <button type="submit" class="btn-primary">
@@ -202,58 +198,39 @@
         </form>
     </div>
 
-    <!-- Previews -->
+    <!-- Preview -->
     <div style="display: flex; flex-direction: column; gap: 20px;">
-
         <div class="card">
-            <p class="section-title"><i class="fa-solid fa-calculator"></i> Vista previa — 1 hora</p>
-            <div class="preview-box">
-                <div class="preview-row">
-                    <span>🚗 Carro visitante</span>
-                    <span id="prev-carro-visit">$0</span>
-                </div>
-                <div class="preview-row">
-                    <span>🚗 Carro registrado</span>
-                    <span id="prev-carro-reg">$0</span>
-                </div>
-                <div class="preview-row">
-                    <span>🏍️ Moto visitante</span>
-                    <span id="prev-moto-visit">$0</span>
-                </div>
-                <div class="preview-row">
-                    <span>🏍️ Moto registrada</span>
-                    <span id="prev-moto-reg">$0</span>
-                </div>
-            </div>
-        </div>
+            <p class="section-title"><i class="fa-solid fa-calculator"></i> Simulador de cobro</p>
 
-        <div class="card">
-            <p class="section-title"><i class="fa-solid fa-calculator"></i> Vista previa — 24 horas</p>
-            <div class="preview-box">
-                <div class="preview-row">
-                    <span>🚗 Carro visitante</span>
-                    <span id="prev-carro-visit-24">$0</span>
-                </div>
-                <div class="preview-row">
-                    <span>🚗 Carro registrado</span>
-                    <span id="prev-carro-reg-24">$0</span>
-                </div>
-                <div class="preview-row">
-                    <span>🏍️ Moto visitante</span>
-                    <span id="prev-moto-visit-24">$0</span>
-                </div>
-                <div class="preview-row">
-                    <span>🏍️ Moto registrada</span>
-                    <span id="prev-moto-reg-24">$0</span>
-                </div>
+            <div class="scenario-tabs">
+                <button class="tab-btn active" onclick="setScenario(this, 30, 3)">Mes</button>
+                <button class="tab-btn" onclick="setScenario(this, 1, 20)">Día</button>
+                <button class="tab-btn" onclick="setScenario(this, 1, 1)">Hora</button>
             </div>
+
+            <p class="scenario-note" id="scenario-desc"></p>
+
+            <div class="preview-box">
+                <div class="preview-row"><span>🚗 Carro visitante</span>  <span id="p-cv">$0</span></div>
+                <div class="preview-row"><span>🚗 Carro regular</span>    <span id="p-cr">$0</span></div>
+                <div class="preview-row"><span>🚗 Carro SENA</span>       <span id="p-cs">$0</span></div>
+                <div class="preview-row"><span>🚗 Carro trabajador</span> <span id="p-ct">$0</span></div>
+                <div class="preview-row"><span>🏍️ Moto visitante</span>  <span id="p-mv">$0</span></div>
+                <div class="preview-row"><span>🏍️ Moto regular</span>    <span id="p-mr">$0</span></div>
+                <div class="preview-row"><span>🏍️ Moto SENA</span>       <span id="p-ms">$0</span></div>
+                <div class="preview-row"><span>🏍️ Moto trabajador</span> <span id="p-mt">$0</span></div>
+            </div>
+
+            <p style="font-size:11px; color:#94a3b8; margin-top:10px;" id="mes-nota" hidden>
+                * Incluye 50% de descuento adicional por tarifa mensual.
+            </p>
         </div>
 
         <div style="text-align: right; color: #94a3b8; font-size: 12px;">
             <i class="fa-regular fa-clock"></i>
             Última actualización: {{ config.updated_at|date:"d/m/Y H:i" }}
         </div>
-
     </div>
 </div>
 
@@ -261,27 +238,60 @@
 
 {% block extra_js %}
 <script>
+    let scenarioDays  = 30;
+    let scenarioHours = 3;
+    let scenarioMes   = true;
+
+    const scenarioLabels = {
+        '30-3':  '30 días',
+        '1-20':  'Un día completo',
+        '1-1':   'Una hora completa'
+    };
+
     function fmt(n) {
         return "$" + Math.round(n).toLocaleString("es-CO");
     }
 
-    function actualizarPreview() {
-        const carro  = parseInt(document.getElementById("tarifa_carro").value) || 0;
-        const moto   = parseInt(document.getElementById("tarifa_moto").value)  || 0;
-        const desc   = parseInt(document.getElementById("descuento_registrado").value) || 0;
-        const factor = 1 - (desc / 100);
+    function setScenario(btn, days, hours) {
+        scenarioDays  = days;
+        scenarioHours = hours;
+        scenarioMes   = (days === 30);
 
-        document.getElementById("prev-carro-visit").textContent    = fmt(carro);
-        document.getElementById("prev-carro-reg").textContent      = fmt(carro * factor);
-        document.getElementById("prev-moto-visit").textContent     = fmt(moto);
-        document.getElementById("prev-moto-reg").textContent       = fmt(moto * factor);
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
 
-        document.getElementById("prev-carro-visit-24").textContent = fmt(carro * 24);
-        document.getElementById("prev-carro-reg-24").textContent   = fmt(carro * 24 * factor);
-        document.getElementById("prev-moto-visit-24").textContent  = fmt(moto * 24);
-        document.getElementById("prev-moto-reg-24").textContent    = fmt(moto * 24 * factor);
+        document.getElementById("scenario-desc").textContent = scenarioLabels[`${days}-${hours}`] || "";
+        document.getElementById("mes-nota").hidden = !scenarioMes;
+
+        actualizarPreview();
     }
 
-    document.addEventListener("DOMContentLoaded", actualizarPreview);
+    function actualizarPreview() {
+        const carro = parseInt(document.getElementById("tarifa_carro").value) || 0;
+        const moto  = parseInt(document.getElementById("tarifa_moto").value)  || 0;
+        const dReg  = parseInt(document.getElementById("descuento_registrado").value) || 0;
+        const dSena = parseInt(document.getElementById("descuento_sena").value) || 0;
+        const dTrab = parseInt(document.getElementById("descuento_trabajador").value) || 0;
+
+        const fReg  = 1 - dReg  / 100;
+        const fSena = 1 - dSena / 100;
+        const fTrab = 1 - dTrab / 100;
+        const fMes  = scenarioMes ? 0.5 : 1;
+
+        const totalHoras = scenarioDays * scenarioHours;
+
+        document.getElementById("p-cv").textContent = fmt(carro * totalHoras * fMes);
+        document.getElementById("p-cr").textContent = fmt(carro * totalHoras * fReg  * fMes);
+        document.getElementById("p-cs").textContent = fmt(carro * totalHoras * fSena * fMes);
+        document.getElementById("p-ct").textContent = fmt(carro * totalHoras * fTrab * fMes);
+        document.getElementById("p-mv").textContent = fmt(moto  * totalHoras * fMes);
+        document.getElementById("p-mr").textContent = fmt(moto  * totalHoras * fReg  * fMes);
+        document.getElementById("p-ms").textContent = fmt(moto  * totalHoras * fSena * fMes);
+        document.getElementById("p-mt").textContent = fmt(moto  * totalHoras * fTrab * fMes);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        setScenario(document.querySelector(".tab-btn.active"), 30, 3);
+    });
 </script>
 {% endblock %}

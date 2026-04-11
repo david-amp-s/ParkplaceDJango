@@ -7,11 +7,9 @@
     .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
     .btn { padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; cursor: pointer; border: none; display: inline-block; transition: 0.3s; }
     
-    /* Botón principal azul ParkPlace */
     .btn-primary { background: #0f172a; color: white; border: 1px solid #1e293b; }
     .btn-primary:hover { background: #1e293b; }
 
-    /* Buscador Consistente */
     .search-container { 
         background: white; 
         padding: 15px; 
@@ -31,11 +29,12 @@
     }
     .search-input:focus { border-color: #0f172a; }
 
-    /* Botón Editar - Azul profesional */
+    .btn-profile { background: #4a81ff; color: white; padding: 5px 12px; font-size: 12px; text-decoration: none; border-radius: 4px; }
+    .btn-profile:hover { background: #1e293b; }
+
     .btn-edit { background: #1e40af; color: white; padding: 5px 12px; font-size: 12px; text-decoration: none; border-radius: 4px; }
     .btn-edit:hover { background: #1e3a8a; }
 
-    /* Botón Eliminar - Sutil */
     .btn-delete { 
         color: #94a3b8; 
         padding: 5px 10px; 
@@ -56,18 +55,10 @@
     td { padding: 14px 15px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 14px; }
     tr:hover { background-color: #f8fafc; }
 
-    /* Badge SENA */
-    .badge-sena { 
-        background: #39a900; 
-        color: white; 
-        padding: 4px 10px; 
-        border-radius: 12px; 
-        font-size: 10px; 
-        font-weight: bold; 
-        display: inline-flex; 
-        align-items: center; 
-        gap: 4px; 
-        border: none;
+    .client-type {
+        color: #94a3b8;
+        font-size: 13px;
+        font-style: italic;
     }
 </style>
 {% endblock %}
@@ -101,19 +92,16 @@
         <tr>
             <td><strong>{{ client.name }}</strong></td>
             <td>
-                {% if client.client_type == "SENA" %}
-                    <span class="badge-sena">
-                        🎓 Aprendiz SENA
-                    </span>
-                {% else %}
-                    <span style="color: #94a3b8; font-size: 13px; font-style: italic;">👤 Regular</span>
-                {% endif %}
+                <span class="client-type">
+                    👤 {{ client.client_type }}
+                </span>
             </td>
             <td>{{ client.phone }}</td>
             <td>{{ client.email|default:"-" }}</td>
-            <td style="text-align: center;">
-                <a href="/clientes/edit/{{ client.id }}/" class="btn btn-edit">Editar</a>
-                <a href="/clientes/delete/{{ client.id }}/" class="btn btn-delete">Eliminar</a>
+            <td style="text-align: center; display: flex; gap: 6px; justify-content: center;">
+                <a href="/clientes/{{ client.id }}/perfil/" class="btn-profile">Ver Perfil</a>
+                <a href="/clientes/edit/{{ client.id }}/" class="btn-edit">Editar</a>
+                <a href="/clientes/delete/{{ client.id }}/" class="btn-delete">Eliminar</a>
             </td>
         </tr>
         {% empty %}

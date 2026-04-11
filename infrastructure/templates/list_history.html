@@ -5,13 +5,11 @@
 
 {% block extra_css %}
 <style>
-    /* Consistencia con Gestión de Vehículos */
     .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
     .btn { padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; cursor: pointer; border: none; display: inline-block; transition: 0.3s; }
     .btn-primary { background: #0f172a; color: white; }
     .btn-primary:hover { background: #1e293b; }
 
-    /* Buscador Idéntico al de Vehículos */
     .search-container { 
         background: white; 
         padding: 15px; 
@@ -19,7 +17,8 @@
         box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
         margin-bottom: 25px; 
         display: flex; 
-        gap: 10px; 
+        gap: 10px;
+        flex-wrap: wrap;
     }
     .search-input { 
         flex-grow: 1; 
@@ -30,8 +29,16 @@
         font-size: 14px; 
     }
     .search-input:focus { border-color: #0f172a; }
+    .date-input {
+        padding: 10px 15px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        outline: none;
+        font-size: 14px;
+        color: #334155;
+    }
+    .date-input:focus { border-color: #0f172a; }
 
-    /* Estilo de Tabla Consistente */
     table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
     th { background: #f8fafc; color: #64748b; text-align: left; padding: 15px 20px; border-bottom: 1px solid #e2e8f0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
     td { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 14px; vertical-align: middle; }
@@ -58,12 +65,20 @@
         text-transform: uppercase;
     }
 
-    /* Badges de Estado */
     .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
     .badge-active { background: #dcfce7; color: #166534; }
     .badge-closed { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
 
     tr:hover { background-color: #f8fafc; }
+
+    col.col-placa       { width: 110px; }
+    col.col-tipo        { width: 90px; }
+    col.col-propietario { width: 80px; }
+    col.col-espacio     { width: 20px; }
+    col.col-entrada     { width: 150px; }
+    col.col-salida      { width: 150px; }
+    col.col-total       { width: 90px; }
+    col.col-estado      { width: 110px; }
 </style>
 {% endblock %}
 
@@ -73,19 +88,32 @@
 </div>
 
 <form method="GET" action="/historial/" class="search-container">
-    <input type="text" name="q" class="search-input" placeholder="Buscar por placa o propietario..." value="{{ request.GET.q|default:'' }}">
+    <input type="text" name="q" class="search-input" placeholder="Buscar por placa o propietario..." value="{{ query|default:'' }}">
+    <input type="date" name="fecha_inicio" class="date-input" value="{{ fecha_inicio|default:'' }}">
+    <input type="date" name="fecha_fin" class="date-input" value="{{ fecha_fin|default:'' }}">
     <button type="submit" class="btn btn-primary">Buscar</button>
-    {% if request.GET.q %}
+    {% if query or fecha_inicio or fecha_fin %}
         <a href="/historial/" class="btn" style="background: #f1f5f9; color: #64748b;">Limpiar</a>
     {% endif %}
 </form>
 
 <table>
+    <colgroup>
+        <col class="col-placa">
+        <col class="col-tipo">
+        <col class="col-propietario">
+        <col class="col-espacio">
+        <col class="col-entrada">
+        <col class="col-salida">
+        <col class="col-total">
+        <col class="col-estado">
+    </colgroup>
     <thead>
         <tr>
             <th>Placa</th>
             <th>Tipo</th>
             <th>Propietario</th>
+            <th style="text-align: center;">Espacio</th>
             <th>Entrada</th>
             <th>Salida</th>
             <th>Total</th>
@@ -98,6 +126,13 @@
             <td><span class="plate-badge">{{ ticket.vehicle.license_plate }}</span></td>
             <td><span class="type-tag">{{ ticket.vehicle.get_type_display|default:ticket.vehicle.type }}</span></td>
             <td><strong>{{ ticket.vehicle.client.name|default:"Visitante" }}</strong></td>
+            <td style="text-align: center;">
+                {% if ticket.parking_spot %}
+                    <span class="type-tag">#{{ ticket.parking_spot.number }}</span>
+                {% else %}
+                    <span style="color: #cbd5e1;">--</span>
+                {% endif %}
+            </td>
             <td style="color: #64748b;">{{ ticket.entry_time|date:"d/m/Y H:i" }}</td>
             <td style="color: #64748b;">
                 {% if ticket.exit_time %}
@@ -123,7 +158,7 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;">
+            <td colspan="8" style="text-align: center; padding: 40px; color: #94a3b8;">
                 No se encontraron movimientos.
             </td>
         </tr>

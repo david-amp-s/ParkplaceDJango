@@ -63,7 +63,8 @@ class DjangoClientRepository:
         return ClientModel.objects.create(
             name=client.name,
             phone=client.phone,
-            email=client.email
+            email=client.email,
+            client_type=client.client_type
         )
 
     def get_all(self):

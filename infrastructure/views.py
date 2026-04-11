@@ -2,27 +2,28 @@ import re
 import traceback
 import os
 import base64
+import math
 from datetime import date, timedelta
 from decimal import Decimal
 from .decorators import login_required, admin_required
 
-#Django Core
+#Django
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils.timezone import now
 from django.db.models import Q, Sum, Count, DecimalField
 from django.db.models.functions import Coalesce
 from django.db import IntegrityError
-from django.core.mail import send_mass_mail
+from django.core.mail import send_mass_mail, EmailMessage
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 
 #Utilidades e Infraestructura
 from domain.use_cases.client_import_service import ClientImportService
 from infrastructure.utils import render_to_pdf
-from .models import ParkingSpot, Vehicle, Client as ClientModel, Ticket, Client, EmployeeModel
-from .services import WeatherService 
+from .models import ParkingSpot, Vehicle, Client as ClientModel, Ticket, Client, EmployeeModel, Tarifa
+from .services import WeatherService
 
 #Formularios
 from .forms import ClientForm
@@ -52,7 +53,6 @@ from domain.use_cases.create_ticket import CreateTicket
 from domain.use_cases.get_history import GetHistory
 from domain.use_cases.close_ticket import CloseTicket
 
-
 #AUTENTICACIÓN Y LOGOUT
 
 def login_view(request):
@@ -77,8 +77,7 @@ def logout_view(request):
     request.session.flush()
     return redirect("/")
 
-
-#DASHBOARD Y ESPACIOS
+#DASHBOARD
 
 @login_required
 def dashboard_view(request):
@@ -86,7 +85,7 @@ def dashboard_view(request):
     hace_una_semana = fecha_hoy - timedelta(days=7)
 
     vehiculos_hoy = Ticket.objects.filter(created_at__date=fecha_hoy).count()
-    
+
     ingresos_hoy = Ticket.objects.filter(
         exit_time__date=fecha_hoy,
         status="CLOSED"
@@ -134,6 +133,7 @@ def dashboard_view(request):
 
     return render(request, "dashboard.html", context)
 
+#ESPACIOS
 
 @login_required
 def parking_status_view(request):
@@ -158,8 +158,7 @@ def parking_status_view(request):
         "all_spots": spots_with_info
     })
 
-
-#GESTIÓN DE EMPLEADOS
+#GESTION DE EMPLEADOS
 
 @admin_required
 def list_employees(request):
@@ -216,16 +215,15 @@ def employee_update_view(request, employee_id):
 @admin_required
 def employee_delete_view(request, employee_id):
     employee = get_object_or_404(EmployeeModel, id=employee_id)
-    
+
     if request.method == "POST":
         employee.delete()
         return redirect("/employee/")
-    
+
     context = {"employee": employee}
     return render(request, "delete_employee.html", context)
 
-
-#GESTIÓN DE CLIENTES
+#GESTION DE CLIENTES
 
 @login_required
 def list_clients_view(request):
@@ -239,7 +237,7 @@ def list_clients_view(request):
         'clients': clients.order_by('id'),
         'query': query
     }
-    
+
     return render(request, 'list_clients.html', context)
 
 
@@ -262,7 +260,8 @@ def create_client_view(request):
             use_case.execute(
                 nombre,
                 data['phone'],
-                data.get('email')
+                data.get('email'),
+                data.get('client_type', 'REGULAR')
             )
 
             messages.success(request, "Cliente creado correctamente")
@@ -277,7 +276,7 @@ def create_client_view(request):
 
 @login_required
 def edit_client_view(request, id):
-    client_obj = get_object_or_404(Client, id=id) 
+    client_obj = get_object_or_404(Client, id=id)
 
     if request.method == 'POST':
         form = ClientForm(request.POST)
@@ -292,7 +291,7 @@ def edit_client_view(request, id):
             client_obj.name = nuevo_nombre
             client_obj.phone = data['phone']
             client_obj.email = data.get('email')
-            
+
             if 'client_type' in data:
                 client_obj.client_type = data['client_type']
 
@@ -315,29 +314,28 @@ def edit_client_view(request, id):
 @login_required
 def delete_client_view(request, id):
     client_obj = get_object_or_404(Client, id=id)
-    
+
     if request.method == 'POST':
         tiene_movimiento_activo = Ticket.objects.filter(
-            vehicle__client=client_obj, 
+            vehicle__client=client_obj,
             status='ACTIVE'
         ).exists()
 
         if tiene_movimiento_activo:
             messages.error(
-                request, 
+                request,
                 f"No se puede eliminar a {client_obj.name} porque uno de sus vehículos está actualmente en el parqueadero."
             )
             return redirect('/clientes/')
 
-        nombre_cliente = client_obj.name 
+        nombre_cliente = client_obj.name
         client_obj.delete()
         messages.success(request, f"Cliente {nombre_cliente} eliminado correctamente.")
         return redirect('/clientes/')
 
     return render(request, 'delete_client.html', {'client': client_obj})
 
-
-#GESTIÓN DE VEHÍCULOS
+#GESTION DE VEHICULOS
 
 @login_required
 def list_vehicles_view(request):
@@ -360,7 +358,7 @@ def list_vehicles_view(request):
         'visitantes': visitantes.order_by('-id'),
         'query': query
     }
-    
+
     return render(request, 'list_vehicles.html', context)
 
 
@@ -425,16 +423,16 @@ def edit_vehicle_view(request, id):
 @login_required
 def delete_vehicle_view(request, id):
     vehicle_obj = get_object_or_404(Vehicle, id=id)
-    
+
     if request.method == 'POST':
         esta_en_parqueadero = Ticket.objects.filter(
-            vehicle=vehicle_obj, 
+            vehicle=vehicle_obj,
             status='ACTIVE'
         ).exists()
 
         if esta_en_parqueadero:
             messages.error(
-                request, 
+                request,
                 f"No se puede eliminar el vehículo {vehicle_obj.license_plate} porque tiene un proceso activo."
             )
             return redirect('/vehiculos/')
@@ -446,8 +444,7 @@ def delete_vehicle_view(request, id):
 
     return render(request, 'delete_vehicle.html', {'vehicle': vehicle_obj})
 
-
-#OPERACIONES DE PARQUEADERO - ENTRADA/SALIDA
+#GESTION DE INGRESO Y SALIDA
 
 @login_required
 def entry_vehicle_view(request):
@@ -490,24 +487,75 @@ def exit_vehicle_view(request):
         plate_text = request.POST.get('license_plate', '').strip().upper()
 
         if len(plate_text) > 6:
-            messages.error(request, "La placa es inválida")
+            messages.error(request, "La placa es inválida.")
             return redirect('/salida/')
 
         try:
             vehicle_obj = Vehicle.objects.get(license_plate=plate_text)
-            use_case = CloseTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
-            total = use_case.execute(vehicle_obj)
-            messages.success(request, f"Salida Registrada - Total: ${total}")
-            return redirect('/salida/')
+
+            use_case = CloseTicket(
+                DjangoTicketRepository(),
+                DjangoParkingSpotRepository()
+            )
+            ticket = use_case.execute(vehicle_obj)
+
+            duracion = ticket.exit_time - ticket.entry_time
+            minutos = math.ceil(duracion.total_seconds() / 60)
+
+            context = {
+                "ticket": ticket,
+                "vehicle": vehicle_obj,
+                "cliente": vehicle_obj.client,
+                "minutos": minutos,
+                "fecha_entrada": ticket.entry_time,
+                "fecha_salida": ticket.exit_time,
+                "total": ticket.total_paid,
+            }
+
+            pdf = render_to_pdf('factura_pdf.html', context)
+            cliente = vehicle_obj.client
+
+            if pdf and cliente and cliente.email:
+                try:
+                    email = EmailMessage(
+                        subject="Factura ParkPlace",
+                        body=f"""
+Hola {cliente.name},
+
+Tu vehículo con placa {vehicle_obj.license_plate} ha salido del parqueadero.
+
+Adjuntamos tu factura.
+""",
+                        from_email=settings.EMAIL_HOST_USER,
+                        to=[cliente.email],
+                    )
+                    email.attach(
+                        f"factura_{plate_text}_{ticket.id}.pdf",
+                        pdf,
+                        "application/pdf"
+                    )
+                    email.send()
+                except Exception as e:
+                    print("Error enviando correo:", e)
+
+            return redirect(f'/salida/?ticket_id={ticket.id}&total={ticket.total_paid}&placa={plate_text}')
+
         except Vehicle.DoesNotExist:
-            messages.error(request, f"La placa {plate_text} no existe")
+            messages.error(request, f"No se encontró ningún vehículo con la placa {plate_text}.")
         except Exception as e:
             messages.error(request, str(e))
 
-    return render(request, 'exit_vehicle.html')
+    ticket_id = request.GET.get('ticket_id')
+    total = request.GET.get('total')
+    placa = request.GET.get('placa')
 
+    return render(request, 'exit_vehicle.html', {
+        'ticket_id': ticket_id,
+        'total': total,
+        'placa': placa,
+    })
 
-#PAGOS E HISTORIAL
+#TICKET
 
 @admin_required
 def pay_ticket_view(request):
@@ -525,20 +573,34 @@ def pay_ticket_view(request):
             return render(request, "pay_ticket.html", {"error": str(e)})
     return render(request, "pay_ticket.html")
 
+#HISTORIAL
 
 @login_required
 def history_view(request):
-    query = request.GET.get('q')
+    query = request.GET.get('q', '').strip()
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+
     repo = DjangoTicketRepository()
+    tickets = Ticket.objects.all().order_by('-created_at')
+
     if query:
-        tickets = repo.filter_by_plate(query)
-    else:
-        use_case = GetHistory(repo)
-        tickets = use_case.execute()
-    return render(request, 'list_history.html', {'tickets': tickets})
+        tickets = tickets.filter(vehicle__license_plate__icontains=query)
 
+    if fecha_inicio:
+        tickets = tickets.filter(created_at__date__gte=fecha_inicio)
 
-#CORREOS
+    if fecha_fin:
+        tickets = tickets.filter(created_at__date__lte=fecha_fin)
+
+    return render(request, 'list_history.html', {
+        'tickets': tickets,
+        'query': query,
+        'fecha_inicio': fecha_inicio,
+        'fecha_fin': fecha_fin,
+    })
+
+#CORREO DE AVISO DE CIERRE
 
 @login_required
 def enviar_recordatorio_cierre(request):
@@ -548,19 +610,18 @@ def enviar_recordatorio_cierre(request):
     for t in tickets_activos:
         cliente = t.vehicle.client
         if cliente.email:
-            subject = "⏰ Parqueadero ParkPlace"
-            message = f"Hola {cliente.name}, tu vehículo con placa {t.vehicle.license_plate} sigue aquí. Faltan 20 min para el cierre."
+            subject = "Parqueadero ParkPlace"
+            message = f"Hola {cliente.name}, tu vehículo con placa {t.vehicle.license_plate} sigue aquí. Faltan 20 min para el cierre. ⏰"
             mensajes.append((
                 subject, message, settings.EMAIL_HOST_USER, [cliente.email]
             ))
 
     if mensajes:
         send_mass_mail(mensajes, fail_silently=False)
-        messages.success(request, "📩 Correos enviados")
+        messages.success(request, "Correos enviados")
     else:
         messages.warning(request, "No hay clientes con email")
     return redirect("/dashboard/")
-
 
 #REPORTES
 
@@ -594,13 +655,14 @@ def reports_view(request):
     }
     return render(request, "reports.html", context)
 
+#REPORTES PDF
 
 @login_required
 def export_report_pdf(request):
     repo = DjangoReportRepository()
     current_dir = os.path.dirname(os.path.abspath(__file__))
     path_al_logo = os.path.join(current_dir, 'assets', 'pezokoi.png')
-    
+
     try:
         with open(path_al_logo, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
@@ -622,8 +684,15 @@ def export_report_pdf(request):
         "hoy": date.today(),
         "logo_base64": logo_base64
     }
-    return render_to_pdf('reports_pdf.html', context)
 
+    pdf = render_to_pdf('reports_pdf.html', context)
+
+    if pdf:
+        return HttpResponse(pdf, content_type='application/pdf')
+
+    return HttpResponse("Error generando PDF", status=500)
+
+#CARGA MASIVA DE DATOS
 
 @login_required
 def importar_clientes(request):
@@ -638,10 +707,8 @@ def importar_clientes(request):
             "success": False,
             "message": str(e)
         }, status=500)
-    
-#tarifa
 
-from .models import Tarifa
+#TARIFA
 
 @admin_required
 def tarifa_view(request):
@@ -669,3 +736,56 @@ def tarifa_view(request):
             messages.error(request, str(e))
 
     return render(request, 'tarifas.html', {'config': config})
+
+#FACTURA PDF
+
+@login_required
+def descargar_factura_view(request, ticket_id):
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+    vehicle_obj = ticket.vehicle
+    duracion = ticket.exit_time - ticket.entry_time
+    minutos = math.ceil(duracion.total_seconds() / 60)
+
+    context = {
+        "ticket": ticket,
+        "vehicle": vehicle_obj,
+        "cliente": vehicle_obj.client,
+        "minutos": minutos,
+        "fecha_entrada": ticket.entry_time,
+        "fecha_salida": ticket.exit_time,
+        "total": ticket.total_paid,
+    }
+
+    pdf = render_to_pdf('factura_pdf.html', context)
+    if pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="factura_{vehicle_obj.license_plate}_{ticket.id}.pdf"'
+        return response
+
+    return HttpResponse("Error generando PDF", status=500)
+
+#PERFIL DE CLIENTE
+
+@login_required
+def client_profile_view(request, id):
+    client_obj = get_object_or_404(Client, id=id)
+
+    vehiculos = Vehicle.objects.filter(client=client_obj)
+
+    tickets = Ticket.objects.filter(
+        vehicle__client=client_obj
+    ).order_by('-created_at')
+
+    total_visitas = tickets.count()
+    total_pagado = tickets.aggregate(
+        total=Coalesce(Sum("total_paid"), 0, output_field=DecimalField())
+    )["total"]
+
+    context = {
+        "cliente": client_obj,
+        "vehiculos": vehiculos,
+        "tickets": tickets[:10],
+        "total_visitas": total_visitas,
+        "total_pagado": total_pagado,
+    }
+    return render(request, "client_profile.html", context)

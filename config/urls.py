@@ -24,7 +24,9 @@ from infrastructure.views import (
     employee_create_view,
     employee_update_view,
     employee_delete_view,
-    importar_clientes
+    importar_clientes,
+    descargar_factura_view,
+    client_profile_view
 )
 
 urlpatterns = [
@@ -43,12 +45,16 @@ urlpatterns = [
     path('employee/create/', employee_create_view, name='create_employee'),
     path('employee/update/<int:employee_id>/', employee_update_view, name='update_employee'),
     path('employee/delete/<int:employee_id>/', employee_delete_view, name='delete_employee'),
+    
     #Clientes
 
     path('clientes/', list_clients_view, name='list_clients'),
     path('clientes/create/', create_client_view, name='create_client'),
     path('clientes/edit/<int:id>/', edit_client_view, name='edit_client'),
     path('clientes/delete/<int:id>/', delete_client_view, name='delete_client'),
+    
+    #Perfil Cliente
+    path('clientes/<int:id>/perfil/', client_profile_view, name='client_profile'),
 
     #Vehículos
 
@@ -85,4 +91,9 @@ urlpatterns = [
 
     #tarifa
     path('tarifas/', views.tarifa_view, name='tarifas'),
+
+    #factura
+    path('factura/<int:ticket_id>/', descargar_factura_view, name='descargar_factura'),
+
+
 ]

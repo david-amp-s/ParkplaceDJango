@@ -22,12 +22,17 @@ class EmployeeModel(models.Model):
 
 
 class Client(models.Model):
+    CLIENT_TYPES = [
+        ('REGULAR', 'Cliente Regular'),
+        ('SENA', 'Aprendiz SENA'),
+        ('TRABAJADOR', 'Trabajador'),
+    ]
+
     name = models.CharField(max_length=100)
     phone = models.CharField(max_length=20)
     email = models.CharField(max_length=100, null=True, blank=True)
+    client_type = models.CharField(max_length=20, choices=CLIENT_TYPES, default='REGULAR')
     created_at = models.DateTimeField(auto_now_add=True)
-    
-
 
     class Meta:
         db_table = 'client'
@@ -112,6 +117,8 @@ class Tarifa(models.Model):
     tarifa_moto = models.IntegerField(default=2000)
     descuento_registrado = models.IntegerField(default=20)  # porcentaje ej: 20 = 20%
     updated_at = models.DateTimeField(auto_now=True)
+    descuento_sena        = models.IntegerField(default=50)
+    descuento_trabajador  = models.IntegerField(default=30)
 
     class Meta:
         db_table = 'tarifa'

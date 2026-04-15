@@ -95,5 +95,8 @@ urlpatterns = [
     #factura
     path('factura/<int:ticket_id>/', descargar_factura_view, name='descargar_factura'),
 
+    #Historial excel
+    path('reportes/exportar-excel/', views.export_history_excel, name='export_history_excel'),
+
 
 ]

@@ -5,13 +5,12 @@
 {% block extra_css %}
 <style>
     :root {
-        --primary: #0f172a;    /* Azul ParkPlace */
-        --secondary: #64748b;  /* Gris de tus encabezados */
-        --border: #e2e8f0;     /* Color de tus bordes */
-        --bg-light: #f8fafc;   /* Fondo de tus th */
+        --primary: #0f172a;
+        --secondary: #64748b;
+        --border: #e2e8f0;
+        --bg-light: #f8fafc;
     }
 
-    /* Botón consistente con tu gestión de clientes */
     .btn { padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; cursor: pointer; border: none; display: inline-block; transition: 0.3s; }
     .btn-primary { background: #0f172a; color: white; border: 1px solid #1e293b; font-size: 14px; }
     .btn-primary:hover { background: #1e293b; }
@@ -65,11 +64,24 @@
 <div class="rep-container">
     <div class="header-actions">
         <h1 style="color: var(--primary); margin: 0; font-size: 28px;">Reportes de Operación</h1>
+
         <div style="display: flex; gap: 15px; align-items: center;">
-            <a href="{% url 'export_report_pdf' %}" class="btn btn-primary">Descargar PDF</a>
+            
+            <!-- BOTÓN PDF -->
+            <a href="{% url 'export_report_pdf' %}" class="btn btn-primary">
+                Descargar Reportes PDF
+            </a>
+
+            <!-- ✅ BOTÓN EXCEL (NUEVO) -->
+            <a href="{% url 'export_history_excel' %}" class="btn btn-primary">
+                Descargar Historial Excel
+            </a>
+
+            <!-- BADGE -->
             <div class="badge-stat">
                 Ocupación: {{ occupancy_rate }}%
             </div>
+
         </div>
     </div>
 
@@ -79,11 +91,13 @@
             <h3>${{ finanzas.hoy|floatformat:2 }}</h3>
             <small>{{ finanzas.tickets_hoy }} servicios cerrados</small>
         </div>
+
         <div class="rep-card" style="border-top: 4px solid var(--primary);">
             <label>Esta Semana</label>
             <h3>${{ finanzas.semana|floatformat:2 }}</h3>
             <span style="font-size: 12px; color: var(--secondary);">Acumulado 7 días</span>
         </div>
+
         <div class="rep-card" style="background: var(--primary); color: white;">
             <label style="color: #94a3b8;">Total {{ hoy|date:"F"|upper }}</label>
             <h3 style="color: white;">${{ finanzas.mes|floatformat:2 }}</h3>
@@ -94,6 +108,7 @@
     <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px;">
         
         <div style="display: flex; flex-direction: column; gap: 20px;">
+            
             <div class="rep-card">
                 <label>Tiempos de Estadía</label>
                 <div style="display: flex; justify-content: space-between; margin-top: 15px;">
@@ -127,6 +142,7 @@
                     </tbody>
                 </table>
             </div>
+
         </div>
 
         <div class="rep-card">
@@ -141,7 +157,9 @@
                     <div class="peak-count">{{ h.cantidad }}</div>
                 </div>
                 {% empty %}
-                <p style="text-align: center; color: var(--secondary); padding: 20px;">No hay datos de ingresos hoy.</p>
+                <p style="text-align: center; color: var(--secondary); padding: 20px;">
+                    No hay datos de ingresos hoy.
+                </p>
                 {% endfor %}
             </div>
         </div>

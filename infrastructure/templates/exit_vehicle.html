@@ -45,23 +45,39 @@
             {% endif %}
         {% endfor %}
     {% endif %}
-
     {% endif %}
 
     {% if ticket_id %}
-    <div style="margin-top: 20px; padding: 20px; border-radius: 8px; background: #dcfce7; color: #166534; font-size: 16px;">
-        <p>Salida registrada correctamente.</p>
-        <p style="margin-top: 8px;">Placa: <strong>{{ placa }}</strong></p>
-        <p style="margin-top: 4px;">Total cobrado: <strong>${{ total }}</strong></p>
+    <div style="margin-top: 20px; padding: 20px; border-radius: 10px; background: #dcfce7; color: #166534;">
+        <h3 style="margin:0;">Salida registrada correctamente</h3>
+        
+        {% if cliente_nombre and cliente_nombre != "Visitante" %}
+            <p style="margin-top: 10px;">
+                La placa <strong>{{ placa }}</strong> está registrada a nombre de <strong>{{ cliente_nombre }}</strong>, la factura fue enviada al correo.
+            </p>
+        {% else %}
+            <p style="margin-top: 10px;">
+                La placa <strong>{{ placa }}</strong> corresponde a un vehículo visitante.
+            </p>
+        {% endif %}
+
+        <p style="margin-top: 5px;">
+            Total cobrado: <strong style="font-size:18px;">${{ total }}</strong>
+        </p>
+
+        <p style="margin-top: 5px;">
+            
+        </p>
     </div>
 
-    <a href="/factura/{{ ticket_id }}/" onclick="setTimeout(() => { window.location.href='/salida/'; }, 500);"
-       style="display:block; margin-top:12px; background:#1e3a8a; color:white; padding:14px 30px; border-radius:6px; font-weight:bold; width:100%; text-align:center; text-decoration:none;">
+    <a href="/factura/{{ ticket_id }}/"
+       onclick="setTimeout(() => { window.location.href='/salida/?clear=1'; }, 500);"
+       style="display:block; margin-top:15px; background:#0f172a; color:white; padding:14px; border-radius:8px; font-weight:bold; text-align:center; text-decoration:none;">
         Descargar Factura PDF
     </a>
 
-    <a href="/salida/"
-       style="display:block; margin-top:8px; background:#64748b; color:white; padding:14px 30px; border-radius:6px; font-weight:bold; width:100%; text-align:center; text-decoration:none;">
+    <a href="/salida/?clear=1"
+       style="display:block; margin-top:10px; background:#64748b; color:white; padding:14px; border-radius:8px; font-weight:bold; text-align:center; text-decoration:none;">
         Registrar otra salida
     </a>
     {% endif %}

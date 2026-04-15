@@ -7,6 +7,8 @@ from datetime import date, timedelta
 from decimal import Decimal
 from .decorators import login_required, admin_required
 
+from .utils import build_history_excel
+
 #Django
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -18,6 +20,7 @@ from django.core.mail import send_mass_mail, EmailMessage
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse, HttpResponse
+
 
 #Utilidades e Infraestructura
 from domain.use_cases.client_import_service import ClientImportService
@@ -144,14 +147,24 @@ def parking_status_view(request):
     for spot in all_spots_from_db:
         ticket = None
         is_occupied = (spot.status == "OCCUPIED")
+        tiempo = None
 
         if is_occupied:
-            ticket = Ticket.objects.filter(parking_spot=spot, status='ACTIVE').first()
+            ticket = Ticket.objects.filter(
+                parking_spot=spot,
+                status='ACTIVE'
+            ).first()
+
+            if ticket:
+                duracion = now() - ticket.entry_time
+                minutos = math.floor(duracion.total_seconds() / 60)
+                tiempo = minutos
 
         spots_with_info.append({
             "spot": spot,
             "ticket": ticket,
-            "is_occupied": is_occupied
+            "is_occupied": is_occupied,
+            "tiempo": tiempo
         })
 
     return render(request, "parking_status.html", {
@@ -483,6 +496,11 @@ def entry_vehicle_view(request):
 
 @login_required
 def exit_vehicle_view(request):
+
+    # limpiar session si viene ?clear=1
+    if request.GET.get('clear'):
+        request.session.pop('last_ticket_id', None)
+
     if request.method == 'POST':
         plate_text = request.POST.get('license_plate', '').strip().upper()
 
@@ -538,21 +556,37 @@ Adjuntamos tu factura.
                 except Exception as e:
                     print("Error enviando correo:", e)
 
-            return redirect(f'/salida/?ticket_id={ticket.id}&total={ticket.total_paid}&placa={plate_text}')
+            # guardar ticket en session
+            request.session['last_ticket_id'] = ticket.id
+
+            return redirect('/salida/')
 
         except Vehicle.DoesNotExist:
             messages.error(request, f"No se encontró ningún vehículo con la placa {plate_text}.")
         except Exception as e:
             messages.error(request, str(e))
 
-    ticket_id = request.GET.get('ticket_id')
-    total = request.GET.get('total')
-    placa = request.GET.get('placa')
+    # recuperar ticket
+    ticket_id = request.session.get('last_ticket_id')
+
+    ticket = None
+    total = None
+    placa = None
+
+    if ticket_id:
+        try:
+            ticket = Ticket.objects.get(id=ticket_id)
+            total = ticket.total_paid
+            placa = ticket.vehicle.license_plate
+        except:
+            request.session.pop('last_ticket_id', None)
+            ticket_id = None
 
     return render(request, 'exit_vehicle.html', {
         'ticket_id': ticket_id,
         'total': total,
         'placa': placa,
+        "cliente_nombre": ticket.vehicle.client.name if ticket else None,
     })
 
 #TICKET
@@ -789,3 +823,21 @@ def client_profile_view(request, id):
         "total_pagado": total_pagado,
     }
     return render(request, "client_profile.html", context)
+
+#HISTORIAL EXCEL
+
+from .utils import build_history_excel
+
+@admin_required
+def export_history_excel(request):
+    tickets = Ticket.objects.select_related('vehicle__client', 'parking_spot').all()
+
+    wb = build_history_excel(tickets)
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename=historial.xlsx'
+
+    wb.save(response)
+    return response

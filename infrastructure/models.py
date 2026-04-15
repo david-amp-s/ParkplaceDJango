@@ -91,6 +91,7 @@ class Ticket(models.Model):
 
     class Meta:
         db_table = 'ticket'
+        ordering = ['-entry_time'] 
 
 
 class Payment(models.Model):

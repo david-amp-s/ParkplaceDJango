@@ -78,25 +78,35 @@
 <div class="grid">
 
     {% for item in all_spots %}
-        
-        {% if item.is_occupied %}
-            <div class="spot occupied">
-                <span class="number-label">Espacio {{ item.spot.number }}</span>
-                <small class="status-badge">Placa: {{ item.ticket.vehicle.license_plate }}</small>
-                <small style="margin-top: 5px; opacity: 0.9; font-size: 11px;">Ocupado</small>
-            </div>
-        {% else %}
-            <div class="spot available">
-                <span class="number-label">Espacio {{ item.spot.number }}</span>
-                <small class="status-badge">Disponible</small>
-            </div>
-        {% endif %}
+    
+    {% if item.is_occupied %}
+        <div class="spot occupied">
+            <span class="number-label">Espacio {{ item.spot.number }}</span>
 
-    {% empty %}
-        <div style="grid-column: 1 / -1; text-align: center; padding: 50px; background: #f1f5f9; border-radius: 15px;">
-            <p style="color: #64748b; font-size: 18px;">No hay espacios configurados en el sistema.</p>
+            <small class="status-badge">
+                {{ item.ticket.vehicle.license_plate }}
+            </small>
+
+            <small style="margin-top: 5px; font-size: 11px;">
+                {{ item.tiempo }}
+            </small>
+
+            <small style="margin-top: 2px; font-size: 10px;">
+                Ocupado
+            </small>
         </div>
-    {% endfor %}
+    {% else %}
+        <div class="spot available">
+            <span class="number-label">Espacio {{ item.spot.number }}</span>
+            <small class="status-badge">Disponible</small>
+        </div>
+    {% endif %}
+
+{% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 50px;">
+        No hay espacios
+    </div>
+{% endfor %}
 
 </div>
 

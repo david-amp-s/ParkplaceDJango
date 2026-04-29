@@ -82,6 +82,7 @@ class Ticket(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
     parking_spot = models.ForeignKey(ParkingSpot, on_delete=models.CASCADE)
     employee = models.ForeignKey(EmployeeModel, on_delete=models.SET_NULL, null=True)
+    tarifa = models.ForeignKey('Tarifa', on_delete=models.SET_NULL, null=True, blank=True)
 
     entry_time = models.DateTimeField()
     exit_time = models.DateTimeField(null=True, blank=True)
@@ -120,6 +121,7 @@ class Tarifa(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     descuento_sena        = models.IntegerField(default=50)
     descuento_trabajador  = models.IntegerField(default=30)
+    
 
     class Meta:
         db_table = 'tarifa'

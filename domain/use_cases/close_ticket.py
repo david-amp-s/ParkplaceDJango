@@ -30,7 +30,6 @@ class CloseTicket:
 
         total = minutos_a_cobrar * tarifa_minuto
 
-        #Descuento según tipo de cliente
         if vehicle.client:
             nombre = vehicle.client.name.strip().lower()
             tipo = getattr(vehicle.client, 'client_type', 'REGULAR')
@@ -44,6 +43,7 @@ class CloseTicket:
                     total = total * (1 - config.descuento_registrado / 100)
 
         ticket.exit_time = exit_time
+        ticket.tarifa = config
         ticket.total_paid = int(total)
         ticket.status = "CLOSED"
         self.ticket_repo.save(ticket)
@@ -52,5 +52,3 @@ class CloseTicket:
             self.spot_repo.free(ticket.parking_spot_id)
 
         return ticket
-    
-    

@@ -106,7 +106,13 @@
         <ul class="clean-list">
             {% for v in vehicle_stats %}
                 <li>
-                    <strong>{{ v.vehicle__type|upper|default:"N/A" }}:</strong> {{ v.total_services|default:0 }} servicios
+                    <strong>
+                        {% if v.vehicle__type == 'CAR' %}Carro
+                        {% elif v.vehicle__type == 'MOTORCYCLE' %}Moto
+                        {% elif v.vehicle__type == 'BICYCLE' %}Bici
+                        {% else %}{{ v.vehicle__type }}
+                        {% endif %}:
+                    </strong> {{ v.total_services|default:0 }} servicios
                 </li>
             {% empty %}
                 <li>No hay datos registrados.</li>

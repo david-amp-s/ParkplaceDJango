@@ -72,7 +72,7 @@
                 Descargar Reportes PDF
             </a>
 
-            <!-- ✅ BOTÓN EXCEL (NUEVO) -->
+            <!-- BOTÓN EXCEL -->
             <a href="{% url 'export_history_excel' %}" class="btn btn-primary">
                 Descargar Historial Excel
             </a>
@@ -135,7 +135,14 @@
                     <tbody>
                         {% for v in vehicle_stats %}
                         <tr>
-                            <td><strong>{{ v.vehicle__type }}</strong></td>
+                            <td>
+                                <strong>
+                                    {% if v.vehicle__type == 'CAR' %}CARRO
+                                    {% elif v.vehicle__type == 'MOTORCYCLE' %}MOTO
+                                    {% else %}{{ v.vehicle__type }}
+                                    {% endif %}
+                                </strong>
+                            </td>
                             <td style="text-align: right; font-weight: 700;">{{ v.total_services }}</td>
                         </tr>
                         {% endfor %}

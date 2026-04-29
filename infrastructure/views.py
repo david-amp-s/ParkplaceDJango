@@ -183,11 +183,19 @@ def list_employees(request):
 @admin_required
 def employee_create_view(request):
     if request.method == "POST":
-        name = request.POST.get("name")
+        name = request.POST.get("name", "").strip()
         phone = request.POST.get("phone")
-        username = request.POST.get("username")
+        username = request.POST.get("username", "").strip()
         password = request.POST.get("password")
         role = request.POST.get("role")
+
+        if len(name) > 15:
+            messages.error(request, "El nombre no puede superar los 15 caracteres.")
+            return render(request, "create_employee.html")
+
+        if len(username) > 15:
+            messages.error(request, "El usuario no puede superar los 15 caracteres.")
+            return render(request, "create_employee.html")
 
         hashed_password = make_password(password)
 
@@ -208,11 +216,21 @@ def employee_update_view(request, employee_id):
     employee = get_object_or_404(EmployeeModel, id=employee_id)
 
     if request.method == "POST":
-        employee.name = request.POST.get("name")
+        name = request.POST.get("name", "").strip()
+        username = request.POST.get("username", "").strip()
+
+        if len(name) > 15:
+            messages.error(request, "El nombre no puede superar los 15 caracteres.")
+            return render(request, "update_employee.html", {"employee": employee})
+
+        if len(username) > 15:
+            messages.error(request, "El usuario no puede superar los 15 caracteres.")
+            return render(request, "update_employee.html", {"employee": employee})
+
+        employee.name = name
         employee.phone = request.POST.get("phone")
-        employee.username = request.POST.get("username")
-        role = request.POST.get("role")
-        employee.role = role
+        employee.username = username
+        employee.role = request.POST.get("role")
 
         password = request.POST.get("password")
         if password:
@@ -221,8 +239,7 @@ def employee_update_view(request, employee_id):
         employee.save()
         return redirect("/employee/")
 
-    context = {"employee": employee}
-    return render(request, "update_employee.html", context)
+    return render(request, "update_employee.html", {"employee": employee})
 
 
 @admin_required
@@ -267,6 +284,10 @@ def create_client_view(request):
                 messages.error(request, "El nombre del cliente solo puede contener letras.")
                 return render(request, 'create_client.html', {'form': form})
 
+            if len(nombre.strip()) > 15:
+                messages.error(request, "El nombre del cliente no puede superar los 15 caracteres.")
+                return render(request, 'create_client.html', {'form': form})
+
             repo = DjangoClientRepository()
             use_case = CreateClient(repo)
 
@@ -282,9 +303,7 @@ def create_client_view(request):
         else:
             messages.error(request, "Error en el formulario")
 
-    return render(request, 'create_client.html', {
-        'form': form
-    })
+    return render(request, 'create_client.html', {'form': form})
 
 
 @login_required
@@ -299,6 +318,10 @@ def edit_client_view(request, id):
 
             if not re.match(r"^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$", nuevo_nombre):
                 messages.error(request, "El nombre del cliente no puede contener números ni caracteres especiales.")
+                return render(request, 'edit_client.html', {'form': form, 'client': client_obj})
+
+            if len(nuevo_nombre.strip()) > 15:
+                messages.error(request, "El nombre del cliente no puede superar los 15 caracteres.")
                 return render(request, 'edit_client.html', {'form': form, 'client': client_obj})
 
             client_obj.name = nuevo_nombre
@@ -322,7 +345,6 @@ def edit_client_view(request, id):
         })
 
     return render(request, 'edit_client.html', {'form': form, 'client': client_obj})
-
 
 @login_required
 def delete_client_view(request, id):

@@ -37,18 +37,48 @@
         font-size: 14px;
     }
 
-    table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
-    th { background: #f8fafc; color: #64748b; padding: 15px 20px; font-size: 12px; text-transform: uppercase; }
-    td { padding: 16px 20px; font-size: 14px; }
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        background: white; 
+        border-radius: 8px; 
+        overflow: hidden;
+        table-layout: fixed;
+    }
+    th { 
+        background: #f8fafc; 
+        color: #64748b; 
+        padding: 15px 12px; 
+        font-size: 12px; 
+        text-transform: uppercase;
+        text-align: left;
+    }
+    td { 
+        padding: 16px 12px; 
+        font-size: 14px; 
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 
-    .plate-badge { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
-    .type-tag { font-size: 11px; background: #f8fafc; padding: 2px 8px; border-radius: 12px; }
+    /* Anchos fijos por columna */
+    col.col-placa      { width: 110px; }
+    col.col-tipo       { width: 80px; }
+    col.col-propietario{ width: 150px; }
+    col.col-espacio    { width: 80px; }
+    col.col-entrada    { width: 130px; }
+    col.col-salida     { width: 130px; }
+    col.col-total      { width: 80px; }
+    col.col-estado     { width: 90px; }
+    col.col-factura    { width: 60px; }
+
+    .plate-badge { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 13px; }
+    .type-tag { font-size: 11px; background: #f8fafc; padding: 2px 8px; border-radius: 12px; border: 1px solid #e2e8f0; }
 
     .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
     .badge-active { background: #dcfce7; color: #166534; }
     .badge-closed { background: #f1f5f9; color: #475569; }
 
-    /* 🔥 BOTÓN PEQUEÑO */
     .btn-factura {
         background: #e2e8f0;
         color: #334155;
@@ -58,10 +88,7 @@
         text-decoration: none;
         border: 1px solid #cbd5e1;
     }
-
-    .btn-factura:hover {
-        background: #cbd5e1;
-    }
+    .btn-factura:hover { background: #cbd5e1; }
 
     tr:hover { background-color: #f8fafc; }
 </style>
@@ -80,6 +107,17 @@
 </form>
 
 <table>
+    <colgroup>
+        <col class="col-placa">
+        <col class="col-tipo">
+        <col class="col-propietario">
+        <col class="col-espacio">
+        <col class="col-entrada">
+        <col class="col-salida">
+        <col class="col-total">
+        <col class="col-estado">
+        <col class="col-factura">
+    </colgroup>
     <thead>
         <tr>
             <th>Placa</th>
@@ -90,7 +128,7 @@
             <th>Salida</th>
             <th>Total</th>
             <th style="text-align:center;">Estado</th>
-            <th style="text-align:center; width:60px;">Factura</th> <!-- 🔥 mínima -->
+            <th style="text-align:center;">Factura</th>
         </tr>
     </thead>
 
@@ -135,7 +173,6 @@
                 {% endif %}
             </td>
 
-            <!-- 🔥 FACTURA DISCRETA -->
             <td style="text-align:center;">
                 {% if ticket.status == 'CLOSED' %}
                     <a href="/factura/{{ ticket.id }}/" class="btn-factura">PDF</a>
@@ -143,7 +180,6 @@
                     <span style="color:#cbd5e1;">--</span>
                 {% endif %}
             </td>
-
         </tr>
         {% empty %}
         <tr>

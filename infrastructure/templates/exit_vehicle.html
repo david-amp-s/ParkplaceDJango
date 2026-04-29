@@ -8,24 +8,79 @@
     <p>Escriba la placa para calcular el tiempo y el total a pagar.</p>
     <hr style="margin-bottom: 20px; border: 0; border-top: 1px solid #eee;">
 
+    {% if not ticket_id %}
     <form method="post" autocomplete="off">
         {% csrf_token %}
         <div style="margin-bottom: 20px;">
-            <label style="display:block; margin-bottom:8px; font-weight:bold;">Placa del Vehículo:</label>
-            <input type="text" name="license_plate" id="exit_license_plate" 
-       placeholder="Ej: ABC123" maxlength="6" required 
-       style="width:100%; padding:12px; border-radius:6px; border:1px solid #cbd5e1; text-transform: uppercase; font-size: 18px;">
+            <label style="display:block; margin-bottom:8px; font-weight:bold;">
+                Placa del Vehículo:
+            </label>
+            <input
+                type="text"
+                name="license_plate"
+                placeholder="Ej: ABC123"
+                maxlength="6"
+                required
+                style="width:100%; padding:12px; border-radius:6px; border:1px solid #cbd5e1; text-transform: uppercase; font-size: 18px;"
+            >
         </div>
 
-        <button type="submit" style="background:#1e3a8a; color:white; border:none; padding:14px 30px; border-radius:6px; cursor:pointer; font-weight:bold; width: 100%;">
+        <button
+            type="submit"
+            style="background:#1e3a8a; color:white; border:none; padding:14px 30px; border-radius:6px; cursor:pointer; font-weight:bold; width:100%;">
             Procesar Salida y Cobro
         </button>
     </form>
 
-    {% if error %}
-        <div style="margin-top: 20px; padding: 15px; background: #fee2e2; color: #b91c1c; border-radius: 6px; font-weight: bold;">
-             {{ error }}
-        </div>
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                <div style="margin-top: 20px; padding: 15px; border-radius: 6px; font-weight: bold; background: #fee2e2; color: #b91c1c;">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div style="margin-top: 20px; padding: 15px; border-radius: 6px; font-weight: bold; background: #dcfce7; color: #166534;">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
     {% endif %}
+    {% endif %}
+
+    {% if ticket_id %}
+    <div style="margin-top: 20px; padding: 20px; border-radius: 10px; background: #dcfce7; color: #166534;">
+        <h3 style="margin:0;">Salida registrada correctamente</h3>
+        
+        {% if cliente_nombre and cliente_nombre != "Visitante" %}
+            <p style="margin-top: 10px;">
+                La placa <strong>{{ placa }}</strong> está registrada a nombre de <strong>{{ cliente_nombre }}</strong>, la factura fue enviada al correo.
+            </p>
+        {% else %}
+            <p style="margin-top: 10px;">
+                La placa <strong>{{ placa }}</strong> corresponde a un vehículo visitante.
+            </p>
+        {% endif %}
+
+        <p style="margin-top: 5px;">
+            Total cobrado: <strong style="font-size:18px;">${{ total }}</strong>
+        </p>
+
+        <p style="margin-top: 5px;">
+            
+        </p>
+    </div>
+
+    <a href="/factura/{{ ticket_id }}/"
+       onclick="setTimeout(() => { window.location.href='/salida/?clear=1'; }, 500);"
+       style="display:block; margin-top:15px; background:#0f172a; color:white; padding:14px; border-radius:8px; font-weight:bold; text-align:center; text-decoration:none;">
+        Descargar Factura PDF
+    </a>
+
+    <a href="/salida/?clear=1"
+       style="display:block; margin-top:10px; background:#64748b; color:white; padding:14px; border-radius:8px; font-weight:bold; text-align:center; text-decoration:none;">
+        Registrar otra salida
+    </a>
+    {% endif %}
+
 </div>
 {% endblock %}

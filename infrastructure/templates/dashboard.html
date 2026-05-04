@@ -85,8 +85,19 @@
         margin-top: 15px;
     }
     .feedback { margin-top: 8px; font-size: 13px; font-weight: 500; }
+
+    /* MAPA */
+    #map {
+        height: 350px;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
 </style>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 {% endblock %} 
+
 
 {% block content %}
 <div class="dashboard-container" style="width: 100%; padding: 0 10px; box-sizing: border-box;">
@@ -215,85 +226,113 @@
             </table>
         </div>
     </div>
+
+    <!-- MAPA -->
+    <div class="card">
+        <h3><i class="fa-solid fa-map-location-dot"></i> Ubicación del Parqueadero</h3>
+        <div id="map"></div>
+    </div>
+
 </div>
 {% endblock %} 
+
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    function importarClientes() {
-        const btn = document.getElementById("btnImport");
-        const feedback = document.getElementById("feedback");
+function importarClientes() {
+    const btn = document.getElementById("btnImport");
+    const feedback = document.getElementById("feedback");
 
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Importando...';
-        feedback.innerText = "Conectando con el servicio Java...";
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Importando...';
+    feedback.innerText = "Conectando con el servicio Java...";
 
-        fetch("/importar-clientes/")
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    feedback.innerText = "✅ " + data.message;
-                    feedback.style.color = "#059669";
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    feedback.innerText = "❌ " + data.message;
-                    feedback.style.color = "#dc2626";
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-database"></i> Cargar 500 clientes';
-                }
-            })
-            .catch(() => {
-                feedback.innerText = "Error de conexión";
+    fetch("/importar-clientes/")
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                feedback.innerText = "✅ " + data.message;
+                feedback.style.color = "#059669";
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                feedback.innerText = "❌ " + data.message;
                 feedback.style.color = "#dc2626";
                 btn.disabled = false;
-            });
+                btn.innerHTML = '<i class="fa-solid fa-database"></i> Cargar 500 clientes';
+            }
+        })
+        .catch(() => {
+            feedback.innerText = "Error de conexión";
+            feedback.style.color = "#dc2626";
+            btn.disabled = false;
+        });
+}
+</script>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var map = L.map('map').setView([4.651242, -74.0625102], 17);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    L.marker([4.651242, -74.0625102]).addTo(map)
+        .bindPopup('📍 ParkPlace')
+        .openPopup();
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const etiquetas = JSON.parse(document.getElementById("tipos-data").textContent);
+    const datos = JSON.parse(document.getElementById("cantidades-data").textContent);
+
+    const traducciones = { 'CAR': 'Carro', 'MOTORCYCLE': 'Moto', 'BICYCLE': 'Bici' };
+    const etiquetasTraducidas = etiquetas.map(e => traducciones[e] || e);
+
+    const canvas = document.getElementById("vehiculosChart");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    if (!etiquetas || etiquetas.length === 0) {
+        ctx.font = "14px Segoe UI";
+        ctx.fillStyle = "#94a3b8";
+        ctx.textAlign = "center";
+        ctx.fillText("No hay datos hoy", canvas.width / 2, canvas.height / 2);
+        return;
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const etiquetas = JSON.parse(document.getElementById("tipos-data").textContent);
-        const datos = JSON.parse(document.getElementById("cantidades-data").textContent);
-
-        const traducciones = { 'CAR': 'Carro', 'MOTORCYCLE': 'Moto', 'BICYCLE': 'Bici' };
-        const etiquetasTraducidas = etiquetas.map(e => traducciones[e] || e);
-
-        const canvas = document.getElementById("vehiculosChart");
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d");
-
-        if (!etiquetas || etiquetas.length === 0) {
-            ctx.font = "14px Segoe UI";
-            ctx.fillStyle = "#94a3b8";
-            ctx.textAlign = "center";
-            ctx.fillText("No hay datos hoy", canvas.width / 2, canvas.height / 2);
-            return;
-        }
-
-        new Chart(ctx, {
-            type: "doughnut",
-            data: {
-                labels: etiquetasTraducidas,
-                datasets: [{
-                    data: datos,
-                    backgroundColor: ["#38bdf8", "#818cf8", "#fbbf24", "#34d399", "#f87171"],
-                    hoverOffset: 15,
-                    borderWidth: 2,
-                    borderColor: "#ffffff",
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: "70%",
-                plugins: {
-                    legend: {
-                        position: "bottom",
-                        labels: { usePointStyle: true, padding: 15 },
-                    },
+    new Chart(ctx, {
+        type: "doughnut",
+        data: {
+            labels: etiquetasTraducidas,
+            datasets: [{
+                data: datos,
+                backgroundColor: ["#38bdf8", "#818cf8", "#fbbf24", "#34d399", "#f87171"],
+                hoverOffset: 15,
+                borderWidth: 2,
+                borderColor: "#ffffff",
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "70%",
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: { usePointStyle: true, padding: 15 },
                 },
             },
-        });
+        },
     });
+});
 </script>
+
 {% endblock %}

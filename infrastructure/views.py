@@ -519,15 +519,26 @@ def entry_vehicle_view(request):
 @login_required
 def exit_vehicle_view(request):
 
-    # limpiar session si viene ?clear=1
     if request.GET.get('clear'):
         request.session.pop('last_ticket_id', None)
+        request.session.pop('last_ticket_method', None)
+
+    METODO_LABELS = {
+        'CASH': 'Efectivo',
+        'TRANSFER': 'Nequi',
+        'CARD': 'Tarjeta',
+    }
 
     if request.method == 'POST':
         plate_text = request.POST.get('license_plate', '').strip().upper()
+        payment_method = request.POST.get('payment_method', '').strip()
 
         if len(plate_text) > 6:
             messages.error(request, "La placa es inválida.")
+            return redirect('/salida/')
+
+        if payment_method not in ('CASH', 'TRANSFER', 'CARD'):
+            messages.error(request, "Selecciona un método de pago válido.")
             return redirect('/salida/')
 
         try:
@@ -538,6 +549,15 @@ def exit_vehicle_view(request):
                 DjangoParkingSpotRepository()
             )
             ticket = use_case.execute(vehicle_obj)
+
+            # Registrar el pago
+            from .models import Payment
+            Payment.objects.create(
+                ticket=ticket,
+                employee_id=request.session.get('user_id'),
+                method=payment_method,
+                amount=ticket.total_paid or 0,
+            )
 
             duracion = ticket.exit_time - ticket.entry_time
             minutos = math.ceil(duracion.total_seconds() / 60)
@@ -559,13 +579,7 @@ def exit_vehicle_view(request):
                 try:
                     email = EmailMessage(
                         subject="Factura ParkPlace",
-                        body=f"""
-Hola {cliente.name},
-
-Tu vehículo con placa {vehicle_obj.license_plate} ha salido del parqueadero.
-
-Adjuntamos tu factura.
-""",
+                        body=f"Hola {cliente.name},\n\nTu vehículo con placa {vehicle_obj.license_plate} ha salido del parqueadero.\n\nAdjuntamos tu factura.",
                         from_email=settings.EMAIL_HOST_USER,
                         to=[cliente.email],
                     )
@@ -578,9 +592,8 @@ Adjuntamos tu factura.
                 except Exception as e:
                     print("Error enviando correo:", e)
 
-            # guardar ticket en session
             request.session['last_ticket_id'] = ticket.id
-
+            request.session['last_ticket_method'] = payment_method
             return redirect('/salida/')
 
         except Vehicle.DoesNotExist:
@@ -588,8 +601,9 @@ Adjuntamos tu factura.
         except Exception as e:
             messages.error(request, str(e))
 
-    # recuperar ticket
+    # GET: recuperar ticket de session
     ticket_id = request.session.get('last_ticket_id')
+    payment_method = request.session.get('last_ticket_method')
 
     ticket = None
     total = None
@@ -600,15 +614,17 @@ Adjuntamos tu factura.
             ticket = Ticket.objects.get(id=ticket_id)
             total = ticket.total_paid
             placa = ticket.vehicle.license_plate
-        except:
+        except Exception:
             request.session.pop('last_ticket_id', None)
+            request.session.pop('last_ticket_method', None)
             ticket_id = None
 
     return render(request, 'exit_vehicle.html', {
         'ticket_id': ticket_id,
         'total': total,
         'placa': placa,
-        "cliente_nombre": ticket.vehicle.client.name if ticket else None,
+        'cliente_nombre': ticket.vehicle.client.name if ticket else None,
+        'metodo_display': METODO_LABELS.get(payment_method, payment_method or ''),
     })
 
 #TICKET
@@ -848,11 +864,11 @@ def client_profile_view(request, id):
 
 #HISTORIAL EXCEL
 
-from .utils import build_history_excel
-
 @admin_required
 def export_history_excel(request):
-    tickets = Ticket.objects.select_related('vehicle__client', 'parking_spot').all()
+    tickets = Ticket.objects.select_related(
+        'vehicle__client', 'parking_spot'
+    ).prefetch_related('payment_set').all()
 
     wb = build_history_excel(tickets)
 
@@ -860,6 +876,5 @@ def export_history_excel(request):
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
     response['Content-Disposition'] = 'attachment; filename=historial.xlsx'
-
     wb.save(response)
     return response

@@ -51,8 +51,7 @@ def build_history_excel(tickets):
     ws = wb.active
     ws.title = "Historial"
 
-    #Historial
-    headers = ["Placa", "Tipo", "Propietario", "Espacio", "Entrada", "Salida", "Total", "Estado"]
+    headers = ["Placa", "Tipo", "Propietario", "Espacio", "Entrada", "Salida", "Total", "Estado", "Pago"]
     ws.append(headers)
 
     for col in range(1, len(headers) + 1):
@@ -62,10 +61,19 @@ def build_history_excel(tickets):
         cell.alignment = styles["center"]
         cell.border = styles["border"]
 
+    METODOS = {
+        'CASH': 'Efectivo',
+        'TRANSFER': 'Nequi',
+        'CARD': 'Tarjeta',
+    }
+
     row = 2
 
     for t in tickets:
         estado = "En Curso" if t.status == "ACTIVE" else "Finalizado"
+
+        pago = t.payment_set.first()
+        metodo = METODOS.get(pago.method, pago.method) if pago else "--"
 
         ws.append([
             t.vehicle.license_plate,
@@ -73,24 +81,21 @@ def build_history_excel(tickets):
             t.vehicle.client.name if t.vehicle.client else "Visitante",
             f"#{t.parking_spot.number}" if t.parking_spot else "--",
             t.entry_time.strftime("%d/%m/%Y %H:%M") if t.entry_time else "",
-            t.exit_time.strftime("%d/%m/%Y %H:%M") if t.exit_time else "--:--",
+            t.exit_time.strftime("%d/%m/%Y %H:%M") if t.exit_time else "--",
             float(t.total_paid) if t.total_paid else 0,
-            estado
+            estado,
+            metodo,
         ])
 
-        for col in range(1, 9):
+        for col in range(1, len(headers) + 1):
             cell = ws.cell(row=row, column=col)
             cell.border = styles["border"]
-
-            if col in [2, 4, 8]:
+            if col in [2, 4, 8, 9]:
                 cell.alignment = styles["center"]
 
-        #Ingreso
         ws.cell(row=row, column=7).number_format = '"$"#,##0'
 
-        #Estado
         estado_cell = ws.cell(row=row, column=8)
-
         if t.status == "ACTIVE":
             estado_cell.fill = PatternFill(start_color="DCFCE7", end_color="DCFCE7", fill_type="solid")
             estado_cell.font = Font(bold=True, color="166534")
@@ -98,10 +103,14 @@ def build_history_excel(tickets):
             estado_cell.fill = PatternFill(start_color="F1F5F9", end_color="F1F5F9", fill_type="solid")
             estado_cell.font = Font(bold=True, color="475569")
 
+        pago_cell = ws.cell(row=row, column=9)
+        if pago:
+            pago_cell.fill = PatternFill(start_color="DBEAFE", end_color="DBEAFE", fill_type="solid")
+            pago_cell.font = Font(bold=True, color="1D4ED8")
+
         row += 1
 
-    widths = [15, 12, 25, 10, 20, 20, 15, 15]
-
+    widths = [15, 12, 25, 10, 20, 20, 15, 15, 12]
     for i, width in enumerate(widths, start=1):
         ws.column_dimensions[chr(64 + i)].width = width
 

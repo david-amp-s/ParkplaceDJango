@@ -61,16 +61,16 @@
         white-space: nowrap;
     }
 
-    /* Anchos fijos por columna */
     col.col-placa      { width: 110px; }
-    col.col-tipo       { width: 80px; }
-    col.col-propietario{ width: 150px; }
-    col.col-espacio    { width: 80px; }
-    col.col-entrada    { width: 130px; }
-    col.col-salida     { width: 130px; }
-    col.col-total      { width: 80px; }
-    col.col-estado     { width: 90px; }
-    col.col-factura    { width: 60px; }
+col.col-tipo       { width: 80px; }
+col.col-propietario{ width: 120px; }
+col.col-espacio    { width: 75px; }
+col.col-entrada    { width: 120px; }
+col.col-salida     { width: 120px; }
+col.col-total      { width: 75px; }
+col.col-estado     { width: 90px; }
+col.col-pago       { width: 85px; }
+col.col-factura    { width: 60px; }
 
     .plate-badge { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 13px; }
     .type-tag { font-size: 11px; background: #f8fafc; padding: 2px 8px; border-radius: 12px; border: 1px solid #e2e8f0; }
@@ -78,6 +78,16 @@
     .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
     .badge-active { background: #dcfce7; color: #166534; }
     .badge-closed { background: #f1f5f9; color: #475569; }
+
+    .badge-pago {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
 
     .btn-factura {
         background: #e2e8f0;
@@ -116,6 +126,7 @@
         <col class="col-salida">
         <col class="col-total">
         <col class="col-estado">
+        <col class="col-pago">
         <col class="col-factura">
     </colgroup>
     <thead>
@@ -128,6 +139,7 @@
             <th>Salida</th>
             <th>Total</th>
             <th style="text-align:center;">Estado</th>
+            <th style="text-align:center;">Pago</th>
             <th style="text-align:center;">Factura</th>
         </tr>
     </thead>
@@ -174,6 +186,24 @@
             </td>
 
             <td style="text-align:center;">
+                {% with ticket.payment_set.first as pago %}
+                    {% if pago %}
+                        {% if pago.method == 'CASH' %}
+                            <span class="badge-pago">Efectivo</span>
+                        {% elif pago.method == 'TRANSFER' %}
+                            <span class="badge-pago">Nequi</span>
+                        {% elif pago.method == 'CARD' %}
+                            <span class="badge-pago">Tarjeta</span>
+                        {% else %}
+                            <span class="badge-pago">{{ pago.method }}</span>
+                        {% endif %}
+                    {% else %}
+                        <span style="color:#cbd5e1;">--</span>
+                    {% endif %}
+                {% endwith %}
+            </td>
+
+            <td style="text-align:center;">
                 {% if ticket.status == 'CLOSED' %}
                     <a href="/factura/{{ ticket.id }}/" class="btn-factura">PDF</a>
                 {% else %}
@@ -183,7 +213,7 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="9" style="text-align:center; padding:40px; color:#94a3b8;">
+            <td colspan="10" style="text-align:center; padding:40px; color:#94a3b8;">
                 No se encontraron movimientos.
             </td>
         </tr>

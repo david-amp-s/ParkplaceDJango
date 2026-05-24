@@ -19,19 +19,6 @@
     }
     .card h2 { margin: 10px 0 0 0; font-size: 28px; color: #0f172a; }
     .card h4 { margin: 0; color: #64748b; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
-    
-    .weather-bar {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        padding: 12px 20px;
-        border-radius: 12px;
-        margin-bottom: 25px;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        color: #475569;
-        font-size: 14px;
-    }
 
     table { width: 100%; border-collapse: collapse; }
     table th { text-align: left; padding: 10px; color: #64748b; font-weight: 500; font-size: 12px; text-transform: uppercase; }
@@ -44,6 +31,8 @@
         font-weight: bold;
         text-transform: uppercase;
     }
+    .badge-active   { background-color: #ecfdf5; color: #059669; }
+    .badge-inactive { background-color: #f1f5f9; color: #475569; }
 
     .btn-action {
         background: #0f172a;
@@ -119,14 +108,6 @@
             <i class="fa-solid fa-paper-plane"></i>
             Enviar Recordatorio de Cierre
         </a>
-    </div>
-
-    <div class="weather-bar">
-        <i class="fa-solid fa-cloud-sun fa-lg" style="color: #38bdf8;"></i>
-        <span>
-            <strong>Estado del Tiempo:</strong> 
-            {{ clima|default:"Cargando datos del clima..." }}
-        </span>
     </div>
 
     <!-- Tarjetas KPI -->
@@ -213,7 +194,7 @@
                     <tr>
                         <td><strong style="color:#0f172a;">{{ t.vehicle.license_plate }}</strong></td>
                         <td>
-                            <span class="badge-status" style="background-color: {% if t.status == 'ACTIVE' %}#ecfdf5{% else %}#f1f5f9{% endif %}; color: {% if t.status == 'ACTIVE' %}#059669{% else %}#475569{% endif %};">
+                            <span class="badge-status {% if t.status == 'ACTIVE' %}badge-active{% else %}badge-inactive{% endif %}">
                                 {% if t.status == 'ACTIVE' %}En Curso{% else %}Finalizado{% endif %}
                             </span>
                         </td>

@@ -58,20 +58,6 @@
             Procesar Salida y Cobro
         </button>
     </form>
-
-    {% if messages %}
-        {% for message in messages %}
-            {% if message.tags == 'error' %}
-                <div style="margin-top: 20px; padding: 15px; border-radius: 6px; font-weight: bold; background: #fee2e2; color: #b91c1c;">
-                    {{ message }}
-                </div>
-            {% else %}
-                <div style="margin-top: 20px; padding: 15px; border-radius: 6px; font-weight: bold; background: #dcfce7; color: #166534;">
-                    {{ message }}
-                </div>
-            {% endif %}
-        {% endfor %}
-    {% endif %}
     {% endif %}
 
     {% if ticket_id %}

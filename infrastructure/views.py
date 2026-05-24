@@ -26,7 +26,6 @@ from django.http import JsonResponse, HttpResponse
 from domain.use_cases.client_import_service import ClientImportService
 from infrastructure.utils import render_to_pdf
 from .models import ParkingSpot, Vehicle, Client as ClientModel, Ticket, Client, EmployeeModel, Tarifa
-from .services import WeatherService
 
 #Formularios
 from .forms import ClientForm
@@ -121,7 +120,6 @@ def dashboard_view(request):
         .order_by("-created_at")[:5]
     )
 
-    estado_clima = WeatherService.get_clima_bogota()
 
     context = {
         "vehiculos_hoy": vehiculos_hoy,
@@ -131,7 +129,6 @@ def dashboard_view(request):
         "actividades_recientes": actividades,
         "tipos": [v["vehicle__type"] for v in vehiculos_por_tipo],
         "cantidades": [v["total"] for v in vehiculos_por_tipo],
-        "clima": estado_clima,
     }
 
     return render(request, "dashboard.html", context)
@@ -184,7 +181,7 @@ def list_employees(request):
 def employee_create_view(request):
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
-        phone = request.POST.get("phone")
+        phone = request.POST.get("phone", "").strip()
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password")
         role = request.POST.get("role")
@@ -195,6 +192,14 @@ def employee_create_view(request):
 
         if len(username) > 15:
             messages.error(request, "El usuario no puede superar los 15 caracteres.")
+            return render(request, "create_employee.html")
+
+        if len(password) > 20:
+            messages.error(request, "La contraseña no puede superar los 20 caracteres.")
+            return render(request, "create_employee.html")
+
+        if not phone.isdigit():
+            messages.error(request, "El teléfono solo puede contener números.")
             return render(request, "create_employee.html")
 
         hashed_password = make_password(password)
@@ -218,6 +223,7 @@ def employee_update_view(request, employee_id):
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
         username = request.POST.get("username", "").strip()
+        phone = request.POST.get("phone", "").strip()
 
         if len(name) > 15:
             messages.error(request, "El nombre no puede superar los 15 caracteres.")
@@ -227,12 +233,20 @@ def employee_update_view(request, employee_id):
             messages.error(request, "El usuario no puede superar los 15 caracteres.")
             return render(request, "update_employee.html", {"employee": employee})
 
+        if not phone.isdigit():
+            messages.error(request, "El teléfono solo puede contener números.")
+            return render(request, "update_employee.html", {"employee": employee})
+
         employee.name = name
-        employee.phone = request.POST.get("phone")
+        employee.phone = phone
         employee.username = username
         employee.role = request.POST.get("role")
 
         password = request.POST.get("password")
+        if password and len(password) > 20:
+            messages.error(request, "La contraseña no puede superar los 20 caracteres.")
+            return render(request, "update_employee.html", {"employee": employee})
+
         if password:
             employee.password = make_password(password)
 
@@ -488,10 +502,12 @@ def entry_vehicle_view(request):
         vehicle_type = request.POST.get('vehicle_type', 'CAR')
 
         if not plate_text:
-            return render(request, 'entry_vehicle.html', {'error': 'La placa es obligatoria'})
+            messages.error(request, 'La placa es obligatoria')
+            return redirect('/ingreso/')
 
         if len(plate_text) > 6:
-            return render(request, 'entry_vehicle.html', {'error': 'Placa inválida (máx 6)'})
+            messages.error(request, 'Placa inválida (máx 6)')
+            return redirect('/ingreso/')
 
         cliente_gen, _ = ClientModel.objects.get_or_create(
             name="Visitante", defaults={'phone': '000'}
@@ -511,7 +527,8 @@ def entry_vehicle_view(request):
             messages.success(request, f"Ingreso: {plate_text}")
             return redirect('/ingreso/')
         except Exception as e:
-            return render(request, 'entry_vehicle.html', {'error': str(e)})
+            messages.error(request, str(e))
+            return redirect('/ingreso/')
 
     return render(request, 'entry_vehicle.html')
 
@@ -598,8 +615,10 @@ def exit_vehicle_view(request):
 
         except Vehicle.DoesNotExist:
             messages.error(request, f"No se encontró ningún vehículo con la placa {plate_text}.")
+            return redirect('/salida/')
         except Exception as e:
             messages.error(request, str(e))
+            return redirect('/salida/')
 
     # GET: recuperar ticket de session
     ticket_id = request.session.get('last_ticket_id')

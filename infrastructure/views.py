@@ -438,25 +438,43 @@ def create_vehicle_view(request):
                 'error': f"La placa '{plate}' es demasiado larga (máx 6)."
             })
 
-        repo = DjangoVehicleRepository()
-        use_case = CreateVehicle(repo)
-
         try:
-            use_case.execute(plate, vehicle_type, client_id)
-            messages.success(request, "Vehículo registrado exitosamente.")
-            return redirect('/vehiculos/')
-        except IntegrityError:
-            clients = ClientModel.objects.all()
-            return render(request, 'create_vehicle.html', {
-                'clients': clients,
-                'error': f"El vehículo con placa {plate} ya está registrado."
-            })
-        except Exception as e:
-            clients = ClientModel.objects.all()
-            return render(request, 'create_vehicle.html', {
-                'clients': clients,
-                'error': f"Error: {str(e)}"
-            })
+            #Si ya existe el vehículo
+            vehiculo_existente = Vehicle.objects.get(license_plate=plate)
+            es_visitante = (
+                vehiculo_existente.client is None or
+                vehiculo_existente.client.name.strip().lower() == "visitante"
+            )
+
+            if es_visitante:
+                #Está en visitantes sin dueño
+                vehiculo_existente.client_id = client_id
+                vehiculo_existente.type = vehicle_type
+                vehiculo_existente.save()
+                messages.success(request, "Vehículo registrado exitosamente.")
+                return redirect('/vehiculos/')
+            else:
+                #Ya tiene dueño
+                clients = ClientModel.objects.all()
+                return render(request, 'create_vehicle.html', {
+                    'clients': clients,
+                    'error': f"El vehículo con placa {plate} ya está registrado a nombre de {vehiculo_existente.client.name}."
+                })
+
+        except Vehicle.DoesNotExist:
+            #No existe, crearlo normal
+            repo = DjangoVehicleRepository()
+            use_case = CreateVehicle(repo)
+            try:
+                use_case.execute(plate, vehicle_type, client_id)
+                messages.success(request, "Vehículo registrado exitosamente.")
+                return redirect('/vehiculos/')
+            except Exception as e:
+                clients = ClientModel.objects.all()
+                return render(request, 'create_vehicle.html', {
+                    'clients': clients,
+                    'error': f"Error: {str(e)}"
+                })
 
     clients = ClientModel.objects.all()
     return render(request, 'create_vehicle.html', {'clients': clients})

@@ -154,8 +154,14 @@ def parking_status_view(request):
 
             if ticket:
                 duracion = now() - ticket.entry_time
-                minutos = math.floor(duracion.total_seconds() / 60)
-                tiempo = minutos
+                total_segundos = int(duracion.total_seconds())
+                h = total_segundos // 3600
+                m = (total_segundos % 3600) // 60
+                s = total_segundos % 60
+                if h > 0:
+                    tiempo = f"{h}h {m}m {s}s"
+                else:
+                    tiempo = f"{m}m {s}s"
 
         spots_with_info.append({
             "spot": spot,
@@ -532,13 +538,15 @@ def entry_vehicle_view(request):
 
     return render(request, 'entry_vehicle.html')
 
-
 @login_required
 def exit_vehicle_view(request):
 
     if request.GET.get('clear'):
-        request.session.pop('last_ticket_id', None)
-        request.session.pop('last_ticket_method', None)
+        for key in ('last_ticket_id', 'last_ticket_method', 'preview_placa',
+                    'preview_total', 'preview_minutos', 'preview_segundos',
+                    'preview_entry_time'):
+            request.session.pop(key, None)
+        return redirect('/salida/')
 
     METODO_LABELS = {
         'CASH': 'Efectivo',
@@ -547,80 +555,125 @@ def exit_vehicle_view(request):
     }
 
     if request.method == 'POST':
-        plate_text = request.POST.get('license_plate', '').strip().upper()
-        payment_method = request.POST.get('payment_method', '').strip()
+        step = request.POST.get('step')
 
-        if len(plate_text) > 6:
-            messages.error(request, "La placa es inválida.")
-            return redirect('/salida/')
+        # ── PASO 1: buscar vehículo y calcular total sin cerrar ──
+        if step == 'preview':
+            for key in ('last_ticket_id', 'last_ticket_method', 'preview_placa',
+                        'preview_total', 'preview_minutos', 'preview_segundos',
+                        'preview_entry_time'):
+                request.session.pop(key, None)
 
-        if payment_method not in ('CASH', 'TRANSFER', 'CARD'):
-            messages.error(request, "Selecciona un método de pago válido.")
-            return redirect('/salida/')
+            plate_text = request.POST.get('license_plate', '').strip().upper()
 
-        try:
-            vehicle_obj = Vehicle.objects.get(license_plate=plate_text)
+            if not plate_text:
+                messages.error(request, "La placa es obligatoria.")
+                return redirect('/salida/')
 
-            use_case = CloseTicket(
-                DjangoTicketRepository(),
-                DjangoParkingSpotRepository()
-            )
-            ticket = use_case.execute(vehicle_obj)
+            if len(plate_text) > 6:
+                messages.error(request, "La placa es inválida.")
+                return redirect('/salida/')
 
-            # Registrar el pago
-            from .models import Payment
-            Payment.objects.create(
-                ticket=ticket,
-                employee_id=request.session.get('user_id'),
-                method=payment_method,
-                amount=ticket.total_paid or 0,
-            )
+            try:
+                vehicle_obj = Vehicle.objects.get(license_plate=plate_text)
+                use_case = CloseTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
+                data = use_case.preview(vehicle_obj)
 
-            duracion = ticket.exit_time - ticket.entry_time
-            minutos = math.ceil(duracion.total_seconds() / 60)
+                request.session['preview_placa'] = plate_text
+                request.session['preview_total'] = data['total']
+                request.session['preview_minutos'] = data['minutos']
+                request.session['preview_segundos'] = data['segundos_totales']
+                request.session['preview_entry_time'] = data['entry_time'].isoformat()
+                return redirect('/salida/')
 
-            context = {
-                "ticket": ticket,
-                "vehicle": vehicle_obj,
-                "cliente": vehicle_obj.client,
-                "minutos": minutos,
-                "fecha_entrada": ticket.entry_time,
-                "fecha_salida": ticket.exit_time,
-                "total": ticket.total_paid,
-            }
+            except Vehicle.DoesNotExist:
+                messages.error(request, f"No se encontró ningún vehículo con la placa {plate_text}.")
+                return redirect('/salida/')
+            except Exception as e:
+                messages.error(request, str(e))
+                return redirect('/salida/')
 
-            pdf = render_to_pdf('factura_pdf.html', context)
-            cliente = vehicle_obj.client
+        # ── PASO 2: confirmar método de pago y cerrar ticket ──
+        elif step == 'confirm':
+            plate_text = request.session.get('preview_placa', '')
+            payment_method = request.POST.get('payment_method', '').strip()
 
-            if pdf and cliente and cliente.email:
-                try:
-                    email = EmailMessage(
-                        subject="Factura ParkPlace",
-                        body=f"Hola {cliente.name},\n\nTu vehículo con placa {vehicle_obj.license_plate} ha salido del parqueadero.\n\nAdjuntamos tu factura.",
-                        from_email=settings.EMAIL_HOST_USER,
-                        to=[cliente.email],
-                    )
-                    email.attach(
-                        f"factura_{plate_text}_{ticket.id}.pdf",
-                        pdf,
-                        "application/pdf"
-                    )
-                    email.send()
-                except Exception as e:
-                    print("Error enviando correo:", e)
+            if not plate_text:
+                messages.error(request, "No hay ninguna búsqueda activa.")
+                return redirect('/salida/')
 
-            request.session['last_ticket_id'] = ticket.id
-            request.session['last_ticket_method'] = payment_method
-            return redirect('/salida/')
+            if payment_method not in ('CASH', 'TRANSFER', 'CARD'):
+                messages.error(request, "Debes seleccionar un método de pago.")
+                return redirect('/salida/')
 
-        except Vehicle.DoesNotExist:
-            messages.error(request, f"No se encontró ningún vehículo con la placa {plate_text}.")
-            return redirect('/salida/')
-        except Exception as e:
-            messages.error(request, str(e))
-            return redirect('/salida/')
+            try:
+                vehicle_obj = Vehicle.objects.get(license_plate=plate_text)
+                use_case = CloseTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
+                ticket = use_case.execute(vehicle_obj)
 
-    # GET: recuperar ticket de session
+                from .models import Payment
+                Payment.objects.create(
+                    ticket=ticket,
+                    employee_id=request.session.get('user_id'),
+                    method=payment_method,
+                    amount=ticket.total_paid or 0,
+                )
+
+                duracion = ticket.exit_time - ticket.entry_time
+                minutos = math.ceil(duracion.total_seconds() / 60)
+
+                context_pdf = {
+                    "ticket": ticket,
+                    "vehicle": vehicle_obj,
+                    "cliente": vehicle_obj.client,
+                    "minutos": minutos,
+                    "fecha_entrada": ticket.entry_time,
+                    "fecha_salida": ticket.exit_time,
+                    "total": ticket.total_paid,
+                }
+
+                pdf = render_to_pdf('factura_pdf.html', context_pdf)
+                cliente = vehicle_obj.client
+
+                if pdf and cliente and cliente.email:
+                    try:
+                        email = EmailMessage(
+                            subject="Factura ParkPlace",
+                            body=f"Hola {cliente.name},\n\nTu vehículo con placa {vehicle_obj.license_plate} ha salido del parqueadero.\n\nAdjuntamos tu factura.",
+                            from_email=settings.EMAIL_HOST_USER,
+                            to=[cliente.email],
+                        )
+                        email.attach(
+                            f"factura_{plate_text}_{ticket.id}.pdf",
+                            pdf,
+                            "application/pdf"
+                        )
+                        email.send()
+                    except Exception as e:
+                        print("Error enviando correo:", e)
+
+                for key in ('preview_placa', 'preview_total', 'preview_minutos',
+                            'preview_segundos', 'preview_entry_time'):
+                    request.session.pop(key, None)
+
+                request.session['last_ticket_id'] = ticket.id
+                request.session['last_ticket_method'] = payment_method
+                return redirect('/salida/')
+
+            except Vehicle.DoesNotExist:
+                messages.error(request, f"No se encontró ningún vehículo con la placa {plate_text}.")
+                for key in ('preview_placa', 'preview_total', 'preview_minutos',
+                            'preview_segundos', 'preview_entry_time'):
+                    request.session.pop(key, None)
+                return redirect('/salida/')
+            except Exception as e:
+                messages.error(request, str(e))
+                for key in ('preview_placa', 'preview_total', 'preview_minutos',
+                            'preview_segundos', 'preview_entry_time'):
+                    request.session.pop(key, None)
+                return redirect('/salida/')
+
+    # ── GET ──
     ticket_id = request.session.get('last_ticket_id')
     payment_method = request.session.get('last_ticket_method')
 
@@ -638,12 +691,44 @@ def exit_vehicle_view(request):
             request.session.pop('last_ticket_method', None)
             ticket_id = None
 
+    # Preview desde sesión
+    preview_placa   = request.session.get('preview_placa')
+    preview_total   = request.session.get('preview_total')
+    preview_segundos = request.session.get('preview_segundos')
+
+    # Construir display de tiempo
+    preview_tiempo_display = None
+    if preview_segundos is not None:
+        h = preview_segundos // 3600
+        m = (preview_segundos % 3600) // 60
+        s = preview_segundos % 60
+        if h > 0:
+            preview_tiempo_display = f"{h}h {m}m {s}s"
+        else:
+            preview_tiempo_display = f"{m}m {s}s"
+
+    # Tiempo real del ticket cerrado
+    ticket_tiempo_display = None
+    if ticket:
+        seg = int((ticket.exit_time - ticket.entry_time).total_seconds())
+        h = seg // 3600
+        m = (seg % 3600) // 60
+        s = seg % 60
+        if h > 0:
+            ticket_tiempo_display = f"{h}h {m}m {s}s"
+        else:
+            ticket_tiempo_display = f"{m}m {s}s"
+
     return render(request, 'exit_vehicle.html', {
         'ticket_id': ticket_id,
         'total': total,
         'placa': placa,
         'cliente_nombre': ticket.vehicle.client.name if ticket else None,
         'metodo_display': METODO_LABELS.get(payment_method, payment_method or ''),
+        'ticket_tiempo_display': ticket_tiempo_display,
+        'preview_placa': preview_placa,
+        'preview_total': preview_total,
+        'preview_tiempo_display': preview_tiempo_display,
     })
 
 #TICKET
@@ -835,13 +920,22 @@ def descargar_factura_view(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
     vehicle_obj = ticket.vehicle
     duracion = ticket.exit_time - ticket.entry_time
-    minutos = math.ceil(duracion.total_seconds() / 60)
+    total_segundos = int(duracion.total_seconds())
+
+    h = total_segundos // 3600
+    m = (total_segundos % 3600) // 60
+    s = total_segundos % 60
+
+    if h > 0:
+        tiempo_display = f"{h}h {m}m {s}s"
+    else:
+        tiempo_display = f"{m}m {s}s"
 
     context = {
         "ticket": ticket,
         "vehicle": vehicle_obj,
         "cliente": vehicle_obj.client,
-        "minutos": minutos,
+        "tiempo_display": tiempo_display,
         "fecha_entrada": ticket.entry_time,
         "fecha_salida": ticket.exit_time,
         "total": ticket.total_paid,

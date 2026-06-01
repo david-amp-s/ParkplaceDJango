@@ -4,7 +4,7 @@ class ClientForm(forms.Form):
 
     CLIENT_TYPES = [
         ('REGULAR', 'Cliente Regular'),
-        ('SENA', 'Aprendiz SENA 🎓'),
+        ('SENA', 'Aprendiz SENA'),
         ('TRABAJADOR', 'Trabajador'),
     ]
 

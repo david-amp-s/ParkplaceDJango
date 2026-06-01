@@ -52,7 +52,7 @@
                 <option value="" disabled selected>Seleccione el dueño...</option>
                 {% for client in clients %}
                     <option value="{{ client.id }}">
-                        {{ client.name }} {% if client.client_type == "SENA" %}(SENA 🎓){% endif %}
+                        {{ client.name }} {% if client.client_type == "SENA" %}(SENA){% endif %}
                     </option>
                 {% endfor %}
             </select>

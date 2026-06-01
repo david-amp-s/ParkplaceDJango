@@ -8,27 +8,18 @@ class CloseTicket:
         self.ticket_repo = ticket_repo
         self.spot_repo = spot_repo
 
-    def execute(self, vehicle):
-        ticket = self.ticket_repo.get_active_by_vehicle(vehicle.id)
-
-        if not ticket:
-            raise Exception(f"No hay ticket activo para la placa {vehicle.license_plate}")
-
+    def _calcular_total(self, ticket, vehicle, exit_time):
         config = Tarifa.get_config()
 
-        if vehicle.type == 'MOTORCYCLE':
-            tarifa_minuto = config.tarifa_moto / 60
-        else:
-            tarifa_minuto = config.tarifa_carro / 60
+        tarifa_minuto = (
+            config.tarifa_moto / 60
+            if vehicle.type == 'MOTORCYCLE'
+            else config.tarifa_carro / 60
+        )
 
-        exit_time = timezone.now()
         duration = exit_time - ticket.entry_time
-        minutos_a_cobrar = math.ceil(duration.total_seconds() / 60)
-
-        if minutos_a_cobrar <= 0:
-            minutos_a_cobrar = 1
-
-        total = minutos_a_cobrar * tarifa_minuto
+        minutos = max(math.ceil(duration.total_seconds() / 60), 1)
+        total = minutos * tarifa_minuto
 
         if vehicle.client:
             nombre = vehicle.client.name.strip().lower()
@@ -36,15 +27,45 @@ class CloseTicket:
 
             if nombre != "visitante":
                 if tipo == 'SENA':
-                    total = total * (1 - config.descuento_sena / 100)
+                    total *= (1 - config.descuento_sena / 100)
                 elif tipo == 'TRABAJADOR':
-                    total = total * (1 - config.descuento_trabajador / 100)
+                    total *= (1 - config.descuento_trabajador / 100)
                 else:
-                    total = total * (1 - config.descuento_registrado / 100)
+                    total *= (1 - config.descuento_registrado / 100)
+
+        return int(total), minutos, config
+
+    def preview(self, vehicle):
+        ticket = self.ticket_repo.get_active_by_vehicle(vehicle.id)
+
+        if not ticket:
+            raise Exception(f"No hay ticket activo para la placa {vehicle.license_plate}")
+
+        exit_time = timezone.now()
+        duration = exit_time - ticket.entry_time
+        total_segundos = int(duration.total_seconds())
+
+        total, minutos, _ = self._calcular_total(ticket, vehicle, exit_time)
+
+        return {
+            "total": total,
+            "minutos": minutos,
+            "segundos_totales": total_segundos,
+            "entry_time": ticket.entry_time,
+        }
+
+    def execute(self, vehicle):
+        ticket = self.ticket_repo.get_active_by_vehicle(vehicle.id)
+
+        if not ticket:
+            raise Exception(f"No hay ticket activo para la placa {vehicle.license_plate}")
+
+        exit_time = timezone.now()
+        total, _, config = self._calcular_total(ticket, vehicle, exit_time)
 
         ticket.exit_time = exit_time
         ticket.tarifa = config
-        ticket.total_paid = int(total)
+        ticket.total_paid = total
         ticket.status = "CLOSED"
         self.ticket_repo.save(ticket)
 

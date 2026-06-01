@@ -5,94 +5,134 @@
 {% block content %}
 <div class="card">
     <h1 style="color: #000000;">Registrar Salida</h1>
-    <p>Escriba la placa para calcular el tiempo y el total a pagar.</p>
     <hr style="margin-bottom: 20px; border: 0; border-top: 1px solid #eee;">
 
-    {% if not ticket_id %}
-    <form method="post" autocomplete="off" id="form-salida">
-        {% csrf_token %}
-        <input type="hidden" name="payment_method" id="hidden-method" value="">
-
-        <div style="margin-bottom: 20px;">
-            <label style="display:block; margin-bottom:8px; font-weight:bold;">
-                Placa del Vehículo:
-            </label>
-            <input
-                type="text"
-                name="license_plate"
-                placeholder="Ej: ABC123"
-                maxlength="6"
-                required
-                style="width:100%; padding:12px; border-radius:6px; border:1px solid #cbd5e1; text-transform: uppercase; font-size: 18px;"
-                oninput="this.value = this.value.toUpperCase()"
-            >
-        </div>
-
-        <div style="margin-bottom: 20px;">
-            <label style="display:block; margin-bottom:8px; font-weight:bold;">
-                Método de Pago utilizado:
-            </label>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-                <label style="display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid #cbd5e1; border-radius:6px; cursor:pointer; font-size:14px;" id="opt-CASH">
-                    <input type="radio" name="metodo_visual" value="CASH" onchange="selectMethod('CASH')" style="accent-color:#1e3a8a; width:16px; height:16px;">
-                    Efectivo
-                </label>
-                <label style="display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid #cbd5e1; border-radius:6px; cursor:pointer; font-size:14px;" id="opt-TRANSFER">
-                    <input type="radio" name="metodo_visual" value="TRANSFER" onchange="selectMethod('TRANSFER')" style="accent-color:#1e3a8a; width:16px; height:16px;">
-                    Nequi
-                </label>
-                <label style="display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid #cbd5e1; border-radius:6px; cursor:pointer; font-size:14px;" id="opt-CARD">
-                    <input type="radio" name="metodo_visual" value="CARD" onchange="selectMethod('CARD')" style="accent-color:#1e3a8a; width:16px; height:16px;">
-                    Tarjeta
-                </label>
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding:12px; border-radius:6px; margin-bottom:16px;
+                background:{% if message.tags == 'error' %}#fee2e2{% else %}#dcfce7{% endif %};
+                color:{% if message.tags == 'error' %}#991b1b{% else %}#166534{% endif %};">
+                {{ message }}
             </div>
-            <p id="method-error" style="color:#b91c1c; font-size:13px; display:none; margin:6px 0 0 0;">
-                Debes seleccionar un método de pago.
-            </p>
-        </div>
-
-        <button
-            type="button"
-            onclick="submitForm()"
-            style="background:#1e3a8a; color:white; border:none; padding:14px 30px; border-radius:6px; cursor:pointer; font-weight:bold; width:100%;">
-            Procesar Salida y Cobro
-        </button>
-    </form>
+        {% endfor %}
     {% endif %}
 
+    {# ── PASO 1: ingresar placa ── #}
+    {% if not ticket_id and not preview_placa %}
+        <p>Escriba la placa para calcular el tiempo y el total a pagar.</p>
+        <form method="post" autocomplete="off">
+            {% csrf_token %}
+            <input type="hidden" name="step" value="preview">
+
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; margin-bottom:8px; font-weight:bold;">
+                    Placa del Vehículo:
+                </label>
+                <input
+                    type="text"
+                    name="license_plate"
+                    placeholder="Ej: ABC123"
+                    maxlength="6"
+                    required
+                    style="width:100%; padding:12px; border-radius:6px; border:1px solid #cbd5e1; text-transform:uppercase; font-size:18px;"
+                    oninput="this.value = this.value.toUpperCase()"
+                >
+            </div>
+
+            <button type="submit"
+                style="background:#1e3a8a; color:white; border:none; padding:14px 30px; border-radius:6px; cursor:pointer; font-weight:bold; width:100%;">
+                Buscar Vehículo
+            </button>
+        </form>
+    {% endif %}
+
+    {# ── PASO 2: mostrar total y elegir método ── #}
+    {% if preview_placa and not ticket_id %}
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:20px; border-radius:10px; margin-bottom:24px;">
+            <p style="margin:0 0 8px 0; font-size:14px;">Placa: <strong>{{ preview_placa }}</strong></p>
+            <p style="margin:0 0 8px 0; font-size:14px;">Tiempo: <strong>{{ preview_tiempo_display }}</strong></p>
+            <p style="margin:0; font-size:14px;">
+                Total a cobrar: <strong style="font-size:26px; color:#166534;">${{ preview_total }}</strong>
+            </p>
+        </div>
+
+        <form method="post" autocomplete="off" id="form-salida">
+            {% csrf_token %}
+            <input type="hidden" name="step" value="confirm">
+            <input type="hidden" name="payment_method" id="hidden-method" value="">
+
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; margin-bottom:8px; font-weight:bold;">
+                    Método de Pago utilizado:
+                </label>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <label style="display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid #cbd5e1; border-radius:6px; cursor:pointer; font-size:14px;" id="opt-CASH">
+                        <input type="radio" name="metodo_visual" value="CASH" onchange="selectMethod('CASH')" style="accent-color:#1e3a8a; width:16px; height:16px;">
+                        Efectivo
+                    </label>
+                    <label style="display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid #cbd5e1; border-radius:6px; cursor:pointer; font-size:14px;" id="opt-TRANSFER">
+                        <input type="radio" name="metodo_visual" value="TRANSFER" onchange="selectMethod('TRANSFER')" style="accent-color:#1e3a8a; width:16px; height:16px;">
+                        Nequi
+                    </label>
+                    <label style="display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid #cbd5e1; border-radius:6px; cursor:pointer; font-size:14px;" id="opt-CARD">
+                        <input type="radio" name="metodo_visual" value="CARD" onchange="selectMethod('CARD')" style="accent-color:#1e3a8a; width:16px; height:16px;">
+                        Tarjeta
+                    </label>
+                </div>
+                <p id="method-error" style="color:#b91c1c; font-size:13px; display:none; margin:6px 0 0 0;">
+                    Debes seleccionar un método de pago.
+                </p>
+            </div>
+
+            <button type="button" onclick="submitForm()"
+                style="background:#1e3a8a; color:white; border:none; padding:14px 30px; border-radius:6px; cursor:pointer; font-weight:bold; width:100%;">
+                Confirmar y Cobrar
+            </button>
+
+            <a href="/salida/?clear=1"
+               style="display:block; margin-top:10px; background:#64748b; color:white; padding:14px; border-radius:8px; font-weight:bold; text-align:center; text-decoration:none;">
+                Cancelar
+            </a>
+        </form>
+    {% endif %}
+
+    {# ── CONFIRMACIÓN ── #}
     {% if ticket_id %}
-    <div style="margin-top: 20px; padding: 20px; border-radius: 10px; background: #dcfce7; color: #166534;">
-        <h3 style="margin:0;">Salida registrada correctamente</h3>
-
-        {% if cliente_nombre and cliente_nombre != "Visitante" %}
-            <p style="margin-top: 10px;">
-                La placa <strong>{{ placa }}</strong> está registrada a nombre de <strong>{{ cliente_nombre }}</strong>, la factura fue enviada al correo.
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:20px; border-radius:10px; margin-bottom:24px;">
+            <p style="margin:0 0 8px 0; font-weight:bold; font-size:15px; color:#166534;">
+                ✓ Salida registrada correctamente
             </p>
-        {% else %}
-            <p style="margin-top: 10px;">
-                La placa <strong>{{ placa }}</strong> corresponde a un vehículo visitante.
+
+            {% if cliente_nombre and cliente_nombre != "Visitante" %}
+                <p style="margin:8px 0; font-size:14px;">
+                    Placa: <strong>{{ placa }}</strong> — registrada a nombre de <strong>{{ cliente_nombre }}</strong>, factura enviada al correo.
+                </p>
+            {% else %}
+                <p style="margin:8px 0; font-size:14px;">
+                    Placa: <strong>{{ placa }}</strong> — vehículo visitante.
+                </p>
+            {% endif %}
+
+            <p style="margin:8px 0; font-size:14px;">Tiempo: <strong>{{ ticket_tiempo_display }}</strong></p>
+
+            <p style="margin:8px 0; font-size:14px;">
+                Total cobrado: <strong style="font-size:26px; color:#166534;">${{ total }}</strong>
             </p>
-        {% endif %}
+            <p style="margin:8px 0; font-size:14px;">
+                Método de pago utilizado: <strong>{{ metodo_display }}</strong>
+            </p>
+        </div>
 
-        <p style="margin-top: 5px;">
-            Total cobrado: <strong style="font-size:18px;">${{ total }}</strong>
-        </p>
+        <a href="/factura/{{ ticket_id }}/"
+           onclick="setTimeout(() => { window.location.href='/salida/?clear=1'; }, 500);"
+           style="display:block; background:#0f172a; color:white; padding:14px; border-radius:8px; font-weight:bold; text-align:center; text-decoration:none;">
+            Descargar Factura PDF
+        </a>
 
-        <p style="margin-top: 5px;">
-            Método de pago: <strong>{{ metodo_display }}</strong>
-        </p>
-    </div>
-
-    <a href="/factura/{{ ticket_id }}/"
-       onclick="setTimeout(() => { window.location.href='/salida/?clear=1'; }, 500);"
-       style="display:block; margin-top:15px; background:#0f172a; color:white; padding:14px; border-radius:8px; font-weight:bold; text-align:center; text-decoration:none;">
-        Descargar Factura PDF
-    </a>
-
-    <a href="/salida/?clear=1"
-       style="display:block; margin-top:10px; background:#64748b; color:white; padding:14px; border-radius:8px; font-weight:bold; text-align:center; text-decoration:none;">
-        Registrar otra salida
-    </a>
+        <a href="/salida/?clear=1"
+           style="display:block; margin-top:10px; background:#64748b; color:white; padding:14px; border-radius:8px; font-weight:bold; text-align:center; text-decoration:none;">
+            Registrar otra salida
+        </a>
     {% endif %}
 
 </div>
@@ -112,8 +152,10 @@ function selectMethod(value) {
 }
 
 function submitForm() {
-    if (!document.getElementById('hidden-method').value) {
+    var method = document.getElementById('hidden-method').value;
+    if (!method) {
         document.getElementById('method-error').style.display = 'block';
+        document.getElementById('method-error').scrollIntoView({ behavior: 'smooth' });
         return;
     }
     document.getElementById('form-salida').submit();

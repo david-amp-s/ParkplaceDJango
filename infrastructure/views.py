@@ -21,7 +21,6 @@ from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse, HttpResponse
 
-
 #Utilidades e Infraestructura
 from domain.use_cases.client_import_service import ClientImportService
 from infrastructure.utils import render_to_pdf
@@ -119,7 +118,6 @@ def dashboard_view(request):
         .select_related("vehicle")
         .order_by("-created_at")[:5]
     )
-
 
     context = {
         "vehiculos_hoy": vehiculos_hoy,
@@ -366,6 +364,7 @@ def edit_client_view(request, id):
 
     return render(request, 'edit_client.html', {'form': form, 'client': client_obj})
 
+
 @login_required
 def delete_client_view(request, id):
     client_obj = get_object_or_404(Client, id=id)
@@ -435,11 +434,10 @@ def create_vehicle_view(request):
             clients = ClientModel.objects.all()
             return render(request, 'create_vehicle.html', {
                 'clients': clients,
-                'error': f"La placa '{plate}' es demasiado larga (máx 6)."
+                'error': f"La placa '{plate}' es demasiado larga (max 6)."
             })
 
         try:
-            #Si ya existe el vehículo
             vehiculo_existente = Vehicle.objects.get(license_plate=plate)
             es_visitante = (
                 vehiculo_existente.client is None or
@@ -447,27 +445,24 @@ def create_vehicle_view(request):
             )
 
             if es_visitante:
-                #Está en visitantes sin dueño
                 vehiculo_existente.client_id = client_id
                 vehiculo_existente.type = vehicle_type
                 vehiculo_existente.save()
-                messages.success(request, "Vehículo registrado exitosamente.")
+                messages.success(request, "Vehiculo registrado exitosamente.")
                 return redirect('/vehiculos/')
             else:
-                #Ya tiene dueño
                 clients = ClientModel.objects.all()
                 return render(request, 'create_vehicle.html', {
                     'clients': clients,
-                    'error': f"El vehículo con placa {plate} ya está registrado a nombre de {vehiculo_existente.client.name}."
+                    'error': f"El vehiculo con placa {plate} ya esta registrado a nombre de {vehiculo_existente.client.name}."
                 })
 
         except Vehicle.DoesNotExist:
-            #No existe, crearlo normal
             repo = DjangoVehicleRepository()
             use_case = CreateVehicle(repo)
             try:
                 use_case.execute(plate, vehicle_type, client_id)
-                messages.success(request, "Vehículo registrado exitosamente.")
+                messages.success(request, "Vehiculo registrado exitosamente.")
                 return redirect('/vehiculos/')
             except Exception as e:
                 clients = ClientModel.objects.all()
@@ -506,13 +501,13 @@ def delete_vehicle_view(request, id):
         if esta_en_parqueadero:
             messages.error(
                 request,
-                f"No se puede eliminar el vehículo {vehicle_obj.license_plate} porque tiene un proceso activo."
+                f"No se puede eliminar el vehiculo {vehicle_obj.license_plate} porque tiene un proceso activo."
             )
             return redirect('/vehiculos/')
 
         placa = vehicle_obj.license_plate
         vehicle_obj.delete()
-        messages.success(request, f"Vehículo con placa {placa} eliminado exitosamente.")
+        messages.success(request, f"Vehiculo con placa {placa} eliminado exitosamente.")
         return redirect('/vehiculos/')
 
     return render(request, 'delete_vehicle.html', {'vehicle': vehicle_obj})
@@ -521,17 +516,39 @@ def delete_vehicle_view(request, id):
 
 @login_required
 def entry_vehicle_view(request):
+    # Si hay ticket pendiente de descarga, bloquear nuevo registro
+    ticket_pendiente_id = request.session.get('ticket_pendiente_id')
+    ticket_pendiente = None
+
+    if ticket_pendiente_id:
+        try:
+            ticket_pendiente = Ticket.objects.select_related(
+                'vehicle__client', 'parking_spot'
+            ).get(id=ticket_pendiente_id)
+        except Ticket.DoesNotExist:
+            request.session.pop('ticket_pendiente_id', None)
+            ticket_pendiente_id = None
+
     if request.method == 'POST':
+        # Bloquear si hay ticket pendiente
+        if ticket_pendiente:
+            return render(request, 'entry_vehicle.html', {
+                'ticket_pendiente': ticket_pendiente,
+                'error': "Debes descargar el comprobante del ingreso anterior antes de registrar uno nuevo."
+            })
+
         plate_text = request.POST.get('license_plate', '').strip().upper()
         vehicle_type = request.POST.get('vehicle_type', 'CAR')
 
         if not plate_text:
-            messages.error(request, 'La placa es obligatoria')
-            return redirect('/ingreso/')
+            return render(request, 'entry_vehicle.html', {
+                'error': "La placa es obligatoria."
+            })
 
         if len(plate_text) > 6:
-            messages.error(request, 'Placa inválida (máx 6)')
-            return redirect('/ingreso/')
+            return render(request, 'entry_vehicle.html', {
+                'error': "Placa invalida (max 6 caracteres)."
+            })
 
         cliente_gen, _ = ClientModel.objects.get_or_create(
             name="Visitante", defaults={'phone': '000'}
@@ -547,14 +564,50 @@ def entry_vehicle_view(request):
 
         use_case = CreateTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
         try:
-            use_case.execute(vehiculo_obj.id, None)
-            messages.success(request, f"Ingreso: {plate_text}")
+            ticket = use_case.execute(vehiculo_obj.id, None)
+            # Guardar en sesion como pendiente de descarga
+            request.session['ticket_pendiente_id'] = ticket.id
             return redirect('/ingreso/')
         except Exception as e:
-            messages.error(request, str(e))
-            return redirect('/ingreso/')
+            return render(request, 'entry_vehicle.html', {
+                'error': str(e)
+            })
 
-    return render(request, 'entry_vehicle.html')
+    return render(request, 'entry_vehicle.html', {
+        'ticket_pendiente': ticket_pendiente
+    })
+
+
+@login_required
+def descargar_ticket_entrada_view(request, ticket_id):
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+    vehicle_obj = ticket.vehicle
+
+    # Limpiar sesion ANTES de generar el PDF
+    if int(request.session.get('ticket_pendiente_id', 0)) == ticket_id:
+        del request.session['ticket_pendiente_id']
+        request.session.modified = True
+        request.session.save()
+
+    context = {
+        "ticket": ticket,
+        "vehicle": vehicle_obj,
+        "cliente": vehicle_obj.client,
+        "fecha_entrada": ticket.entry_time,
+        "espacio": ticket.parking_spot,
+    }
+
+    pdf = render_to_pdf('ticket_entrada_pdf.html', context)
+
+    if pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = (
+            f'attachment; filename="comprobante_{vehicle_obj.license_plate}_{ticket.id}.pdf"'
+        )
+        return response
+
+    return HttpResponse("Error generando comprobante", status=500)
+
 
 @login_required
 def exit_vehicle_view(request):
@@ -575,7 +628,6 @@ def exit_vehicle_view(request):
     if request.method == 'POST':
         step = request.POST.get('step')
 
-        # ── PASO 1: buscar vehículo y calcular total sin cerrar ──
         if step == 'preview':
             for key in ('last_ticket_id', 'last_ticket_method', 'preview_placa',
                         'preview_total', 'preview_minutos', 'preview_segundos',
@@ -589,7 +641,7 @@ def exit_vehicle_view(request):
                 return redirect('/salida/')
 
             if len(plate_text) > 6:
-                messages.error(request, "La placa es inválida.")
+                messages.error(request, "La placa es invalida.")
                 return redirect('/salida/')
 
             try:
@@ -605,23 +657,22 @@ def exit_vehicle_view(request):
                 return redirect('/salida/')
 
             except Vehicle.DoesNotExist:
-                messages.error(request, f"No se encontró ningún vehículo con la placa {plate_text}.")
+                messages.error(request, f"No se encontro ningun vehiculo con la placa {plate_text}.")
                 return redirect('/salida/')
             except Exception as e:
                 messages.error(request, str(e))
                 return redirect('/salida/')
 
-        # ── PASO 2: confirmar método de pago y cerrar ticket ──
         elif step == 'confirm':
             plate_text = request.session.get('preview_placa', '')
             payment_method = request.POST.get('payment_method', '').strip()
 
             if not plate_text:
-                messages.error(request, "No hay ninguna búsqueda activa.")
+                messages.error(request, "No hay ninguna busqueda activa.")
                 return redirect('/salida/')
 
             if payment_method not in ('CASH', 'TRANSFER', 'CARD'):
-                messages.error(request, "Debes seleccionar un método de pago.")
+                messages.error(request, "Debes seleccionar un metodo de pago.")
                 return redirect('/salida/')
 
             try:
@@ -657,7 +708,7 @@ def exit_vehicle_view(request):
                     try:
                         email = EmailMessage(
                             subject="Factura ParkPlace",
-                            body=f"Hola {cliente.name},\n\nTu vehículo con placa {vehicle_obj.license_plate} ha salido del parqueadero.\n\nAdjuntamos tu factura.",
+                            body=f"Hola {cliente.name},\n\nTu vehiculo con placa {vehicle_obj.license_plate} ha salido del parqueadero.\n\nAdjuntamos tu factura.",
                             from_email=settings.EMAIL_HOST_USER,
                             to=[cliente.email],
                         )
@@ -679,7 +730,7 @@ def exit_vehicle_view(request):
                 return redirect('/salida/')
 
             except Vehicle.DoesNotExist:
-                messages.error(request, f"No se encontró ningún vehículo con la placa {plate_text}.")
+                messages.error(request, f"No se encontro ningun vehiculo con la placa {plate_text}.")
                 for key in ('preview_placa', 'preview_total', 'preview_minutos',
                             'preview_segundos', 'preview_entry_time'):
                     request.session.pop(key, None)
@@ -691,7 +742,6 @@ def exit_vehicle_view(request):
                     request.session.pop(key, None)
                 return redirect('/salida/')
 
-    # ── GET ──
     ticket_id = request.session.get('last_ticket_id')
     payment_method = request.session.get('last_ticket_method')
 
@@ -709,12 +759,10 @@ def exit_vehicle_view(request):
             request.session.pop('last_ticket_method', None)
             ticket_id = None
 
-    # Preview desde sesión
-    preview_placa   = request.session.get('preview_placa')
-    preview_total   = request.session.get('preview_total')
+    preview_placa    = request.session.get('preview_placa')
+    preview_total    = request.session.get('preview_total')
     preview_segundos = request.session.get('preview_segundos')
 
-    # Construir display de tiempo
     preview_tiempo_display = None
     if preview_segundos is not None:
         h = preview_segundos // 3600
@@ -725,7 +773,6 @@ def exit_vehicle_view(request):
         else:
             preview_tiempo_display = f"{m}m {s}s"
 
-    # Tiempo real del ticket cerrado
     ticket_tiempo_display = None
     if ticket:
         seg = int((ticket.exit_time - ticket.entry_time).total_seconds())
@@ -805,7 +852,7 @@ def enviar_recordatorio_cierre(request):
         cliente = t.vehicle.client
         if cliente.email:
             subject = "Parqueadero ParkPlace"
-            message = f"Hola {cliente.name}, tu vehículo con placa {t.vehicle.license_plate} sigue aquí. Faltan 20 min para el cierre. ⏰"
+            message = f"Hola {cliente.name}, tu vehiculo con placa {t.vehicle.license_plate} sigue aqui. Faltan 20 min para el cierre."
             mensajes.append((
                 subject, message, settings.EMAIL_HOST_USER, [cliente.email]
             ))

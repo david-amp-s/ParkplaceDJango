@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {
+    size: 80mm 150mm;
+    margin: 0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Arial, sans-serif;
+    background: #fff;
+    width: 80mm;
+    padding: 7mm 6mm;
+    color: #111;
+    font-size: 11px;
+  }
+  .header {
+    text-align: center;
+    border-bottom: 1px solid #111;
+    padding-bottom: 7px;
+    margin-bottom: 10px;
+  }
+  .header .nombre {
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 2px;
+  }
+  .header .subtitulo {
+    font-size: 9px;
+    color: #444;
+    margin-top: 2px;
+  }
+  .titulo-comprobante {
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .placa {
+    text-align: center;
+    font-size: 26px;
+    font-weight: bold;
+    letter-spacing: 5px;
+    border: 1px solid #111;
+    padding: 6px 4px;
+    margin-bottom: 10px;
+  }
+  .fila {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 5px;
+  }
+  .fila:last-child {
+    border-bottom: none;
+  }
+  .etiqueta {
+    font-size: 9px;
+    color: #555;
+    text-transform: uppercase;
+  }
+  .valor {
+    font-size: 11px;
+    font-weight: bold;
+    text-align: right;
+  }
+  .aviso {
+    text-align: center;
+    margin-top: 12px;
+    border-top: 1px solid #111;
+    padding-top: 8px;
+    font-size: 9px;
+    color: #333;
+    line-height: 1.6;
+  }
+  .ticket-num {
+    text-align: center;
+    font-size: 8px;
+    color: #aaa;
+    margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="nombre">PARKPLACE</div>
+    <div class="subtitulo">Sistema de Gestion de Parqueadero</div>
+  </div>
+
+  <div class="titulo-comprobante">Comprobante de Ingreso</div>
+
+  <div class="placa">{{ vehicle.license_plate }}</div>
+
+  <div class="fila">
+    <span class="etiqueta">Propietario</span>
+    <span class="valor">
+      {% if cliente and cliente.name != "Visitante" %}{{ cliente.name }}{% else %}Visitante{% endif %}
+    </span>
+  </div>
+
+  <div class="fila">
+    <span class="etiqueta">Tipo de vehiculo</span>
+    <span class="valor">{% if vehicle.type == "CAR" %}Carro{% else %}Moto{% endif %}</span>
+  </div>
+
+  <div class="fila">
+    <span class="etiqueta">Espacio asignado</span>
+    <span class="valor">{% if espacio %}{{ espacio }}{% else %}--{% endif %}</span>
+  </div>
+
+  <div class="fila">
+    <span class="etiqueta">Fecha de ingreso</span>
+    <span class="valor">{{ fecha_entrada|date:"d/m/Y" }}</span>
+  </div>
+
+  <div class="fila">
+    <span class="etiqueta">Hora de ingreso</span>
+    <span class="valor">{{ fecha_entrada|date:"h:i A" }}</span>
+  </div>
+
+  <div class="aviso">
+    Conserve este comprobante.<br>
+    Sera solicitado al retirar el vehiculo.
+  </div>
+
+  <div class="ticket-num">No. {{ ticket.id }}</div>
+
+</body>
+</html>

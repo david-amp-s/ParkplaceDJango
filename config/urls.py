@@ -97,6 +97,8 @@ urlpatterns = [
 
     #Historial excel
     path('reportes/exportar-excel/', views.export_history_excel, name='export_history_excel'),
-
+    
+    #Ticket Comprobante
+    path('ingreso/ticket/<int:ticket_id>/', views.descargar_ticket_entrada_view, name='ticket_entrada'),
 
 ]

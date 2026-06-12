@@ -1,0 +1,37 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environments
+venv/
+env/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# SQLite
+db.sqlite3
+
+# Variables de entorno
+.env
+
+# Archivos estáticos generados
+staticfiles/
+
+# Media
+media/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db

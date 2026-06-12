@@ -27,6 +27,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
 
@@ -96,9 +98,12 @@ USE_TZ = False
 
 
 STATIC_URL = '/static/'
+
 STATICFILES_DIRS = [
     BASE_DIR / "infrastructure/static",
 ]
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
 #EMAIL

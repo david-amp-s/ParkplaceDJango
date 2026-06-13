@@ -9,7 +9,9 @@ SECRET_KEY = 'django-insecure-2^(h58v!qs(w)zoshu19cz&j8n0fapce2hfvht^1x22lt2)mm=
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "parkplacedjango-production.up.railway.app",
+]
 
 
 INSTALLED_APPS = [

@@ -14,7 +14,9 @@ ALLOWED_HOSTS = [
     "parkplacedjango-production.up.railway.app",
 ]
 
-
+CSRF_TRUSTED_ORIGINS = [
+    "https://tu-app.up.railway.app",
+]
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

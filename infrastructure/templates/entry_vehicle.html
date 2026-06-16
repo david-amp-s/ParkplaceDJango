@@ -8,21 +8,32 @@
   <hr style="margin-bottom:20px; border:0; border-top:1px solid #eee;">
 
   {% if ticket_pendiente %}
-  <div style="background:#fefce8; border:1px solid #ca8a04; border-radius:8px; padding:16px; margin-bottom:20px;">
-    <p style="font-weight:bold; color:#92400e; font-size:14px; margin-bottom:8px;">
-      Comprobante pendiente de descarga
-    </p>
-    <p style="color:#333; font-size:13px; margin-bottom:2px;">Placa: <strong>{{ ticket_pendiente.vehicle.license_plate }}</strong></p>
-    <p style="color:#333; font-size:13px; margin-bottom:2px;">Espacio: {{ ticket_pendiente.parking_spot }}</p>
-    <p style="color:#333; font-size:13px; margin-bottom:12px;">Hora de ingreso: {{ ticket_pendiente.entry_time|date:"h:i A" }}</p>
-    <a href="/ingreso/ticket/{{ ticket_pendiente.id }}/"
-       onclick="setTimeout(function(){ window.location.href='/ingreso/'; }, 1500);"
-       style="display:inline-block; background:#1e3a8a; color:white; padding:10px 20px;
-              border-radius:6px; font-weight:bold; font-size:14px; text-decoration:none;">
-      Descargar comprobante de ingreso
-    </a>
-  </div>
-  {% endif %}
+<div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:20px; margin-bottom:24px;">
+  <p style="font-weight:bold; color:#166534; font-size:15px; margin-bottom:8px;">
+    ✓ Comprobante pendiente de descarga
+  </p>
+
+  <p style="color:#333; font-size:14px; margin-bottom:8px;">
+    Placa: <strong>{{ ticket_pendiente.vehicle.license_plate }}</strong>
+  </p>
+
+  <p style="color:#333; font-size:14px; margin-bottom:8px;">
+    Espacio: <strong>{{ ticket_pendiente.parking_spot.number }}</strong>
+  </p>
+
+  <p style="color:#333; font-size:14px; margin-bottom:16px;">
+    Hora de ingreso:
+    <strong>{{ ticket_pendiente.entry_time|date:"h:i A" }}</strong>
+  </p>
+
+  <a href="/ingreso/ticket/{{ ticket_pendiente.id }}/"
+     onclick="setTimeout(function(){ window.location.href='/ingreso/'; }, 1500);"
+     style="display:inline-block; background:#1e3a8a; color:white; padding:10px 20px;
+            border-radius:6px; font-weight:bold; font-size:14px; text-decoration:none;">
+    Descargar comprobante de ingreso
+  </a>
+</div>
+{% endif %}
 
   <form method="post" autocomplete="off" id="form-ingreso">
     {% csrf_token %}

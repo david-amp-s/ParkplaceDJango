@@ -106,15 +106,13 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
-#EMAIL
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+# EMAIL (Brevo vía API HTTP — reemplaza el bloque SMTP de Gmail)
+EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+DEFAULT_FROM_EMAIL = "proyectoparkplace@gmail.com"
 
-#Correo
-EMAIL_HOST_USER = 'proyectoparkplace@gmail.com'
-EMAIL_HOST_PASSWORD = 'uooj qduq wgrt opnn'
+ANYMAIL = {
+    "BREVO_API_KEY": os.environ.get("BREVO_API_KEY"),
+}
 
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+INSTALLED_APPS += ["anymail"]

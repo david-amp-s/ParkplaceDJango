@@ -516,7 +516,7 @@ def delete_vehicle_view(request, id):
 
 @login_required
 def entry_vehicle_view(request):
-    # Si hay ticket pendiente de descarga, bloquear nuevo registro
+    #loquear nuevo registro
     ticket_pendiente_id = request.session.get('ticket_pendiente_id')
     ticket_pendiente = None
 
@@ -530,7 +530,7 @@ def entry_vehicle_view(request):
             ticket_pendiente_id = None
 
     if request.method == 'POST':
-        # Bloquear si hay ticket pendiente
+        #Bloquear si hay ticket pendiente
         if ticket_pendiente:
             return render(request, 'entry_vehicle.html', {
                 'ticket_pendiente': ticket_pendiente,
@@ -565,7 +565,7 @@ def entry_vehicle_view(request):
         use_case = CreateTicket(DjangoTicketRepository(), DjangoParkingSpotRepository())
         try:
             ticket = use_case.execute(vehiculo_obj.id, None)
-            # Guardar en sesion como pendiente de descarga
+            #Guardar en sesion como pendiente de descarga
             request.session['ticket_pendiente_id'] = ticket.id
             return redirect('/ingreso/')
         except Exception as e:
@@ -583,7 +583,7 @@ def descargar_ticket_entrada_view(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
     vehicle_obj = ticket.vehicle
 
-    # Limpiar sesion ANTES de generar el PDF
+    #Limpiar sesion ANTES de generar el PDF
     if int(request.session.get('ticket_pendiente_id', 0)) == ticket_id:
         del request.session['ticket_pendiente_id']
         request.session.modified = True
